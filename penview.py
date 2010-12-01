@@ -1,1 +1,2 @@
-print "ho"
+hey = "hey"
+print hey + "ho"
