@@ -4,8 +4,8 @@
 import sys
 import sqlite3
 
-class experiment:
-
+class Experiment:
+    """access module (Datamodel) for an experiment"""
     debug = 0
     
     def create_experiment_table(self, p, append):
@@ -13,9 +13,8 @@ class experiment:
         self.conn = sqlite3.connect(p)
         self.c = self.conn.cursor()
         sql="""CREATE TABLE 'values' (t FLOAT, v1 FLOAT""" + append + """)"""
-        if self.debug == True: print "sql: " + str(sql)
-        self.c.execute(sql)
-        
+        if Experiment.debug == True: print "sql: " + str(sql)
+        self.c.execute(sql)     
        
     def __init__(self, p=':memory:', vn=2):
         """initiate a new experiment
