@@ -2,11 +2,11 @@
 # encoding: utf-8
 
 #import unittest
-from data_access import experiment
+from data_access import Experiment
 
 class test:
-    ## TODO an unittest anpassen
-    experiment.debug = 0
+    ## TODO: an unittest anpassen
+    Experiment.debug = 0
     debug = 1
     badtestcount = 0
     goodtestcount = 0
@@ -31,7 +31,7 @@ class test:
         for n in [2,12]:
             testcount += 1
             try: 
-                e = experiment(self.dbdestination,n)
+                e = Experiment(self.dbdestination,n)
             except Exception, e: 
                 errorcount += 1
                 if self.debug: self.errbuffer += str(e) + "\n"
@@ -45,14 +45,14 @@ class test:
             # Here come some tests     
             testcount += 1
             try: 
-                e = experiment(self.dbdestination,"blubber")
+                e = Experiment(self.dbdestination,"blubber")
             except Exception, e:
                 errorcount += 1
                 self.errbuffer += str(e) + "\n"
             for n in [-1,99,109,"blub"]:
                 testcount += 1
                 try: 
-                    e = experiment(self.dbdestination,n)
+                    e = Experiment(self.dbdestination,n)
                 except Exception, e: 
                     errorcount += 1
                     self.errbuffer += str(e) + "\n"
