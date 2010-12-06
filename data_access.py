@@ -5,7 +5,7 @@ import sys
 import sqlite3
 
 class Experiment:
-    """access module (Datamodel) for an experiment"""
+    """access module (Data model) for an experiment"""
     debug = 0
     
     def create_experiment_table(self, p, append):
@@ -24,6 +24,8 @@ class Experiment:
         "storage path" is :memory: if nothing is defined, 
         Database is lost when python quits! (ideal for testing)
         """
+        self.nvalues = vn;
+        
         ##TODO Abfangen, wenn die Tabelle bereits im Filesystem besteht
         
         # Test if 1st parameter has the right vartype
@@ -44,21 +46,36 @@ class Experiment:
                     err = "Input Error: Second parameter must be between 1 and "
                     err += str(maxvn) + " (v1 to v" + str(maxvn) + ")"
                     raise Exception(err)
-                    return None
                 self.create_experiment_table(p, append) 
             else:
                 raise Exception("Input Error: Second parameter must be an integer")
-                return None  
         else:
             raise Exception("Input Error: First parameter must be a string")
-            return None  
 
-    def store_values(a):
+    def store_values(self, a):
         """store values in table values"""
-        a = [[t],[v1],[v2]]
+#        a = [[t],[v1],[v2]]
+ 
+        if len(a[0])-1 != self.nvalues:
+            raise Exception("wrong number of values")
+ 
+        append = ""
+        for n in range(len(a[0])-1):
+            append += ", ?"
+ 
+        sql="INSERT INTO 'values' VALUES (?" + append + ")"
+        if Experiment.debug == True: print "sql: " + str(sql)
+ 
+        self.c.executemany(sql, a)
         
-    def load_experiment(p):
-        """load an experiment"""
+    def load_values(self):
+        """load the experiments values"""
+        
+        sql="SELECT * from 'values'"
+        if Experiment.debug == True: print "sql: " + str(sql)
+        self.c.execute(sql)
+        
+        return self.c.fetchall()
         
     def store_metadata(a):
         """store metadata in table metadata"""
@@ -79,6 +96,14 @@ class Experiment:
         ----------     """
         """"a = {"name":"value",
              }"""
+        
+        if type(a) != dict:
+            raise Exception("wrong type of argument")
+ 
+        sql="INSERT INTO 'metadata' VALUES (?, ?)"
+        if Experiment.debug == True: print "sql: " + str(sql)
+ 
+        self.c.executemany(sql, a)
         
 # Save (commit) the changes
 #conn.commit()

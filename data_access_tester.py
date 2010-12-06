@@ -6,7 +6,7 @@ from data_access import Experiment
 
 class test:
     ## TODO: an unittest anpassen
-    Experiment.debug = 0
+    Experiment.debug = 1
     debug = 1
     badtestcount = 0
     goodtestcount = 0
@@ -32,9 +32,21 @@ class test:
             testcount += 1
             try: 
                 e = Experiment(self.dbdestination,n)
+
+                values = []
+                for i in range(2):
+                    values += [[i] + [0] * n]
+                e.store_values(values)
+
+                result = e.load_values()
+                if result != [(0.0,) + n * (0.0,),
+                              (1.0,) + n * (0.0,)]:
+                    raise Exception("library malfunction")
+
             except Exception, e: 
                 errorcount += 1
                 if self.debug: self.errbuffer += str(e) + "\n"
+            
         self.goodtestcount = testcount
         self.gooderrorcount = errorcount
         
@@ -72,4 +84,4 @@ if test1.gooderrorcount == 0:
     print "gooderror(): OK"
 else:
     print "gooderror(): Not OK"
-    if self.debug: print "errbuffer: \n" + test1.errbuffer
+    if test1.debug: print "errbuffer: \n" + test1.errbuffer

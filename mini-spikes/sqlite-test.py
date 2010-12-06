@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# encoding: utf-8
 # vim:ts=4
 
 import sys
@@ -14,12 +15,13 @@ def create():
 
 # Insert a row of data
 def insert():
-	c.execute("""INSERT INTO sqlite VALUES (0, "null")""")
+	c.execute("""INSERT INTO sqlite VALUES (?, ?)""", (0, u"strüng"))
 
 def read():
 	c.execute("""SELECT * FROM sqlite""")
 	for row in c:
 		print row
+		print [type(v) for v in row] 
 
 create()
 insert()
