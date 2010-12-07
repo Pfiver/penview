@@ -2,12 +2,13 @@
 # encoding: utf-8
 
 #import unittest
+import os
 from data_access import Experiment
 
 class test:
     ## TODO: an unittest anpassen
-    Experiment.debug = 0
-    debug = 0
+    Experiment.debug = 1
+    debug = 1
     badtestcount = 0
     goodtestcount = 0
     baderrorcount = 0
@@ -16,7 +17,7 @@ class test:
     dbpath = '/tmp/'
     dbname = 'example'
     dbdestination = dbpath + dbname    
-    dbdestination = ':memory:'
+#    dbdestination = ':memory:'
        
     def __init__(self):
         self.goodtest()
@@ -41,11 +42,17 @@ class test:
                 result = e.load_values(0)
                 if result != [(0.0,) + n * (0.0,),
                               (1.0,) + n * (0.0,)]:
-                    raise Exception("library malfunction")
+                    print "res: %s" % result
+                    print "res: %s" % [(0.0,) + n * (0.0,), (1.0,) + n * (0.0,)]
+                    raise Exception("library malfunction 1")
+
+                e.close()
 
             except Exception, e: 
                 errorcount += 1
                 if self.debug: self.errbuffer += str(e) + "\n"
+
+            if self.dbdestination != ":memory:": os.unlink(self.dbdestination)
 
         # Some metadata table tests
         testcount += 1
@@ -58,11 +65,12 @@ class test:
                     e.store_metadata(metadata)
                     if not set(metadata.iteritems()) \
                         .issubset( set(e.load_metadata().iteritems()) ):
-                        raise Exception("library malfunction")
+                        raise Exception("library malfunction 2")
                 except Exception, ex:
                     errorcount += 1
                     if self.debug: self.errbuffer += str(ex) + "\n"
-                
+
+        if self.dbdestination != ":memory:": os.unlink(self.dbdestination)
         self.goodtestcount = testcount
         self.gooderrorcount = errorcount
         
@@ -85,7 +93,8 @@ class test:
             except Exception, e: 
                 errorcount += 1
 #                if self.debug: self.errbuffer += str(e) + "\n"
-            
+
+        if self.dbdestination != ":memory:": os.unlink(self.dbdestination)
         self.badtestcount = testcount
         self.baderrorcount = errorcount
     
@@ -95,7 +104,7 @@ if test1.baderrorcount == test1.badtestcount:
     print "baderror(): OK"
 else:
     print "baderror(): Panic!"
-    if self.debug: print "errbuffer: \n" + test1.errbuffer
+    if test1.debug: print "errbuffer: \n" + test1.errbuffer
     print "bad errorcount == " + str(test1.baderrorcount)
 if test1.gooderrorcount == 0:
     print "gooderror(): OK"

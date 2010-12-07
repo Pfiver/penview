@@ -64,18 +64,26 @@ class Experiment:
 
         ##TODO Abfangen, wenn die Tabelle bereits im Filesystem besteht
         
+        self.c.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        tables = [n[0] for n in self.c.fetchall()]
+        
         # Test if 1st parameter has the right vartype
         if type(p) != str:
             raise Exception("Input Error: First parameter must be a string")
         # Test if 2nd parameter has the right vartype
         if type(vn) != int:
             raise Exception("Input Error: Second parameter must be an integer")
-        
-        self.create_experiment_table(p, vn) 
-    
-        sql = "CREATE TABLE 'metadata' (name TEXT UNIQUE, value TEXT)"
-        if Experiment.debug == True: print "sql: " + str(sql)
-        self.c.execute(sql)
+
+        # TODO: dokumentieren
+        if 'values' not in tables and 'metadata' not in tables:
+            self.create_experiment_table(p, vn)
+            sql = "CREATE TABLE 'metadata' (name TEXT UNIQUE, value TEXT)"
+            if Experiment.debug == True: print "sql: " + str(sql)
+            self.c.execute(sql)
+        elif not ('values' in tables and 'metadata' in tables):
+            raise Exception("inconsistent database in %s - try another file" % p)
+ #       else:
+ #           pass # opening of an existing experiment
 
     def store_values(self, nr, a):
         """
@@ -113,7 +121,7 @@ class Experiment:
         if you DON'T specify n, the data is returned in an array like this: [[n,t,v1,v2,...]]
         """
 
-        if not nr: 
+        if nr == None: 
             sql = "SELECT * from 'values'"
             if Experiment.debug == True: print "sql: " + str(sql)
             self.c.execute(sql)
@@ -180,5 +188,13 @@ class Experiment:
 
         return dict(self.c.fetchall())
 
-
-
+    def close(self):
+        """
+        close the experiment
+        
+        write all data to the disk and close the connection to the database file
+        
+        after calling Experiment.close() the object must no longer be used
+        """
+        
+        self.conn.close()
