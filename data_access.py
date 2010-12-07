@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # encoding: utf-8
-# edit (test eclypse team sync...)
 
 import sys
 import sqlite3
@@ -10,7 +9,7 @@ class Experiment:
     access module (Data model) for an experiment
     
     the latest version of this code can be found on github:
-        https://github.com/P2000/penview>
+        https://github.com/P2000/penview
     (EpyDoc generated) documentation is available on wuala:
         http://content.wuala.com/contents/patrick2000/Shared/school/11_Projekt/Pendulum/Dokumentation/DB%20V3.pdf?dl=1
         
@@ -23,29 +22,26 @@ class Experiment:
     """
     debug = 0
     
-    def create_experiment_table(self, p, vn):
+    def create_experiment_table(self, p):
         """helper function for constructor (__init__)"""
 
         append = ""
-        minvn = 1
-        maxvn = 30
+        minv = 1
+        maxv = 30
         if self.debug == True: print "vn " + str(vn)
 
-        if vn == minvn:
-            pass
-        elif vn >= minvn + 1 and vn <= maxvn:
-            for n in range(vn-1):
-                append += ", v%d FLOAT" % (n+2)
-        else:
+        if self.nvalues < minv or self.nvalues > maxv:
             err = "Input Error: Second parameter must be between 1 and "
-            err += str(maxvn) + " (v1 to v" + str(maxvn) + ")"
+            err += str(maxv) + " (v1 to v" + str(maxv) + ")"
             raise Exception(err)
+
+        append = "".join(", v%d FLOAT" % n for n in range(2, self.nvalues+1))
 
         sql = "CREATE TABLE 'values' (n INT, t FLOAT, v1 FLOAT%s)" % append
         if Experiment.debug == True: print "sql: " + str(sql)
         self.c.execute(sql)
        
-    def __init__(self, p=':memory:', vn=2):
+    def __init__(self, p=':memory:', vn=1):
         """
         initiate a new experiment
         
@@ -76,7 +72,7 @@ class Experiment:
 
         # TODO: dokumentieren
         if 'values' not in tables and 'metadata' not in tables:
-            self.create_experiment_table(p, vn)
+            self.create_experiment_table(p)
             sql = "CREATE TABLE 'metadata' (name TEXT UNIQUE, value TEXT)"
             if Experiment.debug == True: print "sql: " + str(sql)
             self.c.execute(sql)
@@ -131,7 +127,7 @@ class Experiment:
             raise Exception("Experiment number must be given as an int")
 
         # construct a string like ", v2, v3, v4"
-        # vN are numbered from 1 to self.nvalues
+        # vN are numbered from 2 to self.nvalues
         append = "".join(", v%d" % n for n in range(2, self.nvalues+1))
         
         sql = "SELECT t, v1%s from 'values' WHERE n = %d" % (append, nr)

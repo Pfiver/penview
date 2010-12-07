@@ -7,8 +7,8 @@ from data_access import Experiment
 
 class test:
     ## TODO: an unittest anpassen
-    Experiment.debug = 1
-    debug = 1
+    Experiment.debug = 0
+    debug = 0
     badtestcount = 0
     goodtestcount = 0
     baderrorcount = 0
@@ -38,14 +38,24 @@ class test:
                 for i in range(2):
                     values += [[i] + [0] * n]
                 e.store_values(0, values)
-
+                
+                e.store_values(1, values)
+                
+                
                 result = e.load_values(0)
                 if result != [(0.0,) + n * (0.0,),
                               (1.0,) + n * (0.0,)]:
-                    print "res: %s" % result
-                    print "res: %s" % [(0.0,) + n * (0.0,), (1.0,) + n * (0.0,)]
+                    if self.debug: 
+                            print "res: %s" % result
+                            print "res: %s" % [(0.0,) + n * (0.0,), (1.0,) + n * (0.0,)]
+                    raise Exception("library malfunction 0")
+                allresults = e.load_values()
+                if allresults != [(0, 0.0) + n * (0.0,),
+                                  (0, 1.0) + n * (0.0,),
+                                  (1, 0.0) + n * (0.0,),
+                                  (1, 1.0) + n * (0.0,)]:
+                    if self.debug: print "res: %s" % allresults
                     raise Exception("library malfunction 1")
-
                 e.close()
 
             except Exception, e: 
