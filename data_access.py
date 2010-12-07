@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # encoding: utf-8
+# edit (test eclypse team sync...)
 
 import sys
 import sqlite3
