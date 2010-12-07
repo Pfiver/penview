@@ -6,8 +6,8 @@ from data_access import Experiment
 
 class test:
     ## TODO: an unittest anpassen
-    Experiment.debug = 1
-    debug = 1
+    Experiment.debug = 0
+    debug = 0
     badtestcount = 0
     goodtestcount = 0
     baderrorcount = 0
@@ -27,7 +27,7 @@ class test:
         testcount = 0
         errorcount = 0
 
-        # Here come some tests    
+        # Some value table tests    
         for n in [2,12]:
             testcount += 1
             try: 
@@ -36,9 +36,9 @@ class test:
                 values = []
                 for i in range(2):
                     values += [[i] + [0] * n]
-                e.store_values(values)
+                e.store_values(0, values)
 
-                result = e.load_values()
+                result = e.load_values(0)
                 if result != [(0.0,) + n * (0.0,),
                               (1.0,) + n * (0.0,)]:
                     raise Exception("library malfunction")
@@ -46,31 +46,48 @@ class test:
             except Exception, e: 
                 errorcount += 1
                 if self.debug: self.errbuffer += str(e) + "\n"
-            
+
+        # Some metadata table tests
+        testcount += 1
+        e = Experiment(self.dbdestination,1)
+
+        if 1:
+            for metadata in ({"x":"y"}, {"x":"z"}, {"name":"x1", "v1unit":"m/s^2"}):
+                testcount += 1
+                try:
+                    e.store_metadata(metadata)
+                    if not set(metadata.iteritems()) \
+                        .issubset( set(e.load_metadata().iteritems()) ):
+                        raise Exception("library malfunction")
+                except Exception, ex:
+                    errorcount += 1
+                    if self.debug: self.errbuffer += str(ex) + "\n"
+                
         self.goodtestcount = testcount
         self.gooderrorcount = errorcount
         
     def badtest(self):
-            """This Test should raise Errors"""
-            testcount = 0
-            errorcount = 0  
-            # Here come some tests     
+        """This Test should raise Errors"""
+        testcount = 0
+        errorcount = 0
+
+        # Some constructor tests
+        testcount += 1
+        try: 
+            e = Experiment(self.dbdestination,"blubber")
+        except Exception, e:
+            errorcount += 1
+#            if self.debug: self.errbuffer += str(e) + "\n"
+        for n in [-1,99,109,"blub"]:
             testcount += 1
             try: 
-                e = Experiment(self.dbdestination,"blubber")
-            except Exception, e:
+                e = Experiment(self.dbdestination,n)
+            except Exception, e: 
                 errorcount += 1
-                self.errbuffer += str(e) + "\n"
-            for n in [-1,99,109,"blub"]:
-                testcount += 1
-                try: 
-                    e = Experiment(self.dbdestination,n)
-                except Exception, e: 
-                    errorcount += 1
-                    self.errbuffer += str(e) + "\n"
-                
-            self.badtestcount = testcount
-            self.baderrorcount = errorcount
+#                if self.debug: self.errbuffer += str(e) + "\n"
+            
+        self.badtestcount = testcount
+        self.baderrorcount = errorcount
     
 test1 = test()
 
