@@ -9,7 +9,7 @@ class Experiment:
     access module (Data model) for an experiment
     
     the latest version of this code can be found on github:
-        https://github.com/P2000/penview
+        https://github.com/P2000/penview>
     (EpyDoc generated) documentation is available on wuala:
         http://content.wuala.com/contents/patrick2000/Shared/school/11_Projekt/Pendulum/Dokumentation/DB%20V3.pdf?dl=1
         
@@ -17,7 +17,7 @@ class Experiment:
     modified by Patrick Pfeifer
     
     Copyleft in December 2010 under the terms of the GNU GPL version 3 or any later version:
-        http://www.gnu.org/licenses/gpl.html 
+        http://www.gnu.org/licenses/gpl.html
 
     """
     debug = 0
@@ -48,6 +48,7 @@ class Experiment:
         """
         initiate a new experiment
         
+        :Parameters:
             p      is the filesystem path where the experiment will be stored
             vn     is the number of parameters (y-values) in the data-set
 
@@ -78,8 +79,13 @@ class Experiment:
     def store_values(self, nr, a):
         """
         store values a in 'values' table
-        ex. a = [[t],[v1],[v2]]
-        the data format is documented in "DB V3.pdf"
+        
+        :Parameters:
+            nr    data-set number
+            a     values - ex. array of [[t, v1, v2, ...]]
+            
+        the data format is documented in "DB V3.pdf":
+            http://content.wuala.com/contents/patrick2000/Shared/school/11_Projekt/Pendulum/Dokumentation/DB%20V3.pdf?dl=1
         """
  
         if type(nr) != int:
@@ -95,8 +101,22 @@ class Experiment:
 
         self.conn.commit()
 
-    def load_values(self, nr):
-        """load the experiments values"""
+    def load_values(self, nr=None):
+        """
+        load the experiments values
+        
+        :Parameters:
+            n    data series number (default: all)
+        
+        if you specify n, the data is returned in an array like this: [[t,v1,v2,...]]
+        if you DON'T specify n, the data is returned in an array like this: [[n,t,v1,v2,...]]
+        """
+
+        if not nr: 
+            sql = "SELECT * from 'values'"
+            if Experiment.debug == True: print "sql: " + str(sql)
+            self.c.execute(sql)
+            return self.c.fetchall()
 
         if type(nr) != int:
             raise Exception("Experiment number must be given as an int")
@@ -114,8 +134,12 @@ class Experiment:
     def store_metadata(self, a):
         """
         store metadata dictionary a in 'metadata' table, updating existing entries
-        ex. a = {"name":"value",...}
-        the metadata format is documented in "DB V3.pdf"
+        
+        :Parameters:
+            a    metadata dictionary - ex {"name":"value",...}
+
+        the metadata format is documented in "DB V3.pdf":
+            http://content.wuala.com/contents/patrick2000/Shared/school/11_Projekt/Pendulum/Dokumentation/DB%20V3.pdf?dl=1
         """
          
         if type(a) != dict:
