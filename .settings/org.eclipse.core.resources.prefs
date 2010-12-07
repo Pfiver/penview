@@ -1,5 +1,6 @@
-#Mon Dec 06 16:17:31 CET 2010
+#Tue Dec 07 11:31:14 CET 2010
 eclipse.preferences.version=1
 encoding//mini-spikes/sqlite-test.py=utf-8
 encoding/data_access.py=utf-8
+encoding/data_access_example.py=utf-8
 encoding/data_access_tester.py=utf-8
