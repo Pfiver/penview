@@ -5,7 +5,21 @@ import sys
 import sqlite3
 
 class Experiment:
-    """access module (Data model) for an experiment"""
+    """
+    access module (Data model) for an experiment
+    
+    the latest version of this code can be found on github:
+        https://github.com/P2000/penview
+    (EpyDoc generated) documentation is available on wuala:
+        http://content.wuala.com/contents/patrick2000/Shared/school/11_Projekt/Pendulum/Dokumentation/DB%20V3.pdf?dl=1
+        
+    initial version by Tobias Thüring
+    modified by Patrick Pfeifer
+    
+    Copyleft in December 2010 under the terms of the GNU GPL version 3 or any later version:
+        http://www.gnu.org/licenses/gpl.html 
+
+    """
     debug = 0
     
     def create_experiment_table(self, p, vn):
