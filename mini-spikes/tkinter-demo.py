@@ -1,11 +1,32 @@
 #!/usr/bin/python
 
 from Tkinter import *
+from threading import Thread
 
-root = Tk()
+root = None
+label = None
+button = None
 
-w = Label(root, text="Hello, world!")
-w.pack()
+def run():
+    global root, label, button
+    root = Frame()
+    root.bind("<Map>", printstuff)
+    
+    button = Button(root, text="Quit", command=root.quit)
+    button.pack(side=BOTTOM)
+    
+    label = Label(root, text="Hello, world!")
+    label.pack()
 
-root.mainloop()
+    scale = Scale(root)
+    scale.pack()
+
+    root.pack()
+    root.mainloop()
+
+def printstuff(event):
+    for w in root, label, button:
+        print w.pack_info()
+
+Thread(target=run).start()
 
