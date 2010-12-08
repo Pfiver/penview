@@ -35,7 +35,7 @@ result = e.load_values(1)
 
 print "\nresult exp1:\n" + str(result)
 
-# get results from all experiments series
+# get results from all experiment series
 allresults = e.load_values()
 
 print "\nall results:\n" + str(allresults)
@@ -50,5 +50,5 @@ print e.load_metadata()
 # close the database connection
 e.close()
 
-# delete Database if not it is a file on the filesystem
+# delete Database if it is a file on the filesystem
 if dbdestination != ":memory:": os.unlink(dbdestination)   
