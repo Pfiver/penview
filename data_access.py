@@ -4,7 +4,7 @@
 import sys
 import sqlite3
 
-class Experiment:
+class ExperimentFile:
     """
     access module (Data model) for an experiment
     
@@ -38,7 +38,7 @@ class Experiment:
         append = "".join(", v%d FLOAT" % n for n in range(2, self.nvalues+1))
 
         sql = "CREATE TABLE 'values' (n INT, t FLOAT, v1 FLOAT%s)" % append
-        if Experiment.debug == True: print "sql: " + str(sql)
+        if ExperimentFile.debug == True: print "sql: " + str(sql)
         self.c.execute(sql)
        
     def __init__(self, p=':memory:', vn=1):
@@ -74,7 +74,7 @@ class Experiment:
         if 'values' not in tables and 'metadata' not in tables:
             self.create_experiment_table(p)
             sql = "CREATE TABLE 'metadata' (name TEXT UNIQUE, value TEXT)"
-            if Experiment.debug == True: print "sql: " + str(sql)
+            if ExperimentFile.debug == True: print "sql: " + str(sql)
             self.c.execute(sql)
         elif not ('values' in tables and 'metadata' in tables):
             raise Exception("inconsistent database in %s - try another file" % p)
@@ -94,13 +94,13 @@ class Experiment:
         """
  
         if type(nr) != int:
-            raise Exception("Experiment number must be given as an int")
+            raise Exception("ExperimentFile number must be given as an int")
  
         if len(a[0])-1 != self.nvalues:
             raise Exception("wrong number of values")
   
         sql = "INSERT INTO 'values' VALUES (%d, ?%s)" % (nr, (len(a[0])-1) * ", ?")
-        if Experiment.debug == True: print "sql: " + str(sql)
+        if ExperimentFile.debug == True: print "sql: " + str(sql)
  
         self.c.executemany(sql, a)
 
@@ -119,19 +119,19 @@ class Experiment:
 
         if nr == None: 
             sql = "SELECT * from 'values'"
-            if Experiment.debug == True: print "sql: " + str(sql)
+            if ExperimentFile.debug == True: print "sql: " + str(sql)
             self.c.execute(sql)
             return self.c.fetchall()
 
         if type(nr) != int:
-            raise Exception("Experiment number must be given as an int")
+            raise Exception("ExperimentFile number must be given as an int")
 
         # construct a string like ", v2, v3, v4"
         # vN are numbered from 2 to self.nvalues
         append = "".join(", v%d" % n for n in range(2, self.nvalues+1))
         
         sql = "SELECT t, v1%s from 'values' WHERE n = %d" % (append, nr)
-        if Experiment.debug == True: print "sql: " + str(sql)
+        if ExperimentFile.debug == True: print "sql: " + str(sql)
         self.c.execute(sql)
         
         return self.c.fetchall()
@@ -161,12 +161,12 @@ class Experiment:
  
         if update:
             sql = "UPDATE 'metadata' SET value = ? WHERE name = ?"
-            if Experiment.debug == True: print "sql: " + str(sql) + " (" + str(update) + ")"
+            if ExperimentFile.debug == True: print "sql: " + str(sql) + " (" + str(update) + ")"
             self.c.executemany(sql, update)
  
         if insert:
             sql = "INSERT INTO 'metadata' VALUES (?, ?)"
-            if Experiment.debug == True: print "sql: " + str(sql) + " (" + str(insert) + ")"
+            if ExperimentFile.debug == True: print "sql: " + str(sql) + " (" + str(insert) + ")"
             self.c.executemany(sql, insert)
 
         self.conn.commit()
@@ -179,7 +179,7 @@ class Experiment:
         """
 
         sql = "SELECT * FROM 'metadata'"
-        if Experiment.debug == True: print "sql: " + str(sql)
+        if ExperimentFile.debug == True: print "sql: " + str(sql)
         self.c.execute(sql)
 
         return dict(self.c.fetchall())
@@ -190,7 +190,7 @@ class Experiment:
         
         write all data to the disk and close the connection to the database file
         
-        after calling Experiment.close() the object must no longer be used
+        after calling ExperimentFile.close() the object must no longer be used
         """
         
         self.conn.close()

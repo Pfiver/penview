@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 import sys
-from data_access import Experiment
+from data_access import ExperimentFile
 
 dbpath = '/tmp/' # for POSIX compatible Systems (e.g. MacOSX or Linux )
 dbpath = 'C:\Temp' # for Windows (not tested)
@@ -14,7 +14,7 @@ dbdestination = ':memory:' # Use :memory: for testing purposes, DB is lost after
 vn = 3 # Number of y-values (e.g. v1, v2, v3 -> vn = 3)
 
 # create an instance of an experiment or a series of experiments
-e = Experiment(dbdestination,vn) 
+e = ExperimentFile(dbdestination,vn) 
 
 print "\nValues: "
 

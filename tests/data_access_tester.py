@@ -3,11 +3,11 @@
 
 #import unittest
 import os
-from data_access import Experiment
+from data_access import ExperimentFile
 
 class test:
     ## TODO: an unittest anpassen
-    Experiment.debug = 0
+    ExperimentFile.debug = 0
     debug = 0
     badtestcount = 0
     goodtestcount = 0
@@ -32,7 +32,7 @@ class test:
         for n in [2,12]:
             testcount += 1
             try: 
-                e = Experiment(self.dbdestination,n)
+                e = ExperimentFile(self.dbdestination,n)
 
                 values = []
                 for i in range(2):
@@ -66,7 +66,7 @@ class test:
 
         # Some metadata table tests
         testcount += 1
-        e = Experiment(self.dbdestination,1)
+        e = ExperimentFile(self.dbdestination,1)
 
         if 1:
             for metadata in ({"x":"y"}, {"x":"z"}, {"name":"x1", "v1unit":"m/s^2"}):
@@ -92,14 +92,14 @@ class test:
         # Some constructor tests
         testcount += 1
         try: 
-            e = Experiment(self.dbdestination,"blubber")
+            e = ExperimentFile(self.dbdestination,"blubber")
         except Exception, e:
             errorcount += 1
 #            if self.debug: self.errbuffer += str(e) + "\n"
         for n in [-1,99,109,"blub"]:
             testcount += 1
             try: 
-                e = Experiment(self.dbdestination,n)
+                e = ExperimentFile(self.dbdestination,n)
             except Exception, e: 
                 errorcount += 1
 #                if self.debug: self.errbuffer += str(e) + "\n"
