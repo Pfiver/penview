@@ -22,7 +22,7 @@ class ExperimentFile:
     """
     debug = 0
     
-    def create_experiment_table(self, p):
+    def create_experiment_table(self):
         """helper function for constructor (__init__)"""
 
         append = ""
@@ -72,7 +72,7 @@ class ExperimentFile:
 
         # TODO: dokumentieren
         if 'values' not in tables and 'metadata' not in tables:
-            self.create_experiment_table(p)
+            self.create_experiment_table()
             sql = "CREATE TABLE 'metadata' (name TEXT UNIQUE, value TEXT)"
             if ExperimentFile.debug == True: print "sql: " + str(sql)
             self.c.execute(sql)

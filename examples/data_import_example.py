@@ -10,6 +10,7 @@ print "values: %s" % data.values
 print "metadata: %s" % data.metadata
 
 e = ExperimentFile(':memory:')
+#e = ExperimentFile('abklingkonstante.sqlite')
 e.store_values(1, data.values)
 e.store_metadata(data.metadata)
 
