@@ -1,14 +1,15 @@
+import os
 from data_import import CSVImporter
-from data_access import Experiment
+from data_access import ExperimentFile
     
-path = '/tmp/xls/'
+path = '.' + os.sep
 filename = 'Abklingkonstante.csv'            
 uri = path + filename
 data = CSVImporter(uri)
 print "values: %s" % data.values
 print "metadata: %s" % data.metadata
 
-e = Experiment(':memory:')
+e = ExperimentFile(':memory:')
 e.store_values(1, data.values)
 e.store_metadata(data.metadata)
 
