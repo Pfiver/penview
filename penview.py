@@ -10,7 +10,7 @@ class PenView:
 
     def showtime(self):
         self.ui = PenViewUI()
-        self.ui.handle_events()
+        self.ui.tk_mainloop()
         print "Good Bye - Hope to se you again!"
 
 PenView()

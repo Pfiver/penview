@@ -42,7 +42,7 @@ class PenViewUI:
 #            btn.pack_propagate(0)
             btn.pack(side=RIGHT)
 
-    def handle_events(self):
+    def tk_mainloop(self):
         self.tk.mainloop()
 
     def map_handler(self, event):
