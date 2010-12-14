@@ -1,10 +1,13 @@
 from random import *
 from Tkinter import *
+from threading import Thread
+
+from penview import *
 
 # The "view"
-class PenViewUI:
-    def __init__(self):
+class PenViewUI(Thread):
 
+    def run(self):
         # tk object
         self.tk = Tk() # the main window
 
@@ -18,7 +21,8 @@ class PenViewUI:
         # level 2 widget
         self.xy_plot = XYPlot(self.plot_region, 800, 600) # custom canvas widget
         # level 2 widgets
-        Quit = Button(self.button_region, text="Quit", command=self.frame0.quit)
+        Quit = Button(self.button_region, text="Quit", command=lambda: self.controller.q(PVAction.Quit))
+#        Quit = Button(self.button_region, text="Quit", command=self.button_handler)
         PlotData = Button(self.button_region, text="Draw Data", command=self.xy_plot.plot_random_data)
         Rectangle = Button(self.button_region, text="Draw Rectangle", command=self.xy_plot.draw_rectangle)
 
@@ -42,8 +46,13 @@ class PenViewUI:
 #            btn.pack_propagate(0)
             btn.pack(side=RIGHT)
 
-    def handle_events(self):
         self.tk.mainloop()
+    
+    def stop(self):
+        self.tk.quit()
+
+    def set_controller(self, controller):
+        self.controller = controller
 
     def map_handler(self, event):
         # Here we'd have to check the original height of the
