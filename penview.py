@@ -1,16 +1,30 @@
-from penview_ui import *
-from threading import Thread
+class PVAction:
+    Quit = range(1)
 
-class PenView:
+if __name__ == "__main__":
 
-    def __init__(self):
-        self.event_handler = Thread(target=self.showtime)
-        self.event_handler.start()
-        print "Welcome to PenView!"
+    # say hi
+    print "Welcome to PenView!"
 
-    def showtime(self):
-        self.ui = PenViewUI()
-        self.ui.tk_mainloop()
-        print "Good Bye - Hope to se you again!"
+    # import and instantiate and connect application parts (Model-View-Controller)
+    from penview_ui import PenViewUI
+    from pv_controller import PVController
 
-PenView()
+    ui = PenViewUI()
+    controller = PVController(ui)
+
+    ui.set_controller(controller)
+
+    # noisily start helper the part's threads
+    ui.start()
+    print "UI Running"
+    controller.start()
+    print "Cotroller Running"
+    
+    # que a test action
+    controller.q("ACTION!")
+
+    # wait for helper threads (not really necessary)
+    ui.join()
+    controller.join()
+    print "Good Bye - Hope to se you again!"
