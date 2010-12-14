@@ -22,7 +22,7 @@ class ExperimentFile:
     """
     debug = 0
     
-    def create_experiment_table(self, p):
+    def create_experiment_table(self):
         """helper function for constructor (__init__)"""
 
         append = ""
@@ -41,19 +41,19 @@ class ExperimentFile:
         if ExperimentFile.debug == True: print "sql: " + str(sql)
         self.c.execute(sql)
        
-    def __init__(self, p=':memory:', vn=1):
+    def __init__(self, p=':memory:', nv=1):
         """
         initiate a new experiment
         
         :Parameters:
             p      is the filesystem path where the experiment will be stored
-            vn     is the number of parameters (y-values) in the data-set
+            nv     is the number of parameters (y-values) in the data-set
 
         (p defaults to ":memory:" if not specified: 
          the database is lost when python quits - good for testing)
         """
         # number of x values
-        self.nvalues = vn;
+        self.nvalues = nv;
 
         self.conn = sqlite3.connect(p)
         self.c = self.conn.cursor()
@@ -72,7 +72,7 @@ class ExperimentFile:
 
         # TODO: dokumentieren
         if 'values' not in tables and 'metadata' not in tables:
-            self.create_experiment_table(p)
+            self.create_experiment_table()
             sql = "CREATE TABLE 'metadata' (name TEXT UNIQUE, value TEXT)"
             if ExperimentFile.debug == True: print "sql: " + str(sql)
             self.c.execute(sql)
