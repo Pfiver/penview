@@ -35,7 +35,7 @@ class PenViewUI(Thread):
         ## Initialize Splitter/PanedWindow
         self.main_region = PanedWindow(self.frame0, showhandle=1)
         ## TAB is on the left
-        self.tab_region = TabRegion(self.main_region)
+        self.tab_region = TabRegion(self.main_region, self.conf)
 
         ## DATA is on the right
         self.data_region = DataRegion(self.main_region)

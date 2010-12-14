@@ -7,24 +7,21 @@ class TabRegion(Frame):
     def __init__(self, parent, pvconf):
         Frame.__init__(self, parent)
         self.tabs = []
-        pvconf.add_listener(self)
+        self.pvconf = pvconf
+        self.pvconf.add_listener(self)
         self.notebook = Notebook(self)
         self.notebook.pack()
         
-        self.notebook.add(Label(text="TabRegion"),text="Tab1")
-        
-        a = OpenExperiment(1)
-        print a.values
-        print a.metadata
-        print a.get_details_text()
-        print a.get_time_values()
-        print a.get_nvalues()
-        print a.get_desc()
+        self.pvconf.add_open_experiment(OpenExperiment('examples/abklingkonstante.sqlite'))
+        self.pvconf.add_open_experiment(OpenExperiment('examples/abklingkonstante.sqlite'))
 
     def update(self):
-        for x in pvconf.open_experiments:
-            if x not in self.tabs:
-                addTab(x)
+        for a in self.pvconf.open_experiments:
+            if a.id not in map(lambda t: t.id, self.tabs):
+                self.addTab(a)
             
-    def addTab(self, file):
-        
+    def addTab(self, ox):
+        tab = Label(text=ox.get_details_text())
+        tab.id = ox.id
+        self.tabs.append(tab)
+        self.notebook.add(tab, text="Exp %d" % ox.id)

@@ -106,7 +106,7 @@ class ExperimentFile:
 
         self.conn.commit()
 
-    def load_values(self, nr=None):
+    def load_values(self, nr=1):
         """
         load the experiments values
         

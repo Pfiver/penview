@@ -23,6 +23,10 @@ class OpenExperiment:
         date = self.metadata['date']
         return date
     
+    def get_exp_name(self):
+        exp_name = self.metadata['exp_name']
+        return exp_name
+    
     #TODO: in view auslagern!
     def get_details_text(self):
         """return actor_name, date and ev. additional_details from metadata-table"""
@@ -53,15 +57,17 @@ class OpenExperiment:
         
     def get_nvalues(self):
         """return the number of values (v1, v2, v3, v4 -> 4) in table 'values' """
+        print "self.values[0]:" + str(self.values[0])
         nvalues = len(self.values[0])-1
         return nvalues
         
     def get_desc(self):
         """return a list of vn_desc (v1, v2..)"""
         desc = []
+        print "nvalues: %s " % self.get_nvalues()
         for i in range(self.get_nvalues()):
             key = 'v' + str(i+1) + '_desc'
-            #print "key: %s" % key
+            print "key: %s" % key
             desc.append(self.metadata[key])
         return desc
 
@@ -75,28 +81,35 @@ class ExperimentPerspective:
         self.yaxis_values = [] # list of indices of values visible on yaxis
     
 class PenViewConf:
+    next_id = 0
     def __init__(self):
         self.listeners = []
-        self.openExperiments = None
-        self.recentExperiments = None
+        self.open_experiments = []
+        self.recent_experiments = None
         
-    def add_open_experiment(self):
+    def add_open_experiment(self, ox):
+        ox.id = PenViewConf.next_id
+        PenViewConf.next_id += 1
+        self.open_experiments.append(ox)
         for l in self.listeners:
             l.update()
         
     def add_listener(self, listener):
-        self.listener += self.listeners
+        self.listeners.append(listener)
+
+    def set_controller(self, controller):
+        self.controller = controller
     
     
 class RecentExperiment:
     def __init__(self):
         self.name = None
         self.path = None
-    
-a = OpenExperiment('examples/abklingkonstante.sqlite')
-print a.values
-print a.metadata
-print a.get_details_text()
-print a.get_time_values()
-print a.get_nvalues()
-print a.get_desc()
+
+#a = OpenExperiment('examples/abklingkonstante.sqlite')
+#print a.values
+#print a.metadata
+#print a.get_details_text()
+#print a.get_time_values()
+#print a.get_nvalues()
+#print a.get_desc()

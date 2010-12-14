@@ -11,9 +11,9 @@ if __name__ == "__main__":
     from pv_controller import PVController
     from penview_model import PenViewConf
 
-    ui = PenViewUI()
-    conf = PenViewConf()
-    controller = PVController(ui, conf)
+    ui = PenViewUI()                    # View
+    conf = PenViewConf()                # Model
+    controller = PVController(ui, conf) # Controller
 
     ui.set_conf(conf)
     ui.set_controller(controller)
