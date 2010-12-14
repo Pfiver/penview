@@ -111,12 +111,11 @@ class ExperimentFile:
         load the experiments values
         
         :Parameters:
-            n    data series number (default: all)
+            nr    data series number (default: all)
         
-        if you specify n, the data is returned in an array like this: [[t,v1,v2,...]]
-        if you DON'T specify n, the data is returned in an array like this: [[n,t,v1,v2,...]]
+        if you specify nr, the data is returned in an array like this: [[t,v1,v2,...]]
+        if you DON'T specify nr, the data is returned in an array like this: [[n,t,v1,v2,...]]
         """
-
         if nr == None: 
             sql = "SELECT * from 'values'"
             if ExperimentFile.debug == True: print "sql: " + str(sql)
@@ -125,6 +124,16 @@ class ExperimentFile:
 
         if type(nr) != int:
             raise Exception("ExperimentFile number must be given as an int")
+        
+        # test if there are any data series with n
+        sql_n = "SELECT DISTINCT n from 'values' "
+        if ExperimentFile.debug == True: print "sql_n: " + str(sql_n)
+        self.c.execute(sql_n)
+        nlist = map(lambda x: x[0], self.c.fetchall())
+        if ExperimentFile.debug == True: print "nr: %s\nnlist: %s" % ( nr, nlist )
+        if nr not in nlist:
+            raise Exception("No such data series in values table. Specify another nr")
+            
 
         # construct a string like ", v2, v3, v4"
         # vN are numbered from 2 to self.nvalues
