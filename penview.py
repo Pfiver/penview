@@ -1,5 +1,5 @@
 class PVAction:
-    Quit = range(1)
+    Open, Import, Quit, Help, About = range(5)
 
 if __name__ == "__main__":
 
@@ -19,12 +19,12 @@ if __name__ == "__main__":
     ui.start()
     print "UI Running"
     controller.start()
-    print "Cotroller Running"
+    print "Controller Running"
     
-    # que a test action
+    # queue a test action
     controller.q("ACTION!")
 
-    # wait for helper threads (not really necessary)
+    # wait for gui thread (exits when the main window gets closed)
     ui.join()
-    controller.join()
+    controller.q(PVAction.Quit)
     print "Good Bye - Hope to se you again!"
