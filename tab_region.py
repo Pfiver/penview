@@ -9,11 +9,23 @@ class TabRegion(Frame):
         self.tabs = []
         self.pvconf = pvconf
         self.pvconf.add_listener(self)
-        self.notebook = Notebook(self)
-        self.notebook.pack()
+        self.frame1 = Frame(self)
+        self.frame2 = Frame(self.frame1)
+        self.notebook_region = Notebook(self.frame2)
+        self.frame3 = Frame(self.frame1)
+        self.button1 = Button(self.frame3, text="Graph", command='')
+        self.button2 = Button(self.frame3, text="Table", command='')
         
-        self.pvconf.add_open_experiment(OpenExperiment('examples/abklingkonstante.sqlite'))
-        self.pvconf.add_open_experiment(OpenExperiment('examples/abklingkonstante.sqlite'))
+        self.button2.pack(side=LEFT)
+        self.button1.pack(side=RIGHT)
+        self.notebook_region.pack()
+        self.frame3.pack(side='bottom')
+        self.frame2.pack()
+        self.frame1.pack()
+        
+        e = 'examples/abklingkonstante.sqlite'
+        self.pvconf.add_open_experiment(OpenExperiment(e))
+        self.pvconf.add_open_experiment(OpenExperiment(e))
 
     def update(self):
         for a in self.pvconf.open_experiments:
@@ -24,4 +36,4 @@ class TabRegion(Frame):
         tab = Label(text=ox.get_details_text())
         tab.id = ox.id
         self.tabs.append(tab)
-        self.notebook.add(tab, text="Exp %d" % ox.id)
+        self.notebook_region.add(tab, text="Exp %d" % ox.id)
