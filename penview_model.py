@@ -67,12 +67,12 @@ class OpenExperiment:
 
 class ExperimentPerspective:
     def __init__(self):
-        """x and y scaling
+        """ Initialize Perspective
         
         """
-        self.values_upd = []
-        self.xaxis_values = 0
-        self.yaxis_values = []
+        self.values_upd = [] # list of scaling factor for ALL values 
+        self.xaxis_values = 0 # index of current xaxis values
+        self.yaxis_values = [] # list of indices of values visible on yaxis
     
 class PenViewConf:
     def __init__(self):
