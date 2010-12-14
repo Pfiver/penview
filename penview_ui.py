@@ -66,6 +66,9 @@ class PenViewUI(Thread):
         if self.is_alive():
             self.tk.quit()
 
+    def set_conf(self, conf):
+        self.conf = conf
+
     def set_controller(self, controller):
         self.controller = controller
 

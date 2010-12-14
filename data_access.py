@@ -67,7 +67,7 @@ class ExperimentFile:
         if type(p) != str:
             raise Exception("Input Error: First parameter must be a string")
         # Test if 2nd parameter has the right vartype
-        if type(vn) != int:
+        if type(nv) != int:
             raise Exception("Input Error: Second parameter must be an integer")
 
         # TODO: dokumentieren

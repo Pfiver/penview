@@ -4,13 +4,13 @@
 from data_access import ExperimentFile
     
 class OpenExperiment:
-    def __init__(self,nr):
+    def __init__(self, path):
         """initialize Experiment: load values and metadata table into classvariables
                   :Parameters:
-            nr    data-set number"""
+            path  file-path"""
         self.experiment_perspective = None
-        e = ExperimentFile('examples/abklingkonstante.sqlite',nr)
-        self.values = e.load_values(nr)
+        e = ExperimentFile(path)
+        self.values = e.load_values()
         self.metadata = e.load_metadata()
 
     def get_actor_name(self):
@@ -76,18 +76,27 @@ class ExperimentPerspective:
     
 class PenViewConf:
     def __init__(self):
+        self.listeners = []
         self.openExperiments = None
         self.recentExperiments = None
-
+        
+    def add_open_experiment(self):
+        for l in self.listeners:
+            l.update()
+        
+    def add_listener(self, listener):
+        self.listener += self.listeners
+    
+    
 class RecentExperiment:
     def __init__(self):
         self.name = None
         self.path = None
     
-a = OpenExperiment(1)
-#print a.values
-#print a.metadata
-#print a.get_details_text()
-#print a.get_time_values()
-#print a.get_nvalues()
-#print a.get_desc()
+a = OpenExperiment('examples/abklingkonstante.sqlite')
+print a.values
+print a.metadata
+print a.get_details_text()
+print a.get_time_values()
+print a.get_nvalues()
+print a.get_desc()

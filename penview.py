@@ -9,15 +9,20 @@ if __name__ == "__main__":
     # import and instantiate and connect application parts (Model-View-Controller)
     from penview_ui import PenViewUI
     from pv_controller import PVController
+    from penview_model import PenViewConf
 
     ui = PenViewUI()
-    controller = PVController(ui)
+    conf = PenViewConf()
+    controller = PVController(ui, conf)
 
+    ui.set_conf(conf)
     ui.set_controller(controller)
+    conf.set_controller(controller)
 
     # noisily start helper the part's threads
     ui.start()
     print "UI Running"
+    
     controller.start()
     print "Controller Running"
     

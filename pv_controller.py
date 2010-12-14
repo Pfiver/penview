@@ -5,9 +5,10 @@ from penview import *
 
 class PVController(Thread):
     
-    def __init__(self, ui):
+    def __init__(self, ui, conf):
         Thread.__init__(self)
         self.ui = ui
+        self.conf = conf
         self.action_q = Queue()
 
     def run(self):
