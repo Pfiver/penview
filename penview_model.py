@@ -1,5 +1,5 @@
-#!/usr/bin/python
 # encoding: utf-8
+from itertools import count
 
 from data_access import ExperimentFile
     
@@ -79,33 +79,31 @@ class ExperimentPerspective:
         self.values_upd = [] # list of scaling factor for ALL values 
         self.xaxis_values = 0 # index of current xaxis values
         self.yaxis_values = [] # list of indices of values visible on yaxis
-    
-class PenViewConf:
-    next_id = 0
+
+class RecentExperiment:
     def __init__(self):
-        self.listeners = []
-        self.open_experiments = []
-        self.recent_experiments = None
-        
+        self.name = None
+        self.path = None
+
+class PenViewConf:
+    ox_ids = count()
+    def __init__(self):
+        self.listeners = []         # list of listener functions taking one argument: the conf that was updated
+        self.open_experiments = []      # list of OpenExperiment objects - the experiments currently opened  
+        self.recent_experiments = []        # list of RecentExperiment objects - maximNoneum size 5, fifo semantics    
+
     def add_open_experiment(self, ox):
-        ox.id = PenViewConf.next_id
-        PenViewConf.next_id += 1
+        ox.id = PenViewConf.ox_ids.next()
         self.open_experiments.append(ox)
-        for l in self.listeners:
-            l.update()
-        
+        for update in self.listeners:
+            update(self)
+
     def add_listener(self, listener):
         self.listeners.append(listener)
 
     def set_controller(self, controller):
         self.controller = controller
     
-    
-class RecentExperiment:
-    def __init__(self):
-        self.name = None
-        self.path = None
-
 #a = OpenExperiment('examples/abklingkonstante.sqlite')
 #print a.values
 #print a.metadata

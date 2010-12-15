@@ -7,13 +7,13 @@ class TabRegion(Frame):
     def __init__(self, parent, pvconf):
         Frame.__init__(self, parent)
         self.tabs = []
-        self.pvconf = pvconf
-        self.pvconf.add_listener(self)
+        # self.pvconf = pvconf
+        pvconf.add_listener(self.update)
         self.frame1 = Frame(self)
         self.frame2 = Frame(self.frame1)
         self.notebook_region = Notebook(self.frame2)
         self.frame3 = Frame(self.frame1)
-        self.button1 = Button(self.frame3, text="Graph", command='')
+        self.button1 = Button(self.frame3, text="Graph", command='', relief=SUNKEN)
         self.button2 = Button(self.frame3, text="Table", command='')
         
         self.button2.pack(side=LEFT)
@@ -24,11 +24,11 @@ class TabRegion(Frame):
         self.frame1.pack()
         
         e = 'examples/abklingkonstante.sqlite'
-        self.pvconf.add_open_experiment(OpenExperiment(e))
-        self.pvconf.add_open_experiment(OpenExperiment(e))
+        pvconf.add_open_experiment(OpenExperiment(e))
+        pvconf.add_open_experiment(OpenExperiment(e))
 
-    def update(self):
-        for a in self.pvconf.open_experiments:
+    def update(self, conf):
+        for a in conf.open_experiments:
             if a.id not in map(lambda t: t.id, self.tabs):
                 self.addTab(a)
             
