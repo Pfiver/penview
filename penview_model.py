@@ -12,6 +12,10 @@ class OpenExperiment:
         e = ExperimentFile(path)
         self.values = e.load_values()
         self.metadata = e.load_metadata()
+    
+    def get_additional_info(self):
+        additional_info = self.metadata['additional_info']
+        return additional_info
 
     def get_actor_name(self):
         """return actor_name from metadata-table"""
@@ -26,23 +30,6 @@ class OpenExperiment:
     def get_exp_name(self):
         exp_name = self.metadata['exp_name']
         return exp_name
-    
-    #TODO: in view auslagern!
-    def get_details_text(self):
-        """return actor_name, date and ev. additional_details from metadata-table"""
-        #Durchgeführt von: Namen
-        actor_name = self.get_actor_name()
-        details_text =  "Durchgeführt von %s" % actor_name
-        #Datum
-        date = self.get_date()
-        details_text += "\nDatum, %s" % date
-        try:
-            #Konstante (z.b. Federkonstante)
-            additional_info = self.metadata['additional_info']
-            details_text += "\n%s" % additional_info
-        except:
-            pass
-        return details_text
         
     def get_values(self):
         """return a list of all values from values-table"""
@@ -90,7 +77,7 @@ class PenViewConf:
     def __init__(self):
         self.listeners = []         # list of listener functions taking one argument: the conf that was updated
         self.open_experiments = []      # list of OpenExperiment objects - the experiments currently opened  
-        self.recent_experiments = []        # list of RecentExperiment objects - maximNoneum size 5, fifo semantics    
+        self.recent_experiments = []        # list of RecentExperiment objects - maximum size 5, fifo semantics    
 
     def add_open_experiment(self, ox):
         ox.id = PenViewConf.ox_ids.next()
@@ -107,7 +94,6 @@ class PenViewConf:
 #a = OpenExperiment('examples/abklingkonstante.sqlite')
 #print a.values
 #print a.metadata
-#print a.get_details_text()
 #print a.get_time_values()
 #print a.get_nvalues()
 #print a.get_desc()
