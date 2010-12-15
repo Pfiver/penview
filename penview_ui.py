@@ -41,8 +41,8 @@ class PenViewUI(Thread):
         self.data_region = DataRegion(self.main_region)
 
         ## 1. pack() then -> 2. add() Reihenfolge beachten!
-        self.tab_region.pack()
-        self.data_region.pack()
+        self.tab_region.pack(fill=BOTH, expand=1)
+        self.data_region.pack(fill=BOTH, expand=1)
         
         ## add()
         self.main_region.add(self.tab_region)
@@ -51,7 +51,7 @@ class PenViewUI(Thread):
 #        self.xy_plot.bind("<Map>", self.map_handler)
 
         # pack level 0 widget
-        self.frame0.pack()
+        self.frame0.pack(fill=BOTH, expand=1)
 
         # pack level 1 widgets
 #        self.button_region.pack_propagate(0)

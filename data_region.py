@@ -3,11 +3,33 @@ from Tkinter import *
 class DataRegion(Frame):
     def __init__(self, parent):
         Frame.__init__(self, parent)
+        
         self.plot_region = ScrollRegion(self)
         self.xy_plot = XYPlot(self.plot_region, 800, 600) # custom canvas widget
+        
+        self.controls_region = Frame(self)
 
-        self.xy_plot.pack()
-        self.plot_region.pack()
+        self.y_scales = [Spinbox(self.controls_region) for i in range(2)]
+        self.y_units = [Label(self.controls_region, text="y%d units" % i) for i in range(2)]
+
+        self.x_chosen = StringVar()
+        self.x_chosen.set("values 0")
+        self.x_chooser = OptionMenu(self.controls_region, self.x_chosen, ["values %d" % i for i in range(2)])
+
+        self.x_scale = Spinbox(self.controls_region)
+        self.x_units = Label(self.controls_region, text="x units")
+        
+        for i in range(2):
+            self.y_scales[i].pack(side=LEFT)
+            self.y_units[i].pack(side=LEFT)
+        
+        self.x_units.pack(side=RIGHT)
+        self.x_scale.pack(side=RIGHT)
+        self.x_chooser.pack(side=RIGHT)
+
+        self.xy_plot.pack(fill=BOTH, expand=1)
+        self.plot_region.pack(fill=BOTH, expand=1)
+        self.controls_region.pack(fill=X, expand=1)
 
 class ScrollRegion(Frame):
     def __init__(self, parent):
@@ -42,8 +64,8 @@ class XYPlot(Canvas):
         self.draw_axes(self.fgcolor)
         self.bind('<Configure>', self.resize_handler)
 
-    def pack(self):
-#        Canvas.pack(self)
+    def pack(self, *args, **kwargs):
+        Canvas.pack(self,  *args, **kwargs)
         if self.parent.__class__ == ScrollRegion:
             self.parent.child_added(self)
 
