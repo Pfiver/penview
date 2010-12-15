@@ -38,7 +38,7 @@ class PenViewUI(Thread):
         self.tab_region = TabRegion(self.main_region, self.conf)
 
         ## DATA is on the right
-        self.data_region = DataRegion(self.main_region)
+        self.data_region = DataRegion(self.main_region, self.conf)
 
         ## 1. pack() then -> 2. add() Reihenfolge beachten!
         self.tab_region.pack(fill=BOTH, expand=1)

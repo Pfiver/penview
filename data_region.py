@@ -1,7 +1,8 @@
 from Tkinter import *
+from functools import partial
 
 class DataRegion(Frame):
-    def __init__(self, parent):
+    def __init__(self, parent, pvconf):
         Frame.__init__(self, parent)
         
         self.plot_region = ScrollRegion(self)
@@ -9,27 +10,46 @@ class DataRegion(Frame):
         
         self.controls_region = Frame(self)
 
-        self.y_scales = [Spinbox(self.controls_region) for i in range(2)]
-        self.y_units = [Label(self.controls_region, text="y%d units" % i) for i in range(2)]
-
-        self.x_chosen = StringVar()
-        self.x_chosen.set("values 0")
-        self.x_chooser = OptionMenu(self.controls_region, self.x_chosen, ["values %d" % i for i in range(2)])
-
-        self.x_scale = Spinbox(self.controls_region)
-        self.x_units = Label(self.controls_region, text="x units")
-        
+        # controls_region setup - keep pack()ing order !
+        # y-axis controls 
+        self.vars = []
+        self.y_scales = []
+        self.y_units = []
         for i in range(2):
-            self.y_scales[i].pack(side=LEFT)
-            self.y_units[i].pack(side=LEFT)
-        
-        self.x_units.pack(side=RIGHT)
-        self.x_scale.pack(side=RIGHT)
-        self.x_chooser.pack(side=RIGHT)
+            v = StringVar()
+            self.vars.append(v)
+            v.trace("w", partial(self.controls_handler, v))
+            sb = Spinbox(self.controls_region, from_=0, to=99, width=5, textvariable=v)
+            sb.pack(side=LEFT)
+            self.y_scales.append(sb)
 
+            ul = Label(self.controls_region, text="y%d units" % i)
+            ul.pack(side=LEFT)
+            self.y_units.append(ul)
+
+        # x-axis controls
+        self.x_units = Label(self.controls_region, text="x units")
+        self.x_units.pack(side=RIGHT)
+
+        v = StringVar()
+        self.vars.append(v)
+        v.trace("w", partial(self.controls_handler, v))
+        self.x_scale = Spinbox(self.controls_region, from_=0, to=99, width=5, textvariable=v)
+        self.x_scale.pack(side=RIGHT)
+
+        v = StringVar()
+        v.set("values 0")
+        v.trace("w", partial(self.controls_handler, v))
+        x_values_list = ["values %d" % i for i in range(2)]
+        OptionMenu(self.controls_region, v, *x_values_list).pack(side=RIGHT)
+
+        # urk - use the pack-regions-that-should-stay-visible-on-window-resize-first hack
+        self.controls_region.pack(side=BOTTOM, fill=X, expand=1)
         self.xy_plot.pack(fill=BOTH, expand=1)
         self.plot_region.pack(fill=BOTH, expand=1)
-        self.controls_region.pack(fill=X, expand=1)
+        
+    def controls_handler(self, v, *ign):
+        print v.get()
 
 class ScrollRegion(Frame):
     def __init__(self, parent):
@@ -45,8 +65,8 @@ class ScrollRegion(Frame):
         self.xscrollbar.config(command=child_widget.xview)
         self.yscrollbar.config(command=child_widget.yview)
         child_widget.grid(row=0, column=0, sticky=N+S+E+W)
-        child_widget.config(xscrollcommand=self.xscrollbar.set, yscrollcommand=self.yscrollbar.set,
-                            scrollregion=(0, 0, child_widget.width, child_widget.height))
+        child_widget.config(scrollregion=(0, 0, child_widget.width, child_widget.height),
+                            xscrollcommand=self.xscrollbar.set, yscrollcommand=self.yscrollbar.set)
 
 # a custom canvas to display xy-plots
 class XYPlot(Canvas):

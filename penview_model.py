@@ -74,7 +74,6 @@ class OpenExperiment:
 class ExperimentPerspective:
     def __init__(self):
         """ Initialize Perspective
-        
         """
         self.values_upd = [] # list of scaling factor for ALL values 
         self.xaxis_values = 0 # index of current xaxis values
