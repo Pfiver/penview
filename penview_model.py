@@ -1,6 +1,7 @@
 # encoding: utf-8
 from itertools import count
 
+from penview import *
 from data_access import ExperimentFile
     
 class OpenExperiment:
@@ -44,17 +45,17 @@ class OpenExperiment:
         
     def get_nvalues(self):
         """return the number of values (v1, v2, v3, v4 -> 4) in table 'values' """
-        print "self.values[0]:" + str(self.values[0])
+        debug("self.values[0]:" + str(self.values[0]))
         nvalues = len(self.values[0])-1
         return nvalues
         
     def get_desc(self):
         """return a list of vn_desc (v1, v2..)"""
         desc = []
-        print "nvalues: %s " % self.get_nvalues()
+        debug("nvalues: %s " % self.get_nvalues())
         for i in range(self.get_nvalues()):
             key = 'v' + str(i+1) + '_desc'
-            print "key: %s" % key
+            debug("key: %s" % key)
             desc.append(self.metadata[key])
         return desc
 

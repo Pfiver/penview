@@ -12,12 +12,10 @@ class DataRegion(Frame):
 
         # controls_region setup - keep pack()ing order !
         # y-axis controls 
-        self.vars = []
         self.y_scales = []
         self.y_units = []
         for i in range(2):
             v = StringVar()
-            self.vars.append(v)
             v.trace("w", partial(self.controls_handler, v))
             sb = Spinbox(self.controls_region, from_=0, to=99, width=5, textvariable=v)
             sb.pack(side=LEFT)
@@ -32,7 +30,6 @@ class DataRegion(Frame):
         self.x_units.pack(side=RIGHT)
 
         v = StringVar()
-        self.vars.append(v)
         v.trace("w", partial(self.controls_handler, v))
         self.x_scale = Spinbox(self.controls_region, from_=0, to=99, width=5, textvariable=v)
         self.x_scale.pack(side=RIGHT)
@@ -49,7 +46,8 @@ class DataRegion(Frame):
         self.plot_region.pack(fill=BOTH, expand=1)
         
     def controls_handler(self, v, *ign):
-        print v.get()
+#        print v.get()
+        pass
 
 class ScrollRegion(Frame):
     def __init__(self, parent):

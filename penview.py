@@ -1,6 +1,17 @@
 class PVAction:
     Open, Import, Quit, Help, About = range(5)
 
+pvaction_name = dict(map(lambda name: (getattr(PVAction, name), name),
+                         filter(lambda a: not a.startswith('_'), dir(PVAction))))
+
+debug_flag = 1
+def debug(*args):
+    if not debug_flag:
+        return
+    import sys
+    if len(args) < 1: args=[""]
+    print sys._getframe(1).f_code.co_name + ": " + args[0] % args[1:]
+
 if __name__ == "__main__":
 
     # say hi

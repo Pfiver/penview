@@ -2,6 +2,7 @@ from Queue import Queue
 from threading import Thread
 
 from penview import *
+from file_wizard import *
 
 class PVController(Thread):
     
@@ -12,15 +13,35 @@ class PVController(Thread):
         self.action_q = Queue()
 
     def run(self):
-        while True:
+        self.run = True
+        while self.run:
             a = self.dq()
-            if a == PVAction.Quit:
-                self.ui.stop()
-                break
-            print a
+            try:
+                self.get_handler(a)()
+            except Exception, e:
+                print "Excetion handling %s: %s" % (str(a), str(e))
+
+    def stop(self):
+        self.run = False
 
     def q(self, action):
         self.action_q.put(action)
 
     def dq(self):
         return self.action_q.get()
+
+    def get_handler(self, action):
+        try:
+            return getattr(self, "do_" + pvaction_name[action].lower())
+        except KeyError, e:
+            print "You want me to do WHAT ???"
+
+    def do_open(self):
+        wizard = OpenWizard()
+        
+    def do_import(self):
+        wizard = ImportWizard()
+
+    def do_quit(self):
+        self.ui.stop()
+        self.stop()
