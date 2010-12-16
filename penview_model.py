@@ -1,4 +1,6 @@
+#!/usr/bin/python
 # encoding: utf-8
+
 from itertools import count
 
 from penview import *

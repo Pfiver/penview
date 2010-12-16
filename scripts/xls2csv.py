@@ -1,21 +1,44 @@
-from OOoLib import *
-import os
-import sys
+#!/usr/bin/python
+# encoding: utf-8
 
-def CalcExample(path):
+import os, sys
+
+debug_flag = 1
+def debug(*args):
+    if not debug_flag:
+        return
+    import sys
+    if len(args) < 1: args=[""]
+    print sys._getframe(1).f_code.co_name + ": " + args[0] % args[1:]
+
+import shlex, subprocess
+cmdinput = "/usr/bin/soffice -accept=socket,host=localhost,port=8100;urp"
+debug("cmdinput %s" % cmdinput)
+args = shlex.split(cmdinput)
+try:
+    office = subprocess.Popen(args)
+    office.wait()
+    debug("OO is running")
+except:
+    raise Exception("OpenOffice not installed or running on non-POSIX Operating System")
+
+from OOoLib import *
+
+def Excel2CSV(path):
     dir = os.path.dirname(path) + os.sep
-    print dir
+    debug("dir: %s" % dir)
     filename = os.path.basename(path)
-    print filename
-    filebase = substr(filename,".xls")
+    debug("filename: %s" % filename)
+    filebase = ".".join(filename.split('.')[:-1])
+    debug("filebase: %s" % filebase)
 
 ###################### Save Messdaten Sheet in CSV #####################
     cFile = dir + filename # Linux 
-    print "cFile: %s" % cFile
+    debug("cFile: %s" % cFile)
     cURL = convertToURL( cFile ) 
-    print "cURL: %s" % cURL
+    debug("cURL: %s" % cURL)
     oDoc = StarDesktop.loadComponentFromURL( cURL, "_blank", 0, Array() ) 
-    print "oDoc: %s" % oDoc
+    debug("oDoc: %s" % oDoc)
 
     oDoc.getSheets().removeByName( "Metadaten" )    
     # Here are two ways to get access to one of the various sheets 
@@ -24,7 +47,7 @@ def CalcExample(path):
     #  access to the sheet's content within the program. 
 #    oSheet = oDoc.getSheets().getByIndex( 0 ) # get the zero'th sheet 
     oSheet = oDoc.getSheets().getByName( "Messdaten" ) # get by name 
-    print "oSheet: %s" % oSheet
+    debug("oSheet: %s" % oSheet)
     
     # Prepare the filename to save. 
     # We're going to save the file in several different formats, 
@@ -33,38 +56,67 @@ def CalcExample(path):
 #    cFile = "/home/archon/Desktop/Marc Patrick/Potentialtopf (Chaos1).xls" # Linux 
     
     # Now save it in CSV format. 
-    cURL = convertToURL( dir + "csv/" + filename + ".csv" ) 
-    print "cURL: %s" % cURL
+    cURL = convertToURL( dir + "csv/" + filebase + ".csv" ) 
+    debug("cURL: %s" % cURL)
     oDoc.storeToURL( cURL, Array( makePropertyValue( "FilterName", "Text - txt - csv (StarCalc)" ) ) ) 
-    print "oDoc: %s" % oDoc
+    debug("oDoc: %s" % oDoc)
     # Now close the document 
     oDoc.close( True )
  
 ###################### Save Metadaten Sheet in CSV #####################
     
     cFile = dir + filename # Linux 
-    print "cFile: %s" % cFile
-    cURL = convertToURL( cFile + ".xls" ) 
-    print "cURL: %s" % cURL
+    debug("cFile: %s" % cFile)
+    cURL = convertToURL( cFile ) 
+    debug("cURL: %s" % cURL)
     oDoc = StarDesktop.loadComponentFromURL( cURL, "_blank", 0, Array() ) 
-    print "oDoc: %s" % oDoc
+    debug("oDoc: %s" % oDoc)
     
     oDoc.getSheets().removeByName( "Messdaten" )   
     oSheet = oDoc.getSheets().getByName( "Metadaten" ) # get by name 
-    print "oSheet: %s" % oSheet
-    cURL = convertToURL( dir + "csv/meta"+ filename + ".csv" )
-    print "cURL: %s" % cURL 
+    debug("oSheet: %s" % oSheet)
+    cURL = convertToURL( dir + "csv/meta"+ filebase + ".csv" )
+    debug("cURL: %s" % cURL)
     oDoc.storeToURL( cURL, Array( makePropertyValue( "FilterName", "Text - txt - csv (StarCalc)" ) ) ) 
-    print "oDoc: %s" % oDoc
+    debug("oDoc: %s" % oDoc)
 
     # Now close the document 
     oDoc.close( True )
 
-for f in sys.argv[1:]:
-    print f
+dirpath = "/home/archon/Desktop/Marc Patrick/"
+#dirpath = "/invalid"
+
+inputfiles = []
+
+#files = os.listdir(path)
+try:
+#    arg = sys.argv[1:]
+    arg = dirpath
+    debug("arg: %s" % arg)
+    # traverse folder from dirpath
+    files = os.listdir(arg)
+except:
+    print "No valid Argument, I need an existing dir"
+    office.wait()
+    office.terminate()
+
+# filter out all non-xls Files
+for file in files:
     try:
-        print "Arguments: %s \n" % sys.argv[f]
-        CalcExample(f)
-    except Exception:
-        print "FileError for %s" % f
-    
+        if file.split('.')[-1] == "xls":
+            inputfiles.append(file)
+    except:
+        pass
+debug("inputfiles: %s" % inputfiles)
+
+# convert every xls File into 2 individual csv 
+# (Messdaten -> filename, Metadaten -> metafilename)
+for file in inputfiles:
+    filepath = os.path.dirname(arg) + os.sep + file
+    try:
+        debug("filepath %s" % filepath)
+        Excel2CSV(filepath)
+    except:
+        raise Exception("No such file: %s" % filepath)
+
+office.terminate()

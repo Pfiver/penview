@@ -2,7 +2,6 @@
 # encoding: utf-8
 
 import os, csv
-#import sqlite3
 
 class Excel2CSV:
     pass
@@ -23,14 +22,14 @@ class CSVImporter:
     def load_values(self):
         valuesReader = csv.reader(open(self.file, 'rb'), delimiter=',', quotechar='"')
         row = valuesReader.next()
-        if not (row[0] == 't' and row[1] == 'v1'): # ignore the first row (we already know the title row)
+        if not (row[0] == u't' and row[1] == u'v1'): # ignore the first row (we already know the title row)
             print "Erste Reihe entspricht nicht dem Standardformat"
         for row in valuesReader:
-            if self.rowsize == -1:
-                self.rowsize = 0
-                for value in row: # test how big the row is and ignore further values
-                    if value != '':
-                        self.rowsize += 1
+            if rowsize == -1:
+                rowsize = len(row)
+                for value in reversed(row): # test how big the row is and ignore further values
+                    if value == '':
+                        rowsize -= 1
                     else:
                         break
             self.values += [row[:self.rowsize]]     
@@ -41,7 +40,7 @@ class CSVImporter:
     def load_metadata(self):
         metadataReader = csv.reader(open(self.path + "/" + "meta" + self.filename, 'rb'), delimiter=',', quotechar='"')
         row = metadataReader.next()
-        if not (row[0] == 'name' and row[1] == 'value'): # ignore the first row (we already know the title row)
+        if not (row[0] == u'name' and row[1] == u'value'): # ignore the first row (we already know the title row)
             print "meta: Erste Reihe entspricht nicht dem Standardformat" 
         for row in metadataReader:
             if row[1] != '':

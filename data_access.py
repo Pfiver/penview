@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # encoding: utf-8
 
-import sys
-import sqlite3
+import sys, sqlite3
+
+from penview import *
 
 class ExperimentFile:
     """
@@ -20,7 +21,6 @@ class ExperimentFile:
         http://www.gnu.org/licenses/gpl.html
 
     """
-    debug = 0
     
     def create_experiment_table(self):
         """helper function for constructor (__init__)"""
@@ -28,7 +28,6 @@ class ExperimentFile:
         append = ""
         minv = 1
         maxv = 30
-        if self.debug == True: print "vn " + str(vn)
 
         if self.nvalues < minv or self.nvalues > maxv:
             err = "Input Error: Second parameter must be between 1 and "
@@ -38,7 +37,7 @@ class ExperimentFile:
         append = "".join(", v%d FLOAT" % n for n in range(2, self.nvalues+1))
 
         sql = "CREATE TABLE 'values' (n INT, t FLOAT, v1 FLOAT%s)" % append
-        if ExperimentFile.debug == True: print "sql: " + str(sql)
+        debug("sql: %s" % sql)
         self.c.execute(sql)
        
     def __init__(self, p=':memory:', nv=1):
@@ -74,7 +73,7 @@ class ExperimentFile:
         if 'values' not in tables and 'metadata' not in tables:
             self.create_experiment_table()
             sql = "CREATE TABLE 'metadata' (name TEXT UNIQUE, value TEXT)"
-            if ExperimentFile.debug == True: print "sql: " + str(sql)
+            debug("sql: %s" % sql)
             self.c.execute(sql)
         elif not ('values' in tables and 'metadata' in tables):
             raise Exception("inconsistent database in %s - try another file" % p)
@@ -95,12 +94,13 @@ class ExperimentFile:
  
         if type(nr) != int:
             raise Exception("ExperimentFile number must be given as an int")
- 
+
+        debug("a[0]: %s" % a[0] )
         if len(a[0])-1 != self.nvalues:
             raise Exception("wrong number of values")
   
         sql = "INSERT INTO 'values' VALUES (%d, ?%s)" % (nr, (len(a[0])-1) * ", ?")
-        if ExperimentFile.debug == True: print "sql: " + str(sql)
+        debug("sql: %s" % sql)
  
         self.c.executemany(sql, a)
 
@@ -118,7 +118,7 @@ class ExperimentFile:
         """
         if nr == None: 
             sql = "SELECT * from 'values'"
-            if ExperimentFile.debug == True: print "sql: " + str(sql)
+            debug("sql: %s" % sql)
             self.c.execute(sql)
             return self.c.fetchall()
 
@@ -127,10 +127,10 @@ class ExperimentFile:
         
         # test if there are any data series with n
         sql_n = "SELECT DISTINCT n from 'values' "
-        if ExperimentFile.debug == True: print "sql_n: " + str(sql_n)
+        debug("sql_n: %s" % sql_n )
         self.c.execute(sql_n)
         nlist = map(lambda x: x[0], self.c.fetchall())
-        if ExperimentFile.debug == True: print "nr: %s\nnlist: %s" % ( nr, nlist )
+        debug("nr: %s\nnlist: %s" % ( nr, nlist ))
         if nr not in nlist:
             raise Exception("No such data series in values table. Specify another nr")
             
@@ -140,7 +140,7 @@ class ExperimentFile:
         append = "".join(", v%d" % n for n in range(2, self.nvalues+1))
         
         sql = "SELECT t, v1%s from 'values' WHERE n = %d" % (append, nr)
-        if ExperimentFile.debug == True: print "sql: " + str(sql)
+        debug("sql: %s" % sql)
         self.c.execute(sql)
         
         return self.c.fetchall()
@@ -170,12 +170,12 @@ class ExperimentFile:
  
         if update:
             sql = "UPDATE 'metadata' SET value = ? WHERE name = ?"
-            if ExperimentFile.debug == True: print "sql: " + str(sql) + " (" + str(update) + ")"
+            debug("sql: %s ( %s )" % ( sql, update ))
             self.c.executemany(sql, update)
  
         if insert:
             sql = "INSERT INTO 'metadata' VALUES (?, ?)"
-            if ExperimentFile.debug == True: print "sql: " + str(sql) + " (" + str(insert) + ")"
+            debug("sql: %s ( %s )" % ( sql, insert ))
             self.c.executemany(sql, insert)
 
         self.conn.commit()
@@ -188,7 +188,7 @@ class ExperimentFile:
         """
 
         sql = "SELECT * FROM 'metadata'"
-        if ExperimentFile.debug == True: print "sql: " + str(sql)
+        debug("sql: %s" % sql )
         self.c.execute(sql)
 
         return dict(self.c.fetchall())
