@@ -27,10 +27,10 @@ class TabRegion(Frame):
         self.notebook_region.pack(fill=BOTH, expand=1)
         self.switch_region.pack(fill=X, side=BOTTOM)
         
-        self.e = 'examples/abklingkonstante.sqlite'
-        pvconf.add_open_experiment(OpenExperiment(self.e))
-        pvconf.add_open_experiment(OpenExperiment(self.e))
-        pvconf.add_open_experiment(OpenExperiment(self.e))
+#        self.e = 'examples/abklingkonstante.sqlite'
+#        pvconf.add_open_experiment(OpenExperiment(self.e))
+#        pvconf.add_open_experiment(OpenExperiment(self.e))
+#        pvconf.add_open_experiment(OpenExperiment(self.e))
 
     def update(self, conf):
         for a in conf.open_experiments:

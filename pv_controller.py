@@ -3,6 +3,7 @@ from threading import Thread
 
 from penview import *
 from file_wizard import *
+from penview_model import *
 
 class PVController(Thread):
     
@@ -16,10 +17,11 @@ class PVController(Thread):
         self.run = True
         while self.run:
             a = self.dq()
-            try:
-                self.get_handler(a)()
-            except Exception, e:
-                print "Exception in PVController.run(): %s" % str(e)
+            self.get_handler(a)()
+#            try:
+#                self.get_handler(a)()
+#            except Exception, e:
+#                print "Exception in PVController.run(): %s" % str(e)
 
     def stop(self):
         self.run = False
@@ -41,7 +43,7 @@ class PVController(Thread):
         self.stop()
 
     def do_open(self):
-        wizard = OpenWizard()
+        self.conf.add_open_experiment(OpenWizard.open_experiment())
         
     def do_import(self):
-        wizard = ImportWizard()
+        self.conf.add_open_experiment(ImportWizard.open_experiment())
