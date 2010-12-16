@@ -3,7 +3,7 @@ class PVAction:
         
 pvaction_name = dict((getattr(PVAction, e), e) for e in PVAction.__dict__)
 
-debug_flag = 0
+debug_flag = 1
 def debug(*args):
     if not debug_flag:
         return

@@ -16,6 +16,7 @@ class CSVImporter:
         self.file = uri
         self.values = []
         self.metadata = {}
+        self.rowsize = -1
         self.values = self.load_values()
         self.metadata = self.load_metadata()
  
@@ -23,18 +24,16 @@ class CSVImporter:
         valuesReader = csv.reader(open(self.file, 'rb'), delimiter=',', quotechar='"')
         row = valuesReader.next()
         if not (row[0] == 't' and row[1] == 'v1'): # ignore the first row (we already know the title row)
-            print "Erste Reihe entspricht nicht dem Standardformat" 
-        rowsize = -1
+            print "Erste Reihe entspricht nicht dem Standardformat"
         for row in valuesReader:
-            if rowsize == -1:
-                rowsize = 0
+            if self.rowsize == -1:
+                self.rowsize = 0
                 for value in row: # test how big the row is and ignore further values
                     if value != '':
-                        rowsize += 1
+                        self.rowsize += 1
                     else:
                         break
-            self.values += [row[:rowsize]]     
-        self.rowsize = rowsize
+            self.values += [row[:self.rowsize]]     
         #print "rowsize: %s" % rowsize
         #print "resized row: %s" % row[:rowsize] 
         return self.values      
