@@ -7,21 +7,6 @@ from penview import *
 from data_access import ExperimentFile
     
 class OpenExperiment:
-<<<<<<< HEAD
-    def __init__(self, path, nvalues):
-        """initialize Experiment: load values and metadata table into classvariables
-                  :Parameters:
-            path  file-path"""
-        self.experiment_perspective = None
-        e = ExperimentFile(path, nvalues)
-        if nvalues != self.get_nvalues():
-            #TODO solve this
-            raise Exception("Circular Dependencies..")
-        self.values = e.load_values()
-        self.metadata = e.load_metadata()
-        print "%s values: %s " % ( path, self.values )
-        print "%s meta: %s" % ( path, self.metadata )
-=======
     def __init__(self, ex_file):
         """
         initialize Experiment: load values and metadata table into classvariables
@@ -32,7 +17,6 @@ class OpenExperiment:
         self.experiment_perspective = None
         self.values = ex_file.load_values()
         self.metadata = ex_file.load_metadata()
->>>>>>> remotes/origin/master
     
     def get_additional_info(self):
         additional_info = self.metadata['additional_info']
@@ -70,17 +54,20 @@ class OpenExperiment:
 #        return nvalues
     
     def get_nvalues(self):
-        row = self.values[1]
-        rowsize = -1
-        if rowsize == -1:
-            rowsize = len(row)
-            for value in reversed(row): # test how big the row is and ignore further values
-                if value == '':
-                    rowsize -= 1
-                else:
-                    break
-        nvalues = rowsize
-        return nvalues
+        
+        return self.experiment_file.nvalues
+
+#        row = self.values[1]
+#        rowsize = -1
+#        if rowsize == -1:
+#            rowsize = len(row)
+#            for value in reversed(row): # test how big the row is and ignore further values
+#                if value == '':
+#                    rowsize -= 1
+#                else:
+#                    break
+#        nvalues = rowsize
+#        return nvalues
     
         
     def get_desc(self):
