@@ -7,6 +7,7 @@ from penview import *
 from data_access import ExperimentFile
     
 class OpenExperiment:
+<<<<<<< HEAD
     def __init__(self, path, nvalues):
         """initialize Experiment: load values and metadata table into classvariables
                   :Parameters:
@@ -20,6 +21,18 @@ class OpenExperiment:
         self.metadata = e.load_metadata()
         print "%s values: %s " % ( path, self.values )
         print "%s meta: %s" % ( path, self.metadata )
+=======
+    def __init__(self, ex_file):
+        """
+        initialize Experiment: load values and metadata table into classvariables
+             :Parameters:
+                path  file-path
+        """
+        self.experiment_file = ex_file
+        self.experiment_perspective = None
+        self.values = ex_file.load_values()
+        self.metadata = ex_file.load_metadata()
+>>>>>>> remotes/origin/master
     
     def get_additional_info(self):
         additional_info = self.metadata['additional_info']

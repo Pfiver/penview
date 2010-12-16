@@ -1,11 +1,11 @@
 # encoding: utf-8
-from ttk import Notebook # ttk wrapper for TABS
 from Tkinter import *
 from itertools import count
 import tkColorChooser
 
 from penview_model import *
 
+from ttk import Notebook # ttk wrapper for TABS
 
 class TabRegion(Frame):
     def __init__(self, parent, pvconf):
@@ -30,7 +30,7 @@ class TabRegion(Frame):
         # pack()
         self.notebook_region.pack(fill=BOTH, expand=1)
         self.switch_region.pack(fill=X, side=BOTTOM)
-        
+
         # Open Experiments from Database
         self.s1 = 'examples/abklingkonstante.sqlite'
         self.s2 = 'examples/eigenfrequenz_chaos2.sqlite'

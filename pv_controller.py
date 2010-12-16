@@ -3,6 +3,7 @@ from threading import Thread
 
 from penview import *
 from file_wizard import *
+from penview_model import *
 
 class PVController(Thread):
     
@@ -16,10 +17,11 @@ class PVController(Thread):
         self.run = True
         while self.run:
             a = self.dq()
-            try:
-                self.get_handler(a)()
-            except Exception, e:
-                print "Excetion handling %s: %s" % (str(a), str(e))
+            self.get_handler(a)()
+#            try:
+#                self.get_handler(a)()
+#            except Exception, e:
+#                print "Exception in PVController.run(): %s" % str(e)
 
     def stop(self):
         self.run = False
@@ -33,15 +35,15 @@ class PVController(Thread):
     def get_handler(self, action):
         try:
             return getattr(self, "do_" + pvaction_name[action].lower())
-        except KeyError, e:
-            print "You want me to do WHAT ???"
-
-    def do_open(self):
-        wizard = OpenWizard()
-        
-    def do_import(self):
-        wizard = ImportWizard()
+        except AttributeError:
+            raise Exception("Sorry, '%s' is not yet implemented" % pvaction_name[action])
 
     def do_quit(self):
         self.ui.stop()
         self.stop()
+
+    def do_open(self):
+        self.conf.add_open_experiment(OpenWizard.open_experiment())
+        
+    def do_import(self):
+        self.conf.add_open_experiment(ImportWizard.open_experiment())

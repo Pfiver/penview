@@ -1,3 +1,5 @@
+# from http://pypi.python.org/pypi/pyttk/
+
 """Ttk wrapper.
 
 This module provides classes to allow using Tk themed widget set.
