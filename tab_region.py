@@ -14,33 +14,39 @@ class TabRegion(Frame):
         self.tabs = []
         self.colors = ["grey", "black", "red", "green", "blue", "cyan", "yellow", "magenta"]
         self.colors_id = count()
+        
         pvconf.add_listener(self.update)
 
+        # Tabs in notebook_region
         self.notebook_region = Notebook(self)
+        
+        # Graph and Table Buttons in switch_region
         self.switch_region = Frame(self, bg="blue")
-
         self.button1 = Button(self.switch_region, text="Graph", command='', relief=SUNKEN)
         self.button2 = Button(self.switch_region, text="Table", command='')
         self.button1.pack(side=LEFT)
         self.button2.pack(side=LEFT)
 
+        # pack()
         self.notebook_region.pack(fill=BOTH, expand=1)
         self.switch_region.pack(fill=X, side=BOTTOM)
         
-        self.e = 'examples/abklingkonstante.sqlite'
-        pvconf.add_open_experiment(OpenExperiment(self.e))
-        pvconf.add_open_experiment(OpenExperiment(self.e))
-        pvconf.add_open_experiment(OpenExperiment(self.e))
+        # Open Experiments from Database
+        self.s1 = 'examples/abklingkonstante.sqlite'
+        self.s2 = 'examples/eigenfrequenz_chaos2.sqlite'
+        pvconf.add_open_experiment(OpenExperiment(self.s1))
+        pvconf.add_open_experiment(OpenExperiment(self.s2))
+#       pvconf.add_open_experiment(OpenExperiment(self.e))
 
     def update(self, conf):
         for a in conf.open_experiments:
             if a.id not in map(lambda t: t.id, self.tabs):
                 self.addTab(a)
     
-    def choose_color(self, color):
+    def choose_color(self):
 #        color_id = self.colors_id.next()
         color = self.colors[0]
-        tkColorChooser.askcolor(color)
+        tkColorChooser.askcolor()
         
     def addTab(self, ox):
         tab = Frame(self)
