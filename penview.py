@@ -12,6 +12,9 @@ def debug(*args):
     if len(args) < 1: args = [""]
     print "%s: %s(): %s" % (f.f_locals.values()[0].__class__, f.f_code.co_name, args[0] % args[1:])
 
+import sys
+sys.path.append("lib")
+
 if __name__ == "__main__":
 
     # say hi

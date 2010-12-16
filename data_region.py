@@ -1,10 +1,16 @@
 from Tkinter import *
 from functools import partial
 
+from recipe_52266 import MultiListbox
+
 class DataRegion(Frame):
     def __init__(self, parent, pvconf):
         Frame.__init__(self, parent)
-        
+
+        self.table_region = PVTable(self)
+        self.table_region.pack(fill=BOTH, expand=YES)
+        return
+
         self.plot_region = ScrollRegion(self)
         self.xy_plot = XYPlot(self.plot_region, 800, 600) # custom canvas widget
         
@@ -118,3 +124,9 @@ class XYPlot(Canvas):
 #        self.height = event.height
 #        self.canvas.configure(width=self.width, height=self.height)
 #        self.repaint(self.fgcolor)
+
+class PVTable(MultiListbox):
+    def __init__(self, parent):
+        MultiListbox.__init__(self, parent, (('Subject', 40), ('Sender', 20), ('Date', 10)))
+        for i in range(1000):
+            self.insert(END, ('Important Message: %d' % i, 'John Doe', '10/10/%04d' % (1900+i)))

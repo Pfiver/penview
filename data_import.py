@@ -25,16 +25,16 @@ class CSVImporter:
         if not (row[0] == u't' and row[1] == u'v1'): # ignore the first row (we already know the title row)
             print "Erste Reihe entspricht nicht dem Standardformat"
         for row in valuesReader:
-            if rowsize == -1:
-                rowsize = len(row)
+            if self.rowsize == -1:
+                self.rowsize = len(row)
                 for value in reversed(row): # test how big the row is and ignore further values
                     if value == '':
-                        rowsize -= 1
+                        self.rowsize -= 1
                     else:
                         break
             self.values += [row[:self.rowsize]]     
-        #print "rowsize: %s" % rowsize
-        #print "resized row: %s" % row[:rowsize] 
+        #print "rowsize: %s" % self.rowsize
+        #print "resized row: %s" % row[:self.rowsize] 
         return self.values      
 
     def load_metadata(self):

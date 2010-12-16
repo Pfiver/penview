@@ -1,11 +1,11 @@
 # encoding: utf-8
-from ttk import Notebook # ttk wrapper for TABS
 from Tkinter import *
 from itertools import count
 import tkColorChooser
 
 from penview_model import *
 
+from ttk import Notebook # ttk wrapper for TABS
 
 class TabRegion(Frame):
     def __init__(self, parent, pvconf):
