@@ -19,7 +19,7 @@ class PVController(Thread):
             try:
                 self.get_handler(a)()
             except Exception, e:
-                print "Excetion handling %s: %s" % (str(a), str(e))
+                print "Exception in PVController.run(): %s" % str(e)
 
     def stop(self):
         self.run = False
@@ -33,15 +33,15 @@ class PVController(Thread):
     def get_handler(self, action):
         try:
             return getattr(self, "do_" + pvaction_name[action].lower())
-        except KeyError, e:
-            print "You want me to do WHAT ???"
+        except AttributeError:
+            raise Exception("Sorry, '%s' is not yet implemented" % pvaction_name[action])
+
+    def do_quit(self):
+        self.ui.stop()
+        self.stop()
 
     def do_open(self):
         wizard = OpenWizard()
         
     def do_import(self):
         wizard = ImportWizard()
-
-    def do_quit(self):
-        self.ui.stop()
-        self.stop()
