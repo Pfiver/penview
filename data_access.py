@@ -111,10 +111,9 @@ class ExperimentFile:
         load the experiments values
         
         :Parameters:
-            nr    data series number (default: all)
+            nr    data series number (default: 1)
         
         if you specify nr, the data is returned in an array like this: [[t,v1,v2,...]]
-        if you DON'T specify nr, the data is returned in an array like this: [[n,t,v1,v2,...]]
         """
         if nr == None: 
             sql = "SELECT * from 'values'"
@@ -170,12 +169,12 @@ class ExperimentFile:
  
         if update:
             sql = "UPDATE 'metadata' SET value = ? WHERE name = ?"
-            debug("sql: %s ( %s )" % ( sql, update ))
+            debug("sql, update: %s ( %s )" % ( sql, update ))
             self.c.executemany(sql, update)
  
         if insert:
             sql = "INSERT INTO 'metadata' VALUES (?, ?)"
-            debug("sql: %s ( %s )" % ( sql, insert ))
+            debug("sql, insert: %s ( %s )" % ( sql, insert ))
             self.c.executemany(sql, insert)
 
         self.conn.commit()

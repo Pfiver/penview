@@ -7,14 +7,19 @@ from penview import *
 from data_access import ExperimentFile
     
 class OpenExperiment:
-    def __init__(self, path):
+    def __init__(self, path, nvalues):
         """initialize Experiment: load values and metadata table into classvariables
                   :Parameters:
             path  file-path"""
         self.experiment_perspective = None
-        e = ExperimentFile(path)
+        e = ExperimentFile(path, nvalues)
+        if nvalues != self.get_nvalues():
+            #TODO solve this
+            raise Exception("Circular Dependencies..")
         self.values = e.load_values()
         self.metadata = e.load_metadata()
+        print "%s values: %s " % ( path, self.values )
+        print "%s meta: %s" % ( path, self.metadata )
     
     def get_additional_info(self):
         additional_info = self.metadata['additional_info']
@@ -45,20 +50,35 @@ class OpenExperiment:
             time_values.append(self.values[i][0])
         return time_values
         
+#    def get_nvalues(self):
+#        """return the number of values (v1, v2, v3, v4 -> 4) in table 'values' """
+#        debug("self.values[0]: " + str(self.values[0]))
+#        nvalues = len(self.values[0])
+#        return nvalues
+    
     def get_nvalues(self):
-        """return the number of values (v1, v2, v3, v4 -> 4) in table 'values' """
-        debug("self.values[0]:" + str(self.values[0]))
-        nvalues = len(self.values[0])-1
+        row = self.values[1]
+        rowsize = -1
+        if rowsize == -1:
+            rowsize = len(row)
+            for value in reversed(row): # test how big the row is and ignore further values
+                if value == '':
+                    rowsize -= 1
+                else:
+                    break
+        nvalues = rowsize
         return nvalues
+    
         
     def get_desc(self):
         """return a list of vn_desc (v1, v2..)"""
         desc = []
         debug("nvalues: %s " % self.get_nvalues())
-        for i in range(self.get_nvalues()):
-            key = 'v' + str(i+1) + '_desc'
-            debug("key: %s" % key)
-            desc.append(self.metadata[key])
+        for i in range(1, self.get_nvalues()):
+            key = 'v' + str(i) + '_desc'
+            value = self.metadata[key]
+            debug("key:value %s:%s" % ( key, value ))
+            desc.append(value)
         return desc
 
 class ExperimentPerspective:
@@ -94,6 +114,7 @@ class PenViewConf:
         self.controller = controller
     
 #a = OpenExperiment('examples/abklingkonstante.sqlite')
+#a = OpenExperiment('examples/motorkalibrierung.sqlite')
 #print a.values
 #print a.metadata
 #print a.get_time_values()

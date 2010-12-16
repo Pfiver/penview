@@ -3,6 +3,8 @@
 
 import os, csv
 
+from penview import *
+
 class Excel2CSV:
     pass
  
@@ -22,7 +24,7 @@ class CSVImporter:
         valuesReader = csv.reader(open(self.file, 'rb'), delimiter=',', quotechar='"')
         row = valuesReader.next()
         if not (row[0] == u't' and row[1] == u'v1'): # ignore the first row (we already know the title row)
-            print "Erste Reihe entspricht nicht dem Standardformat" 
+            debug( "Erste Reihe entspricht nicht dem Standardformat" )
         rowsize = -1
         for row in valuesReader:
             if rowsize == -1:
@@ -41,9 +43,10 @@ class CSVImporter:
     def load_metadata(self):
         metadataReader = csv.reader(open(self.path + "/" + "meta" + self.filename, 'rb'), delimiter=',', quotechar='"')
         row = metadataReader.next()
+        debug("row: %s" % row)
         if not (row[0] == u'name' and row[1] == u'value'): # ignore the first row (we already know the title row)
-            print "meta: Erste Reihe entspricht nicht dem Standardformat" 
+            debug("meta: Erste Reihe entspricht nicht dem Standardformat")
         for row in metadataReader:
             if row[1] != '':
-                self.metadata.update(dict((row,)))
+                self.metadata.update(dict(((row[0],unicode(row[1], 'utf-8')),)))
         return self.metadata

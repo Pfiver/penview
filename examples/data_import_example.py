@@ -19,11 +19,13 @@ print "metadata: %s" % data.metadata
 #e = ExperimentFile('abklingkonstante.sqlite')
 #e = ExperimentFile('eigenfrequenz_chaos2.sqlite')
 e = ExperimentFile('motorkalibrierung.sqlite',2)
+print "data.values: %s" % data.values
 e.store_values(1, data.values)
+print "data.metadata: %s" % data.metadata
 e.store_metadata(data.metadata)
 
 result = e.load_values(1)
-print "\nresult exp1:\n" + str(result)
+print "\nresult exp1:\n %s" % result
 print e.load_metadata()
 
 e.close()

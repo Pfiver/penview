@@ -3,12 +3,13 @@
 
 #import unittest
 import os
+
 from data_access import ExperimentFile
 
 class test:
     ## TODO: an unittest anpassen
-    ExperimentFile.debug = 0
-    debug = 0
+    ExperimentFile.debug = 1
+    debug = 1
     badtestcount = 0
     goodtestcount = 0
     baderrorcount = 0
@@ -17,7 +18,7 @@ class test:
     dbpath = '/tmp/'
     dbname = 'example'
     dbdestination = dbpath + dbname    
-#    dbdestination = ':memory:'
+    dbdestination = ':memory:'
        
     def __init__(self):
         self.goodtest()
@@ -38,10 +39,8 @@ class test:
                 for i in range(2):
                     values += [[i] + [0] * n]
                 e.store_values(0, values)
-                
                 e.store_values(1, values)
-                
-                
+                     
                 result = e.load_values(0)
                 if result != [(0.0,) + n * (0.0,),
                               (1.0,) + n * (0.0,)]:
@@ -49,12 +48,15 @@ class test:
                             print "res: %s" % result
                             print "res: %s" % [(0.0,) + n * (0.0,), (1.0,) + n * (0.0,)]
                     raise Exception("library malfunction 0")
-                allresults = e.load_values()
-                if allresults != [(0, 0.0) + n * (0.0,),
-                                  (0, 1.0) + n * (0.0,),
-                                  (1, 0.0) + n * (0.0,),
-                                  (1, 1.0) + n * (0.0,)]:
-                    if self.debug: print "res: %s" % allresults
+                allresults = e.load_values(0)
+                allresults += e.load_values(1)
+                testresults = [(0.0,) + n * (0.0,),
+                               (1.0,) + n * (0.0,),
+                               (0.0,) + n * (0.0,),
+                               (1.0,) + n * (0.0,)]
+                if self.debug: print "testresults: %s" % testresults
+                if allresults != testresults:
+                    if self.debug: print "allresults:  %s" % allresults
                     raise Exception("library malfunction 1")
                 e.close()
 
@@ -69,7 +71,7 @@ class test:
         e = ExperimentFile(self.dbdestination,1)
 
         if 1:
-            for metadata in ({"x":"y"}, {"x":"z"}, {"name":"x1", "v1unit":"m/s^2"}):
+            for metadata in ({"x":u"y"}, {"x":u"z"}, {"name":u"x1", "v1unit":u"m/s^2"}):
                 testcount += 1
                 try:
                     e.store_metadata(metadata)
