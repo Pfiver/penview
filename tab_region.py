@@ -35,9 +35,9 @@ class TabRegion(Frame):
         self.s1 = 'examples/abklingkonstante.sqlite'
         self.s2 = 'examples/eigenfrequenz_chaos2.sqlite'
         self.s3 = 'examples/motorkalibrierung.sqlite'
-        pvconf.add_open_experiment(OpenExperiment(self.s1,1))
-        pvconf.add_open_experiment(OpenExperiment(self.s2,3))
-        pvconf.add_open_experiment(OpenExperiment(self.s3,3))
+        pvconf.add_open_experiment(OpenExperiment(ExperimentFile(self.s1)))
+        pvconf.add_open_experiment(OpenExperiment(ExperimentFile(self.s2)))
+        pvconf.add_open_experiment(OpenExperiment(ExperimentFile(self.s3)))
 
     def update(self, conf):
         for a in conf.open_experiments:
@@ -54,11 +54,12 @@ class TabRegion(Frame):
         tab.grid()
         Checkbutton(tab, text="Zeit").grid(row=0, sticky=W)
         print "get_nvalues: %s" % ox.get_nvalues()
+#        for y in range(ox.get_nvalues()):
         for y in range(ox.get_nvalues()):
-#        for y in range(ox.get_nvalues()+1):
             print "y: %s" % y
             if y == 0:
-                Checkbutton(tab, text="Zeit")
+                checkb = Checkbutton(tab, text="Zeit")
+                checkb.grid(row=0, column=0, sticky=W)
                 continue
             checkb = Checkbutton(tab, text=ox.get_desc()[y-1])
             checkb.grid(row=1, column=0, sticky=W)

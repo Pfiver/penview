@@ -77,8 +77,14 @@ class ExperimentFile:
             self.c.execute(sql)
         elif not ('values' in tables and 'metadata' in tables):
             raise Exception("inconsistent database in %s - try another file" % p)
- #       else:
- #           pass # opening of an existing experiment
+        else:
+            # opening of an existing experiment
+                    
+            sql = "SELECT * from 'values' LIMIT 1"
+            debug("sql: %s" % sql)
+            self.c.execute(sql)
+            self.nvalues = len(self.c.fetchone())-2
+            debug("nvalues: %d", self.nvalues)
 
     def store_values(self, nr, a):
         """
