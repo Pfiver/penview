@@ -1,5 +1,6 @@
 from Queue import Queue
 from threading import Thread
+from traceback import print_exc
 
 from penview import *
 from file_wizard import *
@@ -18,13 +19,14 @@ class PVController(Thread):
         self.run = True
         while self.run:
             a = self.dq()
-            if debug_flag:
+            try:
                 self.get_handler(a)()
-            else:
-                try:
-                    self.get_handler(a)()
-                except Exception, e:
-                    print "Exception in PVController.run(): %s" % str(e)
+            except Exception, e:
+                print "Exception in PVController.run(): " + str(e)
+                if debug_flag:
+                    print_exc()
+            finally:
+                self.task_done()
 
     def stop(self):
         self.run = False
@@ -34,6 +36,12 @@ class PVController(Thread):
 
     def dq(self):
         return self.action_q.get()
+
+    def task_done(self):
+        self.action_q.task_done()
+
+    def wait_idle(self):
+        self.action_q.join()
 
     def get_handler(self, action):
         try:
@@ -53,13 +61,23 @@ class PVController(Thread):
 
     def open_helper(self, ox):
         self.conf.add_open_experiment(ox)
+
+    def do_show_table(self):
+        self.conf.set_view(PVTable)
         
+    def do_show_graph(self):
+        self.conf.set_view(XYPlot)
+
+    def dispatch_events(self):
+        self.ui.wait_idle()
+        self.wait_idle()
+
     def reset_upd(self):
 
         experiments = self.conf.open_experiments
-    
+
         cols = experiments[0].get_nvalues() + 1
-        
+
         max_values = {}
         min_values = {}
         for i in range(cols):
@@ -74,20 +92,14 @@ class PVController(Thread):
                     imin = jmin
             max_values[i] = imax
             min_values[i] = imin
-
-        ranges = [max_values[i] - min_values[i] for i in range(cols)]
         
         ppd = self.ui.data_region.xy_plot.ppd
         win_width = self.ui.data_region.xy_plot.width
         win_height = self.ui.data_region.xy_plot.height
 
-        self.conf.values_upd[0] = win_width / ppd * ranges[0]
+        ranges = [max_values[i] - min_values[i] for i in range(cols)]
 
-        for i in range(1, cols):
-            self.conf.values_upd[i] = win_height / ppd * ranges[i]
+        for i in range(cols):
+            self.conf.set_scale(i, win_height / float(ppd) * ranges[i])     # TODO: adjust coordinate origin
 
-    def do_show_table(self):
-        self.conf.set_view(PVTable)
-        
-    def do_show_graph(self):
-        self.conf.set_view(XYPlot)
+

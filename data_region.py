@@ -8,106 +8,50 @@ from recipe_52266 import MultiListbox
 class DataRegion(Frame):
     def __init__(self, parent, pvconf, ctrl):
         Frame.__init__(self, parent)
+
         self.conf = pvconf
         self.controller = ctrl
-        self.xy_plot = None
-        self.plot_region = None
-        self.table_region = None
 
         pvconf.add_ox_listener(self.ox_update)
         pvconf.add_view_listener(self.view_update)
 
-    def ox_update(self, conf):
-        self.update()
-        
-        
-    def view_update(self, conf):
-        view_method = { XYPlot: self.show_plot,
-                        PVTable: self.show_table}
-        view_method[conf.view]()
+        self.controls_region = PlotControls(self, self.conf)
+        self.plot_region = ScrollRegion(self)
+
+        self.xy_plot = XYPlot(self.plot_region, 800, 600)
+        self.xy_plot.pack(fill=BOTH, expand=1)
+
+        self.table_region = PVTable(self)
 
     def show_table(self):
-        if self.plot_region:                        # TODO: ev. weiterer wrapper frame um plot+controls _region
-            self.plot_region.pack_forget()          # plot_region can't exist without controls_region
-            self.controls_region.pack_forget()
-
-        if not self.table_region:
-            self.table_region = PVTable(self)
+        self.plot_region.pack_forget()          # FIXME: on the first call the widgets are not yet packed
+        self.controls_region.pack_forget()
 
         self.table_region.pack(fill=BOTH, expand=YES)
 
     def show_plot(self):
-        if self.table_region:
-            self.table_region.pack_forget()
-
-        if not self.plot_region:
-            self.plot_region = ScrollRegion(self)
-            self.controls_region = Frame(self)
-
-            self.xy_plot = XYPlot(self.plot_region, 800, 600) # custom canvas widget
-            self.xy_plot.pack(fill=BOTH, expand=1)
-
-############# auslagern
-#
-            # controls_region setup - keep pack()ing order !
-            # y-axis controls 
-            self.y_scales = []
-            self.y_units = []
-            for i in range(2):
-                v = StringVar()
-                v.trace("w", partial(self.controls_handler, v))
-                sb = Spinbox(self.controls_region, from_=0, to=99, width=5, textvariable=v)
-                sb.v = v
-                sb.pack(side=LEFT)
-                self.y_scales.append(sb)
-    
-                ul = Label(self.controls_region, text="y%d units" % i)
-                ul.pack(side=LEFT)
-                self.y_units.append(ul)
-    
-            # x-axis controls
-            self.x_units = Label(self.controls_region, text="x units")
-            self.x_units.pack(side=RIGHT)
-    
-            v = StringVar()
-            v.trace("w", partial(self.controls_handler, v))
-            self.x_scale = Spinbox(self.controls_region, from_=0, to=99, width=5, textvariable=v)
-            self.x_scale.v = v
-            self.x_scale.pack(side=RIGHT)
-    
-            v = StringVar()
-            v.set("values 0")
-            v.trace("w", partial(self.controls_handler, v))
-            x_values_list = ["values %d" % i for i in range(2)]
-            self.x_values = OptionMenu(self.controls_region, v, *x_values_list)
-            self.x_values.v = v
-            self.x_values.pack(side=RIGHT)
-#
-############# bis hier
+        self.table_region.pack_forget()          # FIXME: on the first call the widget is not yet packed
 
         # urk - use the pack-regions-that-should-stay-visible-on-window-resize-first hack
         self.controls_region.pack(side=BOTTOM, fill=X, expand=1)
         self.plot_region.pack(fill=BOTH, expand=1)
-
-# for testing - better place to be found
-#        self.update()
         
-    def controls_handler(self, v, *ign):
-#        print v.get()
-        pass
-    
-    def update(self):
-        debug(str(self.conf.values_upd))
-        x0 = self.conf.open_experiments[0]
-        self.x_scale.v.set(self.conf.values_upd[x0.perspective.xaxis_values])
-        for i in range(self.conf.open_experiments[0].get_nvalues()):
-            self.y_scales[i].v.set(self.conf.values_upd[i + 1])
+    def ox_update(self, conf):
+#        debug(str(conf.values_upd))
+        x0 = conf.open_experiments[0]
+#        self.x_scale.v.set(conf.values_upd[x0.perspective.xaxis_values])
+#        for i in range(conf.open_experiments[0].get_nvalues()):
+#            self.y_scales[i].v.set(self.conf.values_upd[i + 1])
         for ox in self.conf.open_experiments:
             for index in ox.perspective.yaxis_values:
                 self.xy_plot.plot_data(ox.values[ox.perspective.xaxis_values], ox.values[index],
                                        self.conf.values_upd[ox.perspective.xaxis_values], self.conf.values_upd[index])
+        self.xy_plot.plot_data(range(100), range(100), 4, 8)
 
-#        self.xy_plot.plot_data(range(100), range(100), 4, 8)
+    def view_update(self, conf):
+        view_method = { XYPlot: self.show_plot,
+                        PVTable: self.show_table}
+        view_method[conf.view]()
 
 class ScrollRegion(Frame):
     def __init__(self, parent):
@@ -193,8 +137,59 @@ class XYPlot(Canvas):
 #        self.canvas.configure(width=self.width, height=self.height)
 #        self.repaint(self.fgcolor)
 
+class PlotControls(Frame):
+    def __init__(self, parent, conf):
+        Frame.__init__(self, parent)
+        conf.add_ox_listener(self.update_ox)
+
+    def update_ox(self, conf):
+        if len(conf.open_experiments):
+            self.update_controls(conf.open_experiments[0].perspective)
+
+    def update_scales(self, conf):
+        pass
+
+    def update_controls(self, ppct):
+        # controls_region setup - keep pack()ing order !
+        # y-axis controls 
+        self.y_scales = []
+        self.y_units = []
+        for i in range(2):
+            v = StringVar()
+            v.trace("w", partial(self.controls_handler, v))
+            sb = Spinbox(self, from_=0, to=99, width=5, textvariable=v)
+            sb.v = v
+            sb.pack(side=LEFT)
+            self.y_scales.append(sb)
+
+            ul = Label(self, text="y%d units" % i)
+            ul.pack(side=LEFT)
+            self.y_units.append(ul)
+
+        # x-axis controls
+        self.x_units = Label(self, text="x units")
+        self.x_units.pack(side=RIGHT)
+
+        v = StringVar()
+        v.trace("w", partial(self.controls_handler, v))
+        self.x_scale = Spinbox(self, from_=0, to=99, width=5, textvariable=v)
+        self.x_scale.v = v
+        self.x_scale.pack(side=RIGHT)
+
+        v = StringVar()
+        v.set("values 0")
+        v.trace("w", partial(self.controls_handler, v))
+        x_values_list = ["values %d" % i for i in range(2)]
+        self.x_values = OptionMenu(self, v, *x_values_list)
+        self.x_values.v = v
+        self.x_values.pack(side=RIGHT)
+
+    def controls_handler(self, v, *ign):
+#        debug( v.get() )
+        pass
+    
 class PVTable(MultiListbox):
     def __init__(self, parent):
-        MultiListbox.__init__(self, parent, (('Subject', 40), ('Sender', 20), ('Date', 10)))
+        MultiListbox.__init__(self, parent, ('Subject', 'Sender', 'Date'))
         for i in range(1000):
-            self.insert(END, ('Important Message: %d' % i, 'John Doe', '10/10/%04d' % (1900+i)))
+            self.insert(END, ('Item %d' % i, 'John Doe %d' % i, '%04d' % i))

@@ -10,8 +10,8 @@ class OpenWizard:
 
     xi = count()
     examples = ('examples/abklingkonstante.sqlite',
-#                'examples/motorkalibrierung.sqlite',
                 'examples/eigenfrequenz_chaos2.sqlite',
+#                'examples/motorkalibrierung.sqlite',
     )
 
     @classmethod

@@ -22,11 +22,11 @@ class TabRegion(Frame):
         self.notebook_region = Notebook(self)
         
         # Graph and Table Buttons in switch_region
-        self.switch_region = Frame(self, bg="blue")
+        self.switch_region = Frame(self)
         self.graph_button = Button(self.switch_region, text="Graph", command=lambda: ctrl.q(PVAction.show_graph))
         self.table_button = Button(self.switch_region, text="Table", command=lambda: ctrl.q(PVAction.show_table))
-        self.graph_button.pack(side=LEFT)
-        self.table_button.pack(side=LEFT)
+        self.graph_button.pack(side=LEFT, fill=X, expand=YES)
+        self.table_button.pack(side=LEFT, fill=X, expand=YES)
         pvconf.add_view_listener(self.view_update)
 
         # pack()
@@ -54,10 +54,7 @@ class TabRegion(Frame):
         
     def addTab(self, ox):
         tab = Frame(self)
-        tab.grid()
         Checkbutton(tab, text="Zeit").grid(row=0, sticky=W)
-        debug("get_nvalues: %s" % ox.get_nvalues())
-#        for y in range(ox.get_nvalues()):
 
         checkb = Checkbutton(tab, text="Zeit")
         checkb.grid(row=0, column=0, sticky=W)
@@ -72,6 +69,7 @@ class TabRegion(Frame):
             
         Label(tab, text=self.get_details_text(ox)).grid(row=2, sticky=W)
         tab.id = ox.id
+        tab.pack()
         self.tabs.append(tab)
         self.notebook_region.add(tab, text="Exp %d" % ox.id)
         

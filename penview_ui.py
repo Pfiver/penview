@@ -1,6 +1,6 @@
 from random import *
 from Tkinter import *
-from threading import Thread
+from threading import Thread, Event
 
 from penview import *
 from tab_region import TabRegion
@@ -8,6 +8,10 @@ from data_region import DataRegion
 
 # The "view"
 class PenViewUI(Thread):
+
+    def __init__(self):
+        Thread.__init__(self)
+        self.lock = Event()     # the lock is clear until run() has initialized all widgets
 
     def run(self):
         # tk object
@@ -62,6 +66,7 @@ class PenViewUI(Thread):
 
         self.conf.set_view(self.conf.view)
 
+        self.lock.set()
         self.tk.mainloop()
     
     def stop(self):
@@ -73,6 +78,12 @@ class PenViewUI(Thread):
 
     def set_controller(self, controller):
         self.controller = controller
+
+    def wait_idle(self):
+        self.lock.wait()                    # wait until "tk" and widgets are initialized
+        self.lock.clear()
+        self.tk.after_idle(self.lock.set)
+        self.lock.wait()
 
     def map_handler(self, event):
         # Here we'd have to check the original height of the

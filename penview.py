@@ -1,7 +1,23 @@
+# encoding: utf-8
+#
+# Authors:
+#    Tobias Thüring
+#    Patrick Pfeifer
+#
+# December 2010
+#    
+# Copyleft GNU GPL version 3 or any later version:
+#    http://www.gnu.org/licenses/gpl.html
+#
+# the latest version of this code can be found on github:
+#    https://github.com/P2000/penview
+# (EpyDoc generated) documentation is available on wuala:
+#    http://content.wuala.com/contents/patrick2000/Shared/school/11_Projekt/Pendulum/Dokumentation/DB%20V3.pdf?dl=1
+
 class PVAction:
     open_exp, import_exp, quit_app, show_help, show_about, show_table, show_graph = range(7)
         
-pvaction_name = dict((getattr(PVAction, e), e) for e in PVAction.__dict__)
+pvaction_name = dict((getattr(PVAction, a), a) for a in PVAction.__dict__)
 
 debug_flag = 1
 def debug(*args):
@@ -41,10 +57,10 @@ if __name__ == "__main__":
     print "Controller Running"
 
     if debug_flag:
-        ui.join(1)
+        controller.dispatch_events()
         controller.q(PVAction.open_exp)
         controller.q(PVAction.open_exp)
-#        controller.q(PVAction.open_exp)
+    #    controller.q(PVAction.open_exp)
 
     # wait for gui thread (exits when the main window gets closed)
     ui.join()
