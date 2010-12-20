@@ -60,6 +60,14 @@ class PenViewUI(Thread):
         self.tk.config(menu=self.menu_bar)
         self.main_region.pack(fill=BOTH, expand=1)
 
+
+        if debug_flag:
+            def open_examples():
+                self.controller.q(PVAction.open_exp)
+                self.controller.q(PVAction.open_exp)
+                self.controller.q(PVAction.open_exp)
+            self.tk.after_idle(open_examples)
+
         self.tk.mainloop()
     
     def stop(self):
