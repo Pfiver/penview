@@ -3,7 +3,14 @@
 
 import sys, sqlite3
 
-from penview import *
+debug_flag = 0
+def debug(*args):
+    if not debug_flag:
+        return
+    import sys
+    f = sys._getframe(1)
+    if len(args) < 1: args = [""]
+    print "%s: %s(): %s" % (f.f_locals.values()[0].__class__, f.f_code.co_name, args[0] % args[1:])
 
 class ExperimentFile:
     """
@@ -79,7 +86,6 @@ class ExperimentFile:
             raise Exception("inconsistent database in %s - try another file" % p)
         else:
             # opening of an existing experiment
-                    
             sql = "SELECT * from 'values' LIMIT 1"
             debug("sql: %s" % sql)
             self.c.execute(sql)
