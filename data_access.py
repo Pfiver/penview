@@ -89,7 +89,8 @@ class ExperimentFile:
             sql = "SELECT * from 'values' LIMIT 1"
             debug("sql: %s" % sql)
             self.c.execute(sql)
-            self.nvalues = len(self.c.fetchone())-2
+#            self.nvalues = len(self.c.fetchone())-2
+            self.nvalues = len(self.c.description)-2
             debug("nvalues: %d", self.nvalues)
 
     def store_values(self, nr, a):

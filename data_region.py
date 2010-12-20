@@ -14,8 +14,13 @@ class DataRegion(Frame):
         self.plot_region = None
         self.table_region = None
 
+        pvconf.add_ox_listener(self.ox_update)
         pvconf.add_view_listener(self.view_update)
 
+    def ox_update(self, conf):
+        self.update()
+        
+        
     def view_update(self, conf):
         view_method = { XYPlot: self.show_plot,
                         PVTable: self.show_table}
@@ -52,6 +57,7 @@ class DataRegion(Frame):
                 v = StringVar()
                 v.trace("w", partial(self.controls_handler, v))
                 sb = Spinbox(self.controls_region, from_=0, to=99, width=5, textvariable=v)
+                sb.v = v
                 sb.pack(side=LEFT)
                 self.y_scales.append(sb)
     
@@ -66,13 +72,16 @@ class DataRegion(Frame):
             v = StringVar()
             v.trace("w", partial(self.controls_handler, v))
             self.x_scale = Spinbox(self.controls_region, from_=0, to=99, width=5, textvariable=v)
+            self.x_scale.v = v
             self.x_scale.pack(side=RIGHT)
     
             v = StringVar()
             v.set("values 0")
             v.trace("w", partial(self.controls_handler, v))
             x_values_list = ["values %d" % i for i in range(2)]
-            OptionMenu(self.controls_region, v, *x_values_list).pack(side=RIGHT)
+            self.x_values = OptionMenu(self.controls_region, v, *x_values_list)
+            self.x_values.v = v
+            self.x_values.pack(side=RIGHT)
 #
 ############# bis hier
 
@@ -81,18 +90,24 @@ class DataRegion(Frame):
         self.plot_region.pack(fill=BOTH, expand=1)
 
 # for testing - better place to be found
-        self.update_data()
+#        self.update()
         
     def controls_handler(self, v, *ign):
 #        print v.get()
         pass
     
-    def update_data(self):
+    def update(self):
+        debug(str(self.conf.values_upd))
+        x0 = self.conf.open_experiments[0]
+        self.x_scale.v.set(self.conf.values_upd[x0.perspective.xaxis_values])
+        for i in range(self.conf.open_experiments[0].get_nvalues()):
+            self.y_scales[i].v.set(self.conf.values_upd[i + 1])
         for ox in self.conf.open_experiments:
             for index in ox.perspective.yaxis_values:
-                self.xy_plot.plot_data(ox.values[ox.perspective.xaxis_values], ox.values[index])
-                
-        self.xy_plot.plot_data(range(100), range(100))
+                self.xy_plot.plot_data(ox.values[ox.perspective.xaxis_values], ox.values[index],
+                                       self.conf.values_upd[ox.perspective.xaxis_values], self.conf.values_upd[index])
+
+#        self.xy_plot.plot_data(range(100), range(100), 4, 8)
 
 class ScrollRegion(Frame):
     def __init__(self, parent):
@@ -116,6 +131,8 @@ class XYPlot(Canvas):
     """
     """
     def __init__(self, _parent, _width, _height):
+        self.upd = 1                                # units per division
+        self.ppd = 100                              # pixel per division
         self.parent = _parent
         self.width, self.height = _width, _height
 
@@ -152,12 +169,16 @@ class XYPlot(Canvas):
             y = 0
         self.line(((O.x, O.y), (self.width, O.y)), width=1, fill=_color)
         self.line(((O.x, O.y), (O.x, self.height)), width=1, fill=_color)
-        for x in range(0, self.width, self.width / 10):
+        for x in range(0, self.width, self.ppd):
             self.line(((x, O.y - 3), (x, O.y + 3)))
-        for y in range(0, self.height, self.height / 10):
+        for y in range(0, self.height, self.ppd):
             self.line(((O.x - 3, y), (O.x + 3, y))) 
 
-    def plot_data(self, x, y):
+    def plot_data(self, x, y, x_upd, y_upd):
+        x_upd += 0.0
+        y_upd += 0.0
+        x = map(lambda v: v / x_upd * self.ppd, x)
+        y = map(lambda v: v / y_upd * self.ppd, y)
         self.line(zip(x, y), fill=self.fgcolor)
 
     def resize_handler(self, event):
