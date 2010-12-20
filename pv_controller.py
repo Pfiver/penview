@@ -18,10 +18,13 @@ class PVController(Thread):
         self.run = True
         while self.run:
             a = self.dq()
-            try:
+            if debug_flag:
                 self.get_handler(a)()
-            except Exception, e:
-                print "Exception in PVController.run(): %s" % str(e)
+            else:
+                try:
+                    self.get_handler(a)()
+                except Exception, e:
+                    print "Exception in PVController.run(): %s" % str(e)
 
     def stop(self):
         self.run = False

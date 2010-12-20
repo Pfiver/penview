@@ -1,4 +1,5 @@
 from Tkinter import *
+from itertools import chain
 from functools import partial
 
 from penview import *
@@ -7,8 +8,12 @@ from recipe_52266 import MultiListbox
 class DataRegion(Frame):
     def __init__(self, parent, pvconf, ctrl):
         Frame.__init__(self, parent)
+        self.conf = pvconf
+        self.controller = ctrl
+        self.xy_plot = None
         self.plot_region = None
         self.table_region = None
+
         pvconf.add_view_listener(self.view_update)
 
     def view_update(self, conf):
@@ -34,10 +39,11 @@ class DataRegion(Frame):
             self.plot_region = ScrollRegion(self)
             self.controls_region = Frame(self)
 
+            self.xy_plot = XYPlot(self.plot_region, 800, 600) # custom canvas widget
+            self.xy_plot.pack(fill=BOTH, expand=1)
+
 ############# auslagern
 #
-            self.xy_plot = XYPlot(self.plot_region, 800, 600) # custom canvas widget
-    
             # controls_region setup - keep pack()ing order !
             # y-axis controls 
             self.y_scales = []
@@ -67,18 +73,26 @@ class DataRegion(Frame):
             v.trace("w", partial(self.controls_handler, v))
             x_values_list = ["values %d" % i for i in range(2)]
             OptionMenu(self.controls_region, v, *x_values_list).pack(side=RIGHT)
-    
-            self.xy_plot.pack(fill=BOTH, expand=1)
 #
 ############# bis hier
 
         # urk - use the pack-regions-that-should-stay-visible-on-window-resize-first hack
         self.controls_region.pack(side=BOTTOM, fill=X, expand=1)
         self.plot_region.pack(fill=BOTH, expand=1)
+
+# for testing - better place to be found
+        self.update_data()
         
     def controls_handler(self, v, *ign):
 #        print v.get()
         pass
+    
+    def update_data(self):
+        for ox in self.conf.open_experiments:
+            for index in ox.perspective.yaxis_values:
+                self.xy_plot.plot_data(ox.values[ox.perspective.xaxis_values], ox.values[index])
+                
+        self.xy_plot.plot_data(range(100), range(100))
 
 class ScrollRegion(Frame):
     def __init__(self, parent):
@@ -118,25 +132,33 @@ class XYPlot(Canvas):
         if self.parent.__class__ == ScrollRegion:
             self.parent.child_added(self)
 
+    def line(self, points, **kwargs):
+        """
+        draw a line along a list of point coordinates
+        :parameters:
+            points    list of point coordinates in the form: ((x1, y1), (x2, y2))
+        """
+
+        args = []
+        for p in points:
+            args.append(p[0])          
+            args.append(self.height - p[1])
+
+        self.create_line(*args, **kwargs)
+
     def draw_axes(self, _color="black"):
-        self.create_rectangle(0, 0, self.width, self.height, fill=self.bgcolor)
-        self.create_line(0, self.height / 2, self.width, self.height / 2, width=2, fill=_color)
-        self.create_line(self.width / 2, 0, self.width / 2, self.height, width=2, fill=_color)
+        class O:
+            x = 0
+            y = 0
+        self.line(((O.x, O.y), (self.width, O.y)), width=1, fill=_color)
+        self.line(((O.x, O.y), (O.x, self.height)), width=1, fill=_color)
+        for x in range(0, self.width, self.width / 10):
+            self.line(((x, O.y - 3), (x, O.y + 3)))
+        for y in range(0, self.height, self.height / 10):
+            self.line(((O.x - 3, y), (O.x + 3, y))) 
 
-    def draw_rectangle(self):
-        self.draw_axes()
-        self.create_rectangle(self.width / 2 - self.width / 10,
-                              self.height / 2 - self.height / 10,
-                              self.width / 2 + self.width / 10,
-                              self.height / 2 + self.height / 10, fill="blue")
-
-    def plot_random_data(self):
-        self.draw_axes()
-        data = []
-        for i in range(0, self.width, self.width / 50):
-            data.append(i)
-            data.append(self.height - (randint(0, self.height)))
-        self.create_line(data, fill=self.drawcolor)
+    def plot_data(self, x, y):
+        self.line(zip(x, y), fill=self.fgcolor)
 
     def resize_handler(self, event):
         pass

@@ -40,6 +40,12 @@ if __name__ == "__main__":
     controller.start()
     print "Controller Running"
 
+    if debug_flag:
+        ui.join(1)
+        controller.q(PVAction.open_exp)
+        controller.q(PVAction.open_exp)
+#        controller.q(PVAction.open_exp)
+
     # wait for gui thread (exits when the main window gets closed)
     ui.join()
     controller.q(PVAction.quit_app)

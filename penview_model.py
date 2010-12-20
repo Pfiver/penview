@@ -14,11 +14,12 @@ class OpenExperiment:
              :Parameters:
                 path  file-path
         """
-        self.experiment_file = ex_file
-        self.experiment_perspective = None
-        self.values = ex_file.load_values()
+        self.file = ex_file
+        self.perspective = ExperimentPerspective(0, [i+1 for i in range(ex_file.nvalues)])
+
+        self.values = zip(*ex_file.load_values())
         self.metadata = ex_file.load_metadata()
-    
+
     def get_additional_info(self):
         additional_info = self.metadata['additional_info']
         return additional_info
@@ -36,18 +37,7 @@ class OpenExperiment:
     def get_exp_name(self):
         exp_name = self.metadata['exp_name']
         return exp_name
-        
-    def get_values(self):
-        """return a list of all values from values-table"""
-        return self.values
-        
-    def get_time_values(self):
-        """return list of time values from values-table"""
-        time_values = []
-        for i in range(len(self.values)):
-            time_values.append(self.values[i][0])
-        return time_values
-        
+
 #    def get_nvalues(self):
 #        """return the number of values (v1, v2, v3, v4 -> 4) in table 'values' """
 #        debug("self.values[0]: " + str(self.values[0]))
@@ -56,7 +46,7 @@ class OpenExperiment:
     
     def get_nvalues(self):
         
-        return self.experiment_file.nvalues
+        return self.file.nvalues
 
 #        row = self.values[1]
 #        rowsize = -1
@@ -83,11 +73,11 @@ class OpenExperiment:
         return desc
 
 class ExperimentPerspective:
-    def __init__(self):
+    def __init__(self, xvals, yvals):
         """ Initialize Perspective
         """
-        self.xaxis_values = 0 # index of current xaxis values
-        self.yaxis_values = [] # list of indices of values visible on yaxis
+        self.xaxis_values = xvals  # index of current xaxis values
+        self.yaxis_values = yvals # list of indices of values visible on yaxis
 
 class RecentExperiment:
     def __init__(self):
