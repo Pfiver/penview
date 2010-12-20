@@ -3,22 +3,14 @@
 from Tkinter import *
 
 class MultiListbox(Frame):
-    
     def __init__(self, master, lists):
         Frame.__init__(self, master)
         self.lists = []
-        self.colmapping={}
-        self.origData = None
-        self.mainframe = PanedWindow(self,sashpad=0,sashwidth=4,borderwidth=0)
         for l in lists:
-            frame = Frame(self)
-            frame.pack(fill=BOTH, expand=YES)
-            self.mainframe.add(frame)
-            b = Label(frame, text=l, borderwidth=1, relief=RAISED)
-            b.pack(fill=X)
-            self.colmapping[b]=(len(self.lists),1)
+            frame = Frame(self); frame.pack(side=LEFT, expand=YES, fill=BOTH)
+            Label(frame, text=l, borderwidth=1, relief=RAISED).pack(fill=X)
             lb = Listbox(frame, borderwidth=0, selectborderwidth=0,
-                         relief=FLAT, exportselection=FALSE)
+                 relief=FLAT, exportselection=FALSE)
             lb.pack(expand=YES, fill=BOTH)
             self.lists.append(lb)
             lb.bind('<B1-Motion>', lambda e, s=self: s._select(e.y))
@@ -26,13 +18,11 @@ class MultiListbox(Frame):
             lb.bind('<Leave>', lambda e: 'break')
             lb.bind('<B2-Motion>', lambda e, s=self: s._b2motion(e.x, e.y))
             lb.bind('<Button-2>', lambda e, s=self: s._button2(e.x, e.y))
-        frame = Frame(self); frame.pack(side=RIGHT, fill=Y)
-        self.mainframe.pack(fill=BOTH, expand=YES)
+        frame = Frame(self); frame.pack(side=LEFT, fill=Y)
         Label(frame, text="\n", borderwidth=1, relief=RAISED).pack(fill=X)
-        self.sb = Scrollbar(frame, orient=VERTICAL, command=self._scroll)
-        self.sb.pack(expand=YES, fill=Y)
-        for l in self.lists: 
-            l.config(yscrollcommand=self._yscroll)
+        sb = Scrollbar(frame, orient=VERTICAL, command=self._scroll)
+        sb.pack(expand=YES, fill=Y)
+        for l in self.lists: l['yscrollcommand']=lambda *args: self._yscroll(sb, *args)
 
     def _select(self, y):
     	row = self.lists[0].nearest(y)
@@ -49,15 +39,13 @@ class MultiListbox(Frame):
     	return 'break'
 
     def _scroll(self, *args):
-        print args
     	for l in self.lists:
     	    apply(l.yview, args)
 
-    def _yscroll(self, *args, **kwargs):
-        print args, kwargs
+    def _yscroll(self, sb, top, bottom):
         for l in self.lists:          # FIXME: the event generating listbox is also scrolled again.... seems to work so far
-            l.yview('moveto', args[0])
-        self.sb.set(*args, **kwargs)
+            l.yview('moveto', top)
+        sb.set(top, bottom)
 
     def curselection(self):
         return self.lists[0].curselection()
