@@ -4,46 +4,49 @@ from itertools import count
 import tkColorChooser
 
 from penview_model import *
+from data_region import XYPlot, PVTable
 
 from ttk import Notebook # ttk wrapper for TABS
 
 class TabRegion(Frame):
-    def __init__(self, parent, pvconf):
+    def __init__(self, parent, pvconf, ctrl):
         Frame.__init__(self, parent)
 
         self.tabs = []
         self.colors = ["grey", "black", "red", "green", "blue", "cyan", "yellow", "magenta"]
         self.colors_id = count()
         
-        pvconf.add_listener(self.update)
+        pvconf.add_ox_listener(self.ox_update)
 
         # Tabs in notebook_region
         self.notebook_region = Notebook(self)
         
         # Graph and Table Buttons in switch_region
         self.switch_region = Frame(self, bg="blue")
-        self.button1 = Button(self.switch_region, text="Graph", command='', relief=SUNKEN)
-        self.button2 = Button(self.switch_region, text="Table", command='')
-        self.button1.pack(side=LEFT)
-        self.button2.pack(side=LEFT)
+        self.graph_button = Button(self.switch_region, text="Graph", command=lambda: ctrl.q(PVAction.show_graph))
+        self.table_button = Button(self.switch_region, text="Table", command=lambda: ctrl.q(PVAction.show_table))
+        self.graph_button.pack(side=LEFT)
+        self.table_button.pack(side=LEFT)
+        pvconf.add_view_listener(self.view_update)
 
         # pack()
         self.notebook_region.pack(fill=BOTH, expand=1)
         self.switch_region.pack(fill=X, side=BOTTOM)
 
-        # Open Experiments from Database
-        self.s1 = 'examples/abklingkonstante.sqlite'
-        self.s2 = 'examples/eigenfrequenz_chaos2.sqlite'
-        self.s3 = 'examples/motorkalibrierung.sqlite'
-        pvconf.add_open_experiment(OpenExperiment(self.s1,1))
-        pvconf.add_open_experiment(OpenExperiment(self.s2,3))
-        pvconf.add_open_experiment(OpenExperiment(self.s3,3))
-
-    def update(self, conf):
+    def ox_update(self, conf):
         for a in conf.open_experiments:
             if a.id not in map(lambda t: t.id, self.tabs):
                 self.addTab(a)
-    
+
+    def view_update(self, conf):
+        view_buttons = { XYPlot: self.graph_button,
+                         PVTable: self.table_button }
+        for v in view_buttons:
+            if conf.view == v:
+                view_buttons[v].config(relief=SUNKEN)
+            else:
+                view_buttons[v].config(relief=RAISED)
+
     def choose_color(self):
 #        color_id = self.colors_id.next()
         color = self.colors[0]

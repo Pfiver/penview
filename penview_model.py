@@ -5,6 +5,7 @@ from itertools import count
 
 from penview import *
 from data_access import ExperimentFile
+from data_region import XYPlot, PVTable
     
 class OpenExperiment:
     def __init__(self, ex_file):
@@ -85,7 +86,6 @@ class ExperimentPerspective:
     def __init__(self):
         """ Initialize Perspective
         """
-        self.values_upd = [] # list of scaling factor for ALL values 
         self.xaxis_values = 0 # index of current xaxis values
         self.yaxis_values = [] # list of indices of values visible on yaxis
 
@@ -97,18 +97,33 @@ class RecentExperiment:
 class PenViewConf:
     ox_ids = count()
     def __init__(self):
-        self.listeners = []         # list of listener functions taking one argument: the conf that was updated
-        self.open_experiments = []      # list of OpenExperiment objects - the experiments currently opened  
-        self.recent_experiments = []        # list of RecentExperiment objects - maximum size 5, fifo semantics    
+        self.open_experiments = []    # list of OpenExperiment objects - the experiments currently opened
+        self.ox_listeners = []        # list of listener functions getting called on add_open_experiment
+                                      # the function should take exactly one argument: the conf that was updated
+
+        self.recent_experiments = []  # list of RecentExperiment objects - maximum size 5, fifo semantics
+
+        self.view = XYPlot            # either XYPlot or PVTable (a class object)
+        self.view_listeners = []      # analog to ox_listeners
+
+        self.values_upd = []          # list of scaling factor for ALL values
+
+    def set_view(self, view):
+        self.view = view
+        for update in self.view_listeners:
+            update(self)
+
+    def add_view_listener(self, view_listener):
+        self.view_listeners.append(view_listener)
 
     def add_open_experiment(self, ox):
         ox.id = PenViewConf.ox_ids.next()
         self.open_experiments.append(ox)
-        for update in self.listeners:
+        for update in self.ox_listeners:
             update(self)
 
-    def add_listener(self, listener):
-        self.listeners.append(listener)
+    def add_ox_listener(self, ox_listener):
+        self.ox_listeners.append(ox_listener)
 
     def set_controller(self, controller):
         self.controller = controller

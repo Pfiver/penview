@@ -13,53 +13,53 @@ class PenViewUI(Thread):
         # tk object
         self.tk = Tk() # the main window
 
-        # level 0 widget
+        ## top-level widget
         self.frame0 = Frame(self.tk) # top-level container widget
 
-        # level 0 widgets
-        ## Menu Bar Initialization
+        ## menubar
         self.menu_bar = Menu(self.tk)
-        ## File Menu
+
+        ### file menu
         self.file_menu = Menu(self.menu_bar, tearoff=0)
-        self.file_menu.add_command(label="Open...", command=lambda: self.controller.q(PVAction.Open))
-        self.file_menu.add_command(label="Import...", command=lambda: self.controller.q(PVAction.Import))
-        self.file_menu.add_command(label="Quit", command=lambda: self.controller.q(PVAction.Quit))
-        ## Help Menu
+        self.file_menu.add_command(label="Open...", command=lambda: self.controller.q(PVAction.open_exp))
+        self.file_menu.add_command(label="Import...", command=lambda: self.controller.q(PVAction.import_exp))
+        self.file_menu.add_command(label="Quit", command=lambda: self.controller.q(PVAction.quit_app))
+    
+        ### help menu
         self.help_menu = Menu(self.menu_bar, tearoff=0)
-        self.help_menu.add_command(label="Contents", command=lambda: self.controller.q(PVAction.Help))
-        self.help_menu.add_command(label="About", command=lambda: self.controller.q(PVAction.About))
-        ## Associate File Help with Menu Bar
+        self.help_menu.add_command(label="Contents", command=lambda: self.controller.q(PVAction.show_help))
+        self.help_menu.add_command(label="About", command=lambda: self.controller.q(PVAction.show_about))
+    
         self.menu_bar.add_cascade(label="File", menu=self.file_menu)
         self.menu_bar.add_cascade(label="Help", menu=self.help_menu)
 
-        ## Initialize Splitter/PanedWindow
+        ## main widget with vertical "splitter" bar
         self.main_region = PanedWindow(self.frame0, showhandle=1)
+
         ## TAB is on the left
-        self.tab_region = TabRegion(self.main_region, self.conf)
+        self.tab_region = TabRegion(self.main_region, self.conf, self.controller)
 
         ## DATA is on the right
-        self.data_region = DataRegion(self.main_region, self.conf)
+        self.data_region = DataRegion(self.main_region, self.conf, self.controller)
 
-        ## 1. pack() then -> 2. add() Reihenfolge beachten!
+        ## 1. pack() then -> 2. add()  -- Reihenfolge beachten!
         self.tab_region.pack(fill=BOTH, expand=1)
         self.data_region.pack(fill=BOTH, expand=1)
         
         ## add()
         self.main_region.add(self.tab_region)
         self.main_region.add(self.data_region)
+
         # bind our map handler
 #        self.xy_plot.bind("<Map>", self.map_handler)
 
-        # pack level 0 widget
+        # pack top-level widget
         self.frame0.pack(fill=BOTH, expand=1)
 
-        # pack level 1 widgets
-#        self.button_region.pack_propagate(0)
-#        self.button_region.pack(fill=None, expand=0)
+        # pack main widger
         self.tk.config(menu=self.menu_bar)
         self.main_region.pack(fill=BOTH, expand=1)
 
-        # pack level 2 widget
         self.tk.mainloop()
     
     def stop(self):
