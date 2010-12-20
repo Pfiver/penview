@@ -1,5 +1,5 @@
 class PVAction:
-    Open, Import, Quit, Help, About = range(5)
+    open_exp, import_exp, quit_app, show_help, show_about, show_table, show_graph = range(7)
         
 pvaction_name = dict((getattr(PVAction, e), e) for e in PVAction.__dict__)
 
@@ -42,5 +42,5 @@ if __name__ == "__main__":
 
     # wait for gui thread (exits when the main window gets closed)
     ui.join()
-    controller.q(PVAction.Quit)
+    controller.q(PVAction.quit_app)
     print "Good Bye - Hope to se you again!"

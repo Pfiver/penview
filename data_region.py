@@ -1,54 +1,79 @@
 from Tkinter import *
 from functools import partial
 
+from penview import *
 from recipe_52266 import MultiListbox
 
 class DataRegion(Frame):
-    def __init__(self, parent, pvconf):
+    def __init__(self, parent, pvconf, ctrl):
         Frame.__init__(self, parent)
+        self.plot_region = None
+        self.table_region = None
+        pvconf.add_view_listener(self.view_update)
 
-        self.table_region = PVTable(self)
+    def view_update(self, conf):
+        view_method = { XYPlot: self.show_plot,
+                        PVTable: self.show_table}
+        view_method[conf.view]()
+
+    def show_table(self):
+        if self.plot_region:                        # TODO: ev. weiterer wrapper frame um plot+controls _region
+            self.plot_region.pack_forget()          # plot_region can't exist without controls_region
+            self.controls_region.pack_forget()
+
+        if not self.table_region:
+            self.table_region = PVTable(self)
+
         self.table_region.pack(fill=BOTH, expand=YES)
-        return
 
-        self.plot_region = ScrollRegion(self)
-        self.xy_plot = XYPlot(self.plot_region, 800, 600) # custom canvas widget
-        
-        self.controls_region = Frame(self)
+    def show_plot(self):
+        if self.table_region:
+            self.table_region.pack_forget()
 
-        # controls_region setup - keep pack()ing order !
-        # y-axis controls 
-        self.y_scales = []
-        self.y_units = []
-        for i in range(2):
+        if not self.plot_region:
+            self.plot_region = ScrollRegion(self)
+            self.controls_region = Frame(self)
+
+############# auslagern
+#
+            self.xy_plot = XYPlot(self.plot_region, 800, 600) # custom canvas widget
+    
+            # controls_region setup - keep pack()ing order !
+            # y-axis controls 
+            self.y_scales = []
+            self.y_units = []
+            for i in range(2):
+                v = StringVar()
+                v.trace("w", partial(self.controls_handler, v))
+                sb = Spinbox(self.controls_region, from_=0, to=99, width=5, textvariable=v)
+                sb.pack(side=LEFT)
+                self.y_scales.append(sb)
+    
+                ul = Label(self.controls_region, text="y%d units" % i)
+                ul.pack(side=LEFT)
+                self.y_units.append(ul)
+    
+            # x-axis controls
+            self.x_units = Label(self.controls_region, text="x units")
+            self.x_units.pack(side=RIGHT)
+    
             v = StringVar()
             v.trace("w", partial(self.controls_handler, v))
-            sb = Spinbox(self.controls_region, from_=0, to=99, width=5, textvariable=v)
-            sb.pack(side=LEFT)
-            self.y_scales.append(sb)
-
-            ul = Label(self.controls_region, text="y%d units" % i)
-            ul.pack(side=LEFT)
-            self.y_units.append(ul)
-
-        # x-axis controls
-        self.x_units = Label(self.controls_region, text="x units")
-        self.x_units.pack(side=RIGHT)
-
-        v = StringVar()
-        v.trace("w", partial(self.controls_handler, v))
-        self.x_scale = Spinbox(self.controls_region, from_=0, to=99, width=5, textvariable=v)
-        self.x_scale.pack(side=RIGHT)
-
-        v = StringVar()
-        v.set("values 0")
-        v.trace("w", partial(self.controls_handler, v))
-        x_values_list = ["values %d" % i for i in range(2)]
-        OptionMenu(self.controls_region, v, *x_values_list).pack(side=RIGHT)
+            self.x_scale = Spinbox(self.controls_region, from_=0, to=99, width=5, textvariable=v)
+            self.x_scale.pack(side=RIGHT)
+    
+            v = StringVar()
+            v.set("values 0")
+            v.trace("w", partial(self.controls_handler, v))
+            x_values_list = ["values %d" % i for i in range(2)]
+            OptionMenu(self.controls_region, v, *x_values_list).pack(side=RIGHT)
+    
+            self.xy_plot.pack(fill=BOTH, expand=1)
+#
+############# bis hier
 
         # urk - use the pack-regions-that-should-stay-visible-on-window-resize-first hack
         self.controls_region.pack(side=BOTTOM, fill=X, expand=1)
-        self.xy_plot.pack(fill=BOTH, expand=1)
         self.plot_region.pack(fill=BOTH, expand=1)
         
     def controls_handler(self, v, *ign):

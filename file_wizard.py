@@ -1,16 +1,24 @@
 from Tkinter import *
 from tkFileDialog import *
+from itertools import count
 
 from penview import *
 from data_import import *
 from penview_model import *
 
 class OpenWizard:
-    
+
+    xi = count()
+    examples = ('examples/abklingkonstante.sqlite',
+                'examples/motorkalibrierung.sqlite',
+                'examples/eigenfrequenz_chaos2.sqlite',
+    )
+
     @classmethod
     def get_path(cls):
         if debug_flag:
-            return "examples/abklingkonstante.sqlite"
+            return cls.examples[cls.xi.next()]
+
         return askopenfilename(filetypes=(("Experiment Files", "*.sqlite"),))
     
     @classmethod
@@ -18,17 +26,22 @@ class OpenWizard:
         return OpenExperiment(ExperimentFile(cls.get_path()))
 
 class ImportWizard:
-    
+
+    xi = count()
+    examples = 'examples/Abklingkonstante.csv'
+
     @classmethod
     def get_csv_path(cls):
         if debug_flag:
-            return "examples/Abklingkonstante.csv"
+            return cls.examples[cls.xi.next()]
+
         return askopenfilename(filetypes=(("CSV Files", "*.csv"),))
     
     @classmethod
     def get_experiment_path(cls):
         if debug_flag:
-            return "examples/abklingkonstante_imported.sqlite"
+            return cls.examples[cls.xi] + ".imported.sqlite"
+
         return asksaveasfilename(filetypes=(("Experiment Files", "*.sqlite"),))
     
     @classmethod
