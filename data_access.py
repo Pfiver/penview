@@ -108,7 +108,7 @@ class ExperimentFile:
         if type(nr) != int:
             raise Exception("ExperimentFile number must be given as an int")
 
-        debug("a[0]: %s" % a[0] )
+        debug("a[0]: %s" % str(a[0]) )
         if len(a[0])-1 != self.nvalues:
             raise Exception("wrong number of values")
   
