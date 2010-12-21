@@ -1,0 +1,54 @@
+As a reference: our customisations to the code snippet as found on the internet,
+not including changes in amount of whitespace only (diff -w option)
+i.e. our work on this code
+- is original version
++ is our version
+
+
+diff --git a/lib/recipe_52266.py b/lib/recipe_52266.py
+index 3f8cf10..3754fee 100644
+--- a/lib/recipe_52266.py
++++ b/lib/recipe_52266.py
+@@ -1,13 +1,15 @@
++# from http://code.activestate.com/recipes/52266/
++
+ from Tkinter import *
+ 
+ class MultiListbox(Frame):
+     def __init__(self, master, lists):
+ 	Frame.__init__(self, master)
+ 	self.lists = []
+-	for l,w in lists:
++        for l in lists:
+ 	    frame = Frame(self); frame.pack(side=LEFT, expand=YES, fill=BOTH)
+ 	    Label(frame, text=l, borderwidth=1, relief=RAISED).pack(fill=X)
+-	    lb = Listbox(frame, width=w, borderwidth=0, selectborderwidth=0,
++            lb = Listbox(frame, borderwidth=0, selectborderwidth=0,
+ 			 relief=FLAT, exportselection=FALSE)
+ 	    lb.pack(expand=YES, fill=BOTH)
+ 	    self.lists.append(lb)
+@@ -17,10 +19,10 @@ class MultiListbox(Frame):
+ 	    lb.bind('<B2-Motion>', lambda e, s=self: s._b2motion(e.x, e.y))
+ 	    lb.bind('<Button-2>', lambda e, s=self: s._button2(e.x, e.y))
+ 	frame = Frame(self); frame.pack(side=LEFT, fill=Y)
+-	Label(frame, borderwidth=1, relief=RAISED).pack(fill=X)
++        Label(frame, text="\n", borderwidth=1, relief=RAISED).pack(fill=X)
+ 	sb = Scrollbar(frame, orient=VERTICAL, command=self._scroll)
+ 	sb.pack(expand=YES, fill=Y)
+-	self.lists[0]['yscrollcommand']=sb.set
++        for l in self.lists: l['yscrollcommand']=lambda *args: self._yscroll(sb, *args)
+ 
+     def _select(self, y):
+ 	row = self.lists[0].nearest(y)
+@@ -40,6 +42,11 @@ class MultiListbox(Frame):
+ 	for l in self.lists:
+ 	    apply(l.yview, args)
+ 
++    def _yscroll(self, sb, top, bottom):
++        for l in self.lists:          # FIXME: the event generating listbox is also scrolled again.... seems to work so far
++            l.yview('moveto', top)
++        sb.set(top, bottom)
++
+     def curselection(self):
+ 	return self.lists[0].curselection()
+ 
