@@ -11,6 +11,8 @@ class PenViewConf:
     ox_ids = count()
     def __init__(self):
 
+        self.units = {}
+
         # 3 different types of listeners can be registered:
         #
         # add_...          get notified on ...
@@ -32,7 +34,15 @@ class PenViewConf:
         self.recent_experiments = []  # list of RecentExperiment objects - maximum size 5, fifo semantics
 
     def add_open_experiment(self, ox):
+
         ox.id = PenViewConf.ox_ids.next()
+
+        for i in range(ox.get_nvalues()):
+            if i not in self.units:               # this experiments has more values than any other currently open experiment
+                self.units[i] = ox.get_units(i)      # and therefore sets the standard now
+            elif self.units[i] != ox.get_units(i):
+                raise Exception("can't open this experiment - units not matching those of of already open experiments")
+
         self.open_experiments.append(ox)
 
         self.controller.reset_upd()             # initialize scale to a sane default (all data visible)
@@ -95,8 +105,11 @@ class OpenExperiment:
 
     def get_desc(self, n):
         """return vn_desc"""
-        key = 'v' + str(n) + '_desc'
+        key = 'v' + str(n+1) + '_desc'
         return self.metadata[key]
+
+    def get_units(self, n):
+        return self.metadata['v' + str(n+1) + '_unit']
 
 class ExperimentPerspective:
     def __init__(self, xvals, yvals):

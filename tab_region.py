@@ -15,7 +15,7 @@ class TabRegion(Frame):
         self.tabs = []
         self.colors = ["grey", "black", "red", "green", "blue", "cyan", "yellow", "magenta"]
         self.colors_id = count()
-        
+
         pvconf.add_ox_listener(self.ox_update)
 
         # Tabs in notebook_region
@@ -59,14 +59,14 @@ class TabRegion(Frame):
         checkb = Checkbutton(tab, text="Zeit")
         checkb.grid(row=0, column=0, sticky=W)
 
-        for i in range(1, ox.get_nvalues() + 1):
+        for i in range(ox.get_nvalues()):
             checkb = Checkbutton(tab, text=ox.get_desc(i))
             checkb.grid(row=1, column=0, sticky=W)
             color_id = self.colors_id.next()
             color = self.colors[color_id]
             colorb = Button(tab, bg=color, command=self.choose_color)
-            colorb.grid(row=i, column=1, sticky=E)
-            
+            colorb.grid(row=i+1, column=1, sticky=E)
+
         Label(tab, text=self.get_details_text(ox)).grid(row=2, sticky=W)
         tab.id = ox.id
         tab.pack()

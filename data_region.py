@@ -64,11 +64,22 @@ class ScrollRegion(Frame):
         self.yscrollbar.grid(row=0, column=1, sticky=N+S)
 
     def child_added(self, child_widget):
+        self.child_widget = child_widget
         self.xscrollbar.config(command=child_widget.xview)
         self.yscrollbar.config(command=child_widget.yview)
         child_widget.grid(row=0, column=0, sticky=N+S+E+W)
         child_widget.config(scrollregion=(0, 0, child_widget.width, child_widget.height),
                             xscrollcommand=self.xscrollbar.set, yscrollcommand=self.yscrollbar.set)
+
+        child_widget.bind("<Button-4>", self.ywheel_handler)
+        child_widget.bind("<Button-5>", self.ywheel_handler)
+#        child_widget.bind("<Button-6>", self.xwheel_handler)    # FIXME: fix tkinter ?
+#        child_widget.bind("<Button-7>", self.xwheel_handler)
+
+    def ywheel_handler(self, e):
+        self.child_widget.yview_scroll({4: -1, 5: 1 }[e.num], 'units') # button 4 => up; button 5 => down
+    def xwheel_handler(self, e):
+        self.child_widget.xview_scroll({6: -1, 7: 1 }[e.num], 'units') # button 6 => left; button 7 => right # FIXME: correct ???
 
 # a custom canvas to display xy-plots
 class XYPlot(Canvas):
@@ -140,49 +151,57 @@ class XYPlot(Canvas):
 class PlotControls(Frame):
     def __init__(self, parent, conf):
         Frame.__init__(self, parent)
+        
+        self.labels = {}
+        self.scalers = {}
+        self.xchooser = None
+
         conf.add_ox_listener(self.update_ox)
 
     def update_ox(self, conf):
         if len(conf.open_experiments):
-            self.update_controls(conf.open_experiments[0].perspective)
+            self.update_controls(conf)
 
     def update_scales(self, conf):
         pass
 
-    def update_controls(self, ppct):
+    def update_controls(self, conf):
         # controls_region setup - keep pack()ing order !
-        # y-axis controls 
-        self.y_scales = []
-        self.y_units = []
+        # y-axis controls
+
+        ppct = conf.open_experiments[0].perspective
+
+#        for i in range(conf.get_nvalues() + 1):
+
         for i in range(2):
             v = StringVar()
             v.trace("w", partial(self.controls_handler, v))
             sb = Spinbox(self, from_=0, to=99, width=5, textvariable=v)
             sb.v = v
             sb.pack(side=LEFT)
-            self.y_scales.append(sb)
+            self.scalers[i+1] = sb
 
             ul = Label(self, text="y%d units" % i)
             ul.pack(side=LEFT)
-            self.y_units.append(ul)
+            self.labels[i+1] = ul
 
         # x-axis controls
-        self.x_units = Label(self, text="x units")
-        self.x_units.pack(side=RIGHT)
+        self.labels[0] = Label(self, text="x units")
+        self.labels[0].pack(side=RIGHT)
 
         v = StringVar()
         v.trace("w", partial(self.controls_handler, v))
-        self.x_scale = Spinbox(self, from_=0, to=99, width=5, textvariable=v)
-        self.x_scale.v = v
-        self.x_scale.pack(side=RIGHT)
+        self.scalers[0] = Spinbox(self, from_=0, to=99, width=5, textvariable=v)
+        self.scalers[0].v = v
+        self.scalers[0].pack(side=RIGHT)
 
         v = StringVar()
         v.set("values 0")
         v.trace("w", partial(self.controls_handler, v))
         x_values_list = ["values %d" % i for i in range(2)]
-        self.x_values = OptionMenu(self, v, *x_values_list)
-        self.x_values.v = v
-        self.x_values.pack(side=RIGHT)
+        self.xchooser = OptionMenu(self, v, *x_values_list)
+        self.xchooser.v = v
+        self.xchooser.pack(side=RIGHT)
 
     def controls_handler(self, v, *ign):
 #        debug( v.get() )

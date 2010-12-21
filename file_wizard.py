@@ -9,7 +9,10 @@ from penview_model import *
 class OpenWizard:
 
     xi = count()
-    examples = ('examples/abklingkonstante.sqlite',
+    examples = (
+#                'examples/Chaotische Schwingung (Chaos4).sqlite',
+#                'examples/Doppelte nicht- Chaotische Schwingung (Chaos3.6).sqlite',
+                'examples/abklingkonstante.sqlite',
                 'examples/eigenfrequenz_chaos2.sqlite',
 #                'examples/motorkalibrierung.sqlite',
     )

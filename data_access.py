@@ -144,8 +144,7 @@ class ExperimentFile:
         nlist = map(lambda x: x[0], self.c.fetchall())
         debug("nr: %s\nnlist: %s" % ( nr, nlist ))
         if nr not in nlist:
-            raise Exception("No such data series in values table. Specify another nr")
-            
+            raise Exception("No such data series in values table (%d). Specify another nr" % nr)
 
         # construct a string like ", v2, v3, v4"
         # vN are numbered from 2 to self.nvalues
