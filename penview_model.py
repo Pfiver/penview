@@ -45,13 +45,7 @@ class PenViewConf:
 
         self.open_experiments.append(ox)
 
-        # keep the next two lines in that order - otherwise widgets in grap_controls might not be initialized
-        # when reset_upd() triggers the call on the scale_listeners
-        # maybe we should refactor the callback in graph_controls
-        # as well but for now just keep the order here
         for update in self.ox_listeners: update(self)
-
-        self.controller.reset_upd()             # initialize scale to a sane default (all data visible)
 
     def _get_nvalues(self):
         return len(self.units)
@@ -77,6 +71,33 @@ class PenViewConf:
 
     def set_controller(self, controller):
         self.controller = controller
+
+    def reset_upd(self, ppd, width, height):
+
+        experiments = self.open_experiments
+
+        cols = experiments[0].get_nvalues() + 1
+
+        max_values = {}
+        min_values = {}
+        for i in range(cols):
+            imax = None
+            imin = None
+            for j in range(len(experiments)):
+                jmax = max(experiments[j].values[i])
+                jmin = min(experiments[j].values[i])
+                if not imax or jmax > imax:
+                    imax = jmax
+                if not imin or jmin < imin:
+                    imin = jmin
+            max_values[i] = imax
+            min_values[i] = imin
+
+        ranges = [max_values[i] - min_values[i] for i in range(cols)]
+
+        for i in range(cols):
+            self.set_scale(i, height / float(ppd) * ranges[i])     # TODO: adjust coordinate origin
+
 
 class OpenExperiment:
     def __init__(self, ex_file):

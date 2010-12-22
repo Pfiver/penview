@@ -18,7 +18,7 @@ class DataRegion(Frame):
         self.controls_region = PlotControls(self, self.conf)
         self.plot_region = ScrollRegion(self)
 
-        self.xy_plot = XYPlot(self.plot_region, 800, 600)
+        self.xy_plot = XYPlot(pvconf, self.plot_region, 800, 600)
         self.xy_plot.pack(fill=BOTH, expand=1)
 
         self.table_region = PVTable(self, self.conf)
@@ -37,33 +37,20 @@ class DataRegion(Frame):
         self.plot_region.pack(fill=BOTH, expand=1)
         
     def ox_update(self, conf):
+        pass
 
 #        debug(str(conf.values_upd))
-<<<<<<< HEAD
-        x0 = conf.open_experiments[0]
 
-=======
 #        x0 = conf.open_experiments[0]
->>>>>>> refs/remotes/origin/master
-#        self.x_scale.v.set(conf.values_upd[x0.perspective.xaxis_values])
+#        self.x_scale.v.set(conf.values_upd[x0.perspective.x_values])
 #        for i in range(conf.open_experiments[0].get_nvalues()):
 #            self.y_scales[i].v.set(self.conf.values_upd[i + 1])
-<<<<<<< HEAD
-
+#
 #        for ox in self.conf.open_experiments:
-#            for index in ox.perspective.yaxis_values:
-#                self.xy_plot.plot_data(ox.values[ox.perspective.xaxis_values], ox.values[index],
-#                                       self.conf.values_upd[ox.perspective.xaxis_values], self.conf.values_upd[index])
-
-        self.xy_plot.plot_data(range(100), range(100), 4, 8)
-=======
-        for ox in self.conf.open_experiments:
-            for index in ox.perspective.yaxis_values:
-                debug(ox.perspective.xaxis_values)
-                self.xy_plot.plot_data(ox.values[ox.perspective.xaxis_values], ox.values[index],
-                                       self.conf.values_upd[ox.perspective.xaxis_values], self.conf.values_upd[index])
+#            for index in ox.perspective.y_values:
+#                self.xy_plot.plot_data(ox.values[ox.perspective.x_values], ox.values[index],
+#                                       self.conf.values_upd[ox.perspective.x_values], self.conf.values_upd[index])
 #        self.xy_plot.plot_data(range(100), range(100), 4, 8)
->>>>>>> refs/remotes/origin/master
 
     def view_update(self, conf):
         view_method = { XYPlot: self.show_plot,
@@ -102,11 +89,11 @@ class ScrollRegion(Frame):
 class XYPlot(Canvas):
     """
     """
-    def __init__(self, _parent, _width, _height):
+    def __init__(self, pvconf, parent, width, height):
         self.upd = 1                                # units per division
         self.ppd = 100                              # pixel per division
-        self.parent = _parent
-        self.width, self.height = _width, _height
+        self.parent = parent
+        self.width, self.height = width, height
 
         self.fgcolor = "black"
         self.bgcolor = "#EEEEEE"
@@ -115,6 +102,20 @@ class XYPlot(Canvas):
 
         self.draw_axes(self.fgcolor)
         self.bind('<Configure>', self.resize_handler)
+
+        pvconf.add_ox_listener(self.update_ox)
+        pvconf.add_view_listener(self.update_scale)
+
+    def update_ox(self, conf):
+        conf.reset_upd(self.ppd, self.width, self.height)             # initialize scale to a sane default (all data visible)
+
+        for ox in conf.open_experiments:
+            for index in ox.perspective.y_values:
+                self.plot_data(ox.values[ox.perspective.x_values], ox.values[index],
+                               conf.values_upd[ox.perspective.x_values], conf.values_upd[index])
+
+    def update_scale(self, conf):
+        pass
 
     def pack(self, *args, **kwargs):
         Canvas.pack(self,  *args, **kwargs)

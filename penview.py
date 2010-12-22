@@ -27,8 +27,12 @@ from os import path
 def debug(*args):
     if not debug_flag:
         return
+    if len(args) < 1:
+        args = [""]
+    elif type(args[0]) != str:
+        args = list(args)
+        args[0] = str(args[0])
     f = sys._getframe(1)
-    if len(args) < 1: args = [""]
     print "%s: %s(): %s" % (f.f_locals.values()[0].__class__, f.f_code.co_name, args[0] % args[1:])
 
 sys.path.append(path.join(path.dirname(sys._getframe().f_code.co_filename), "lib"))

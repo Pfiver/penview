@@ -72,34 +72,4 @@ class PVController(Thread):
         self.ui.wait_idle()
         self.wait_idle()
 
-    def reset_upd(self):
-
-        experiments = self.conf.open_experiments
-
-        cols = experiments[0].get_nvalues() + 1
-
-        max_values = {}
-        min_values = {}
-        for i in range(cols):
-            imax = None
-            imin = None
-            for j in range(len(experiments)):
-                jmax = max(experiments[j].values[i])
-                jmin = min(experiments[j].values[i])
-                if not imax or jmax > imax:
-                    imax = jmax
-                if not imin or jmin < imin:
-                    imin = jmin
-            max_values[i] = imax
-            min_values[i] = imin
-        
-        ppd = self.ui.data_region.xy_plot.ppd
-        win_width = self.ui.data_region.xy_plot.width
-        win_height = self.ui.data_region.xy_plot.height
-
-        ranges = [max_values[i] - min_values[i] for i in range(cols)]
-
-        for i in range(cols):
-            self.conf.set_scale(i, win_height / float(ppd) * ranges[i])     # TODO: adjust coordinate origin
-
 
