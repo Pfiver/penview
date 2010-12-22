@@ -21,7 +21,7 @@ class DataRegion(Frame):
         self.xy_plot = XYPlot(self.plot_region, 800, 600)
         self.xy_plot.pack(fill=BOTH, expand=1)
 
-        self.table_region = PVTable(self)
+        self.table_region = PVTable(self, self.conf)
 
     def show_table(self):
         self.plot_region.pack_forget()          # FIXME: on the first call the widgets are not yet packed
@@ -38,15 +38,16 @@ class DataRegion(Frame):
         
     def ox_update(self, conf):
 #        debug(str(conf.values_upd))
-        x0 = conf.open_experiments[0]
+#        x0 = conf.open_experiments[0]
 #        self.x_scale.v.set(conf.values_upd[x0.perspective.xaxis_values])
 #        for i in range(conf.open_experiments[0].get_nvalues()):
 #            self.y_scales[i].v.set(self.conf.values_upd[i + 1])
         for ox in self.conf.open_experiments:
             for index in ox.perspective.yaxis_values:
+                debug(ox.perspective.xaxis_values)
                 self.xy_plot.plot_data(ox.values[ox.perspective.xaxis_values], ox.values[index],
                                        self.conf.values_upd[ox.perspective.xaxis_values], self.conf.values_upd[index])
-        self.xy_plot.plot_data(range(100), range(100), 4, 8)
+#        self.xy_plot.plot_data(range(100), range(100), 4, 8)
 
     def view_update(self, conf):
         view_method = { XYPlot: self.show_plot,
@@ -208,7 +209,50 @@ class PlotControls(Frame):
         pass
     
 class PVTable(MultiListbox):
-    def __init__(self, parent):
-        MultiListbox.__init__(self, parent, ('Subject', 'Sender', 'Date'))
-        for i in range(1000):
-            self.insert(END, ('Item %d' % i, 'John Doe %d' % i, '%04d' % i))
+    def __init__(self, parent, conf):
+        self.parent = parent
+        MultiListbox.__init__(self, self.parent, ("No Data",)) # Workaround for first call error: "AttributeError: PVTable instance has no attribute 'tk'"
+        conf.add_ox_listener(self.update_ox)
+ 
+    def update_ox(self, conf):
+        debug()
+        headers = ["Zeit",]
+        data = []
+        for ox in conf.open_experiments:
+            # HEADER
+            ox.header = self.get_header(ox)
+            print "ox.header: %s" % ox.header
+            for header in ox.header:
+                headers.append(header)
+            # DATA(s)
+            print len(self.get_data(ox))
+            for j in range(len(self.get_data(ox))):
+#                print "self.get_data(ox)[%d]:" % j
+#                print self.get_data(ox)[j]
+                data.append(self.get_data(ox)[j])
+        print "calling update_table(headers, data): %s, %s" % (headers, data)
+        self.update_table(headers, data)
+        
+    def get_header(self, ox):
+        # Add Description (Table Header)
+        header = []
+        for i in range(ox.get_nvalues()):
+            header.append( ox.get_desc(i), )
+        return header
+
+    def get_data(self, ox):
+        data = []
+        self.cols = ox.get_nvalues() # get the count of columns
+        self.rows = len(ox.values[1]) # get the length of v1 values (v1 exists!)
+        # Add Data from Experiment Table
+        for row in range(self.rows):
+#            print "ox.sqlvalues[%s]: %s " % ( row, ox.sqlvalues[row] )
+            data.append(ox.sqlvalues[row],)
+        return data
+                
+    def update_table(self, header, data):
+        MultiListbox.__init__(self, self.parent, header)
+#        print "data: %s" % data
+        for row in range(len(data)):
+#            print "row: %s " % row
+            self.insert(END, data[row])
