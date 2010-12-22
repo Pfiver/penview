@@ -11,7 +11,7 @@ class PenViewUI(Thread):
 
     def __init__(self):
         Thread.__init__(self)
-        self.lock = Event()     # the lock is clear until run() has initialized all widgets
+        self.init_done = Event()     # clear until run() has initialized all widgets
 
     def run(self):
         # tk object
@@ -66,7 +66,7 @@ class PenViewUI(Thread):
 
         self.conf.set_view(self.conf.view)
 
-        self.lock.set()
+        self.init_done.set()
         self.tk.mainloop()
     
     def stop(self):
@@ -80,10 +80,8 @@ class PenViewUI(Thread):
         self.controller = controller
 
     def wait_idle(self):
-        self.lock.wait()                    # wait until "tk" and widgets are initialized
-        self.lock.clear()
-        self.tk.after_idle(self.lock.set)
-        self.lock.wait()
+        self.init_done.wait()                    # wait until "tk" and widgets are initialized
+        self.tk.update()
 
     def map_handler(self, event):
         # Here we'd have to check the original height of the

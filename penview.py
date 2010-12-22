@@ -19,7 +19,8 @@ class PVAction:
         
 pvaction_name = dict((getattr(PVAction, a), a) for a in PVAction.__dict__)
 
-debug_flag = 1
+debug_flag = True
+debug_flag = False
 def debug(*args):
     if not debug_flag:
         return

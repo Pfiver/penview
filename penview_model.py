@@ -45,9 +45,18 @@ class PenViewConf:
 
         self.open_experiments.append(ox)
 
+        # keep the next two lines in that order - otherwise widgets in grap_controls might not be initialized
+        # when reset_upd() triggers the call on the scale_listeners
+        # maybe we should refactor the callback in graph_controls
+        # as well but for now just keep the order here
+        for update in self.ox_listeners: update(self)
+
         self.controller.reset_upd()             # initialize scale to a sane default (all data visible)
 
-        for update in self.ox_listeners: update(self)
+    def _get_nvalues(self):
+        return len(self.units)
+
+    nvalues = property(fget=_get_nvalues)        # as seen here: http://arkanis.de/weblog/2010-12-19-are-getters-and-setters-object-oriented#comment-2010-12-19-23-58-06-chris-w
 
     def set_view(self, view):
         self.view = view
@@ -119,19 +128,19 @@ class ExperimentPerspective:
         # add_...          get notified on ...
         # values_listener: change of visible data series
 
-        self.xaxis_values = xvals  # index of current xaxis values
-        self.yaxis_values = yvals  # list of indices of values visible on yaxis
+        self.x_values = xvals  # index of current xaxis values
+        self.y_values = yvals  # list of indices of values visible on yaxis
         self.values_listeners = []
         
     def add_values_listener(self, update):
         self.values_listeners.append(update)
 
     def set_xaxis(self, index):
-        self.xaxis_values = index
+        self.x_values = index
         for update in self.values_listeners: update(self)
 
     def set_yaxis(self, indices):
-        self.yaxis_values = indices
+        self.y_values = indices
         for update in self.values_listeners: update(self)
 
 class RecentExperiment:

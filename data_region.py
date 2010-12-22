@@ -37,15 +37,19 @@ class DataRegion(Frame):
         self.plot_region.pack(fill=BOTH, expand=1)
         
     def ox_update(self, conf):
+
 #        debug(str(conf.values_upd))
         x0 = conf.open_experiments[0]
+
 #        self.x_scale.v.set(conf.values_upd[x0.perspective.xaxis_values])
 #        for i in range(conf.open_experiments[0].get_nvalues()):
 #            self.y_scales[i].v.set(self.conf.values_upd[i + 1])
-        for ox in self.conf.open_experiments:
-            for index in ox.perspective.yaxis_values:
-                self.xy_plot.plot_data(ox.values[ox.perspective.xaxis_values], ox.values[index],
-                                       self.conf.values_upd[ox.perspective.xaxis_values], self.conf.values_upd[index])
+
+#        for ox in self.conf.open_experiments:
+#            for index in ox.perspective.yaxis_values:
+#                self.xy_plot.plot_data(ox.values[ox.perspective.xaxis_values], ox.values[index],
+#                                       self.conf.values_upd[ox.perspective.xaxis_values], self.conf.values_upd[index])
+
         self.xy_plot.plot_data(range(100), range(100), 4, 8)
 
     def view_update(self, conf):
@@ -157,48 +161,67 @@ class PlotControls(Frame):
         self.xchooser = None
 
         conf.add_ox_listener(self.update_ox)
+        conf.add_scale_listener(self.update_scales)
 
     def update_ox(self, conf):
         if len(conf.open_experiments):
             self.update_controls(conf)
 
     def update_scales(self, conf):
-        pass
+        for i in conf.values_upd:
+            self.scalers[i].v.set(conf.values_upd[i])
 
     def update_controls(self, conf):
         # controls_region setup - keep pack()ing order !
         # y-axis controls
 
+        for l in self.labels.values(): l.pack_forget()           # FIXME: uuuurg - we should reuse those widgets - shouldn't we ?
+        for s in self.scalers.values(): s.pack_forget()          #        but currently I have no time to code the housekeeping logic
+        if self.xchooser:
+            self.xchooser.pack_forget()
+
         ppct = conf.open_experiments[0].perspective
 
-#        for i in range(conf.get_nvalues() + 1):
-
-        for i in range(2):
+        # y-axis controls
+        for i in range(conf.nvalues):
             v = StringVar()
             v.trace("w", partial(self.controls_handler, v))
-            sb = Spinbox(self, from_=0, to=99, width=5, textvariable=v)
+            sb = Spinbox(self, from_=0, width=5, textvariable=v)
             sb.v = v
             sb.pack(side=LEFT)
             self.scalers[i+1] = sb
 
-            ul = Label(self, text="y%d units" % i)
+            ul = Label(self, text=conf.units[i])
             ul.pack(side=LEFT)
             self.labels[i+1] = ul
 
         # x-axis controls
-        self.labels[0] = Label(self, text="x units")
+        if ppct.x_values == 0:      # time on x-axis
+            xlabel = "s"
+        else:
+            xlabel = conf.units[ppct.x_values-1]    # because time is allways "s", ppct.units key "0" is v1_unit
+
+        self.labels[0] = Label(self, text="s")
         self.labels[0].pack(side=RIGHT)
 
         v = StringVar()
         v.trace("w", partial(self.controls_handler, v))
-        self.scalers[0] = Spinbox(self, from_=0, to=99, width=5, textvariable=v)
+        self.scalers[0] = Spinbox(self, from_=0, width=5, textvariable=v)
         self.scalers[0].v = v
         self.scalers[0].pack(side=RIGHT)
 
         v = StringVar()
-        v.set("values 0")
+        v.set("Zeit")
         v.trace("w", partial(self.controls_handler, v))
-        x_values_list = ["values %d" % i for i in range(2)]
+        x_values_list = ["Zeit"]
+  
+        for i in range(min([ox.get_nvalues() for ox in conf.open_experiments])):
+            desc = ""
+            for vdesc in [ox.get_desc(i) for ox in conf.open_experiments]:
+                if not desc.startswith(vdesc):
+                    desc += " (%s)" % vdesc
+            x_values_list.append(vdesc)
+
         self.xchooser = OptionMenu(self, v, *x_values_list)
         self.xchooser.v = v
         self.xchooser.pack(side=RIGHT)
