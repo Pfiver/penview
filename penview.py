@@ -20,17 +20,18 @@ class PVAction:
 pvaction_name = dict((getattr(PVAction, a), a) for a in PVAction.__dict__)
 
 debug_flag = True
-debug_flag = False
+
+import sys
+from os import path
+
 def debug(*args):
     if not debug_flag:
         return
-    import sys
     f = sys._getframe(1)
     if len(args) < 1: args = [""]
     print "%s: %s(): %s" % (f.f_locals.values()[0].__class__, f.f_code.co_name, args[0] % args[1:])
 
-import sys
-sys.path.append("lib")
+sys.path.append(path.join(path.dirname(sys._getframe().f_code.co_filename), "lib"))
 
 if __name__ == "__main__":
 

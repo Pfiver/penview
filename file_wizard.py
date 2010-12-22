@@ -89,9 +89,11 @@ if impl == "gtk":
         dialog.add_filter(filter)
         dialog.set_default_response(gtk.RESPONSE_OK)
 
-# aaaw - shit - this took a bit long (~10hrs)
+# aaaw on
 #
-# initial problems because of metacity (gnome window manager) focus-stealing-prevention kicking in:
+# urk - this took a bit long (~10hrs)
+#
+# initial problems because of metacity (the gnome window manager) focus-stealing-prevention kicking in:
 #  starting from the second time selecting creating an open/save dialog, it was not focused initially under ubuntu lucid (10.04)
 #  (at least not with gconf:/apps/metacity/general/focus_mode set to "sloppy")
 #
@@ -132,9 +134,3 @@ if impl == "gtk":
         while gtk.events_pending():
             gtk.main_iteration()
         return ret
-
-if __name__ == "__main__":
-    from time import sleep
-    for i in range(2):
-        askopenfilename((("bla", "*"),))
-        sleep(2)
