@@ -80,6 +80,7 @@ class OpenExperiment:
         self.perspective = ExperimentPerspective(0, [i+1 for i in range(self.get_nvalues())])
 
         self.values = zip(*ex_file.load_values())
+        self.sqlvalues = ex_file.load_values()
         self.metadata = ex_file.load_metadata()
 
     def get_additional_info(self):
