@@ -21,19 +21,20 @@ class DataRegion(Frame):
         self.xy_plot = XYPlot(pvconf, self.plot_region, 800, 600)
         self.xy_plot.pack(fill=BOTH, expand=1)
 
-        self.table_region = PVTable(self, self.conf)
+#        self.table_region = PVTable(self, self.conf)
 
     def show_table(self):
+        raise Exception("Sorry, table view not yet implemented")
         self.plot_region.pack_forget()          # FIXME: on the first call the widgets are not yet packed
         self.controls_region.pack_forget()
 
         self.table_region.pack(fill=BOTH, expand=YES)
 
     def show_plot(self):
-        self.table_region.pack_forget()          # FIXME: on the first call the widget is not yet packed
+#        self.table_region.pack_forget()          # FIXME: on the first call the widget is not yet packed
 
         # urk - use the pack-regions-that-should-stay-visible-on-window-resize-first hack
-        self.controls_region.pack(side=BOTTOM, fill=X, expand=1)
+        self.controls_region.pack(side=BOTTOM, fill=X, expand=0)
         self.plot_region.pack(fill=BOTH, expand=1)
         
     def ox_update(self, conf):
@@ -89,7 +90,16 @@ class ScrollRegion(Frame):
 class XYPlot(Canvas):
     """
     """
+    class Origin:
+        def __init__(self, x, y):
+            self.x = x
+            self.y = y
+        def set_origin(self, x, y):
+            self.x = x
+            self.y = y
+
     def __init__(self, pvconf, parent, width, height):
+        self.origin = XYPlot.Origin(0, 0)
         self.upd = 1                                # units per division
         self.ppd = 100                              # pixel per division
         self.parent = parent
@@ -100,14 +110,17 @@ class XYPlot(Canvas):
         Canvas.__init__(self, self.parent, bg=self.bgcolor,
                               width=self.width, height=self.height)
 
-        self.draw_axes(self.fgcolor)
+        self.clear(self.fgcolor)
         self.bind('<Configure>', self.resize_handler)
 
         pvconf.add_ox_listener(self.update_ox)
         pvconf.add_view_listener(self.update_scale)
 
     def update_ox(self, conf):
-        conf.reset_upd(self.ppd, self.width, self.height)             # initialize scale to a sane default (all data visible)
+        ox, oy = conf.reset_upd(self.ppd, self.width, self.height)
+        debug("ox: %d - oy: %d", ox, oy)
+        self.origin.set_origin(ox, oy)             # initialize scale to a sane default (all data visible)
+        self.clear(self.fgcolor)
 
         for ox in conf.open_experiments:
             for index in ox.perspective.y_values:
@@ -136,22 +149,29 @@ class XYPlot(Canvas):
 
         self.create_line(*args, **kwargs)
 
-    def draw_axes(self, _color="black"):
-        class O:
-            x = 0
-            y = 0
+    def clear(self, _color="black"):
+        self.delete(ALL)
+        O = self.origin
+        # positive axes
         self.line(((O.x, O.y), (self.width, O.y)), width=1, fill=_color)
         self.line(((O.x, O.y), (O.x, self.height)), width=1, fill=_color)
-        for x in range(0, self.width, self.ppd):
+        for x in range(O.x, self.width, self.ppd):
             self.line(((x, O.y - 3), (x, O.y + 3)))
-        for y in range(0, self.height, self.ppd):
+        for y in range(O.y, self.height, self.ppd):
+            self.line(((O.x - 3, y), (O.x + 3, y)))
+        # negative axes
+        self.line(((O.x, O.y), (0, O.y)), width=1, fill=_color)
+        self.line(((O.x, O.y), (O.x, 0)), width=1, fill=_color)
+        for x in range(O.x, 0, -self.ppd):
+            self.line(((x, O.y - 3), (x, O.y + 3)))
+        for y in range(O.y, 0, -self.ppd):
             self.line(((O.x - 3, y), (O.x + 3, y))) 
 
     def plot_data(self, x, y, x_upd, y_upd):
         x_upd += 0.0
         y_upd += 0.0
-        x = map(lambda v: v / x_upd * self.ppd, x)
-        y = map(lambda v: v / y_upd * self.ppd, y)
+        x = map(lambda v: v / x_upd * self.ppd + self.origin.x, x)
+        y = map(lambda v: v / y_upd * self.ppd + self.origin.y, y)
         self.line(zip(x, y), fill=self.fgcolor)
 
     def resize_handler(self, event):
@@ -266,7 +286,7 @@ class PVTable(MultiListbox):
 #                print "self.get_data(ox)[%d]:" % j
 #                print self.get_data(ox)[j]
                 data.append(self.get_data(ox)[j])
-        print "calling update_table(headers, data): %s, %s" % (headers, data)
+#        print "calling update_table(headers, data): %s, %s" % (headers, data)
         self.update_table(headers, data)
         
     def get_header(self, ox):

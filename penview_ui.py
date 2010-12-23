@@ -81,7 +81,7 @@ class PenViewUI(Thread):
 
     def wait_idle(self):
         self.init_done.wait()                    # wait until "tk" and widgets are initialized
-        self.tk.update()
+        self.tk.update()           # FIXME: urk ... main thread is not in mainloop
 
     def map_handler(self, event):
         # Here we'd have to check the original height of the

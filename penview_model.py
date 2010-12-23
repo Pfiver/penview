@@ -78,8 +78,8 @@ class PenViewConf:
 
         cols = experiments[0].get_nvalues() + 1
 
-        max_values = {}
-        min_values = {}
+        max_values = []
+        min_values = []
         for i in range(cols):
             imax = None
             imin = None
@@ -90,14 +90,25 @@ class PenViewConf:
                     imax = jmax
                 if not imin or jmin < imin:
                     imin = jmin
-            max_values[i] = imax
-            min_values[i] = imin
+            max_values.insert(i, imax)
+            min_values.insert(i, imin)
 
-        ranges = [max_values[i] - min_values[i] for i in range(cols)]
+        maxranges = [max_values[i] - min_values[i] for i in range(cols)]
 
-        for i in range(cols):
-            self.set_scale(i, height / float(ppd) * ranges[i])     # TODO: adjust coordinate origin
+        xmaxrange = maxranges[0]
+        ymaxrange = max(maxranges[1:])
 
+        self.set_scale(0, ppd * xmaxrange / float(width))
+        for i in range(1, cols):
+            self.set_scale(i, ppd * ymaxrange / float(height))
+
+        pxoff = - min_values[0] / xmaxrange * float(width)
+        pyoff = - min(min_values[1:]) / ymaxrange * float(height)
+
+        debug("xmaxrange: %d - ymaxrange: %d\nmin_values[0]: %d - min(min_values[1:]): %d",
+              xmaxrange, ymaxrange, min_values[0], min(min_values[1:]))
+
+        return (int(pxoff), int(pyoff))
 
 class OpenExperiment:
     def __init__(self, ex_file):

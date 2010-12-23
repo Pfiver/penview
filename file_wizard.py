@@ -6,7 +6,10 @@ except:
     from Tkinter import *
     from tkFileDialog import *
 
+import os
+from os import path
 from itertools import count
+from tkMessageBox import askokcancel
 
 from penview import *
 from data_import import *
@@ -37,26 +40,28 @@ class OpenWizard:
 class ImportWizard:
 
     xi = count()
-    examples = 'examples/Abklingkonstante.csv'
+    examples = ('examples/Abklingkonstante.csv')
 
     @classmethod
     def get_csv_path(cls):
-        if debug_flag:
-            return cls.examples[cls.xi.next()]
-
         return askopenfilename(filetypes=(("CSV Files", "*.csv"),))
-    
+
     @classmethod
     def get_experiment_path(cls):
-        if debug_flag:
-            return cls.examples[cls.xi] + ".imported.sqlite"
-
         return asksaveasfilename(filetypes=(("Experiment Files", "*.sqlite"),))
     
     @classmethod
     def open_experiment(cls):
         csv = CSVImporter(cls.get_csv_path())
-        ex_file = ExperimentFile(cls.get_experiment_path(), csv.rowsize-1)
+        while True:
+            ex_path = cls.get_experiment_path()
+            if not path.exists(ex_path):
+                break
+            if askokcancel("Experiment File", "File exists. Overwrite?"):
+                os.unlink(ex_path)
+                break
+
+        ex_file = ExperimentFile(ex_path, csv.rowsize-1)
         
         ex_file.store_values(1, csv.values)
         ex_file.store_metadata(csv.metadata)
