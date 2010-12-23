@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # encoding: utf-8
 
+from random import randint
 from itertools import count
 
 from penview import *
@@ -164,6 +165,9 @@ class ExperimentPerspective:
         self.x_values = xvals  # index of current xaxis values
         self.y_values = yvals  # list of indices of values visible on yaxis
         self.values_listeners = []
+        
+        random_color = lambda: "#%06x" % randint(0, 1 << 24)
+        self.colors = [random_color() for i in [xvals] + yvals]
         
     def add_values_listener(self, update):
         self.values_listeners.append(update)

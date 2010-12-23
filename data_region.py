@@ -125,7 +125,8 @@ class XYPlot(Canvas):
         for ox in conf.open_experiments:
             for index in ox.perspective.y_values:
                 self.plot_data(ox.values[ox.perspective.x_values], ox.values[index],
-                               conf.values_upd[ox.perspective.x_values], conf.values_upd[index])
+                               conf.values_upd[ox.perspective.x_values], conf.values_upd[index],
+                               color=ox.perspective.colors[index])
 
     def update_scale(self, conf):
         pass
@@ -167,12 +168,13 @@ class XYPlot(Canvas):
         for y in range(O.y, 0, -self.ppd):
             self.line(((O.x - 3, y), (O.x + 3, y))) 
 
-    def plot_data(self, x, y, x_upd, y_upd):
+    def plot_data(self, x, y, x_upd, y_upd, color=None):
+        if color == None: color = self.fgcolor
         x_upd += 0.0
         y_upd += 0.0
         x = map(lambda v: v / x_upd * self.ppd + self.origin.x, x)
         y = map(lambda v: v / y_upd * self.ppd + self.origin.y, y)
-        self.line(zip(x, y), fill=self.fgcolor)
+        self.line(zip(x, y), fill=color)
 
     def resize_handler(self, event):
         pass
