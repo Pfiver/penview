@@ -12,8 +12,8 @@ class OpenWizard:
     examples = (
 #                'examples/Chaotische Schwingung (Chaos4).sqlite',
 #                'examples/Doppelte nicht- Chaotische Schwingung (Chaos3.6).sqlite',
-                'examples/abklingkonstante.sqlite',
-                'examples/eigenfrequenz_chaos2.sqlite',
+#                'examples/abklingkonstante.sqlite',
+#                'examples/eigenfrequenz_chaos2.sqlite',
 #                'examples/motorkalibrierung.sqlite',
     )
 
@@ -31,7 +31,7 @@ class OpenWizard:
 class ImportWizard:
 
     xi = count()
-    examples = 'examples/Abklingkonstante.csv'
+#    examples = 'examples/Abklingkonstante.csv'
 
     @classmethod
     def get_csv_path(cls):

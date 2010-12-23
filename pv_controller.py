@@ -23,7 +23,7 @@ class PVController(Thread):
                 self.get_handler(a)()
             except Exception, e:
                 print "Exception in PVController.run(): " + str(e)
-                if debug_flag:
+                if True:
                     print_exc()
             finally:
                 self.task_done()

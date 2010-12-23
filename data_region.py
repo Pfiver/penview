@@ -221,16 +221,16 @@ class PVTable(MultiListbox):
         for ox in conf.open_experiments:
             # HEADER
             ox.header = self.get_header(ox)
-            print "ox.header: %s" % ox.header
+#            print "ox.header: %s" % ox.header
             for header in ox.header:
                 headers.append(header)
             # DATA(s)
-            print len(self.get_data(ox))
+            print "loading %s values" % len(self.get_data(ox))
             for j in range(len(self.get_data(ox))):
 #                print "self.get_data(ox)[%d]:" % j
 #                print self.get_data(ox)[j]
                 data.append(self.get_data(ox)[j])
-        print "calling update_table(headers, data): %s, %s" % (headers, data)
+        debug( "calling update_table(headers, data): %s, %s" % (headers, data) )
         self.update_table(headers, data)
         
     def get_header(self, ox):

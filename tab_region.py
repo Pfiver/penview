@@ -64,10 +64,10 @@ class TabRegion(Frame):
             checkb.grid(row=1, column=0, sticky=W)
             color_id = self.colors_id.next()
             color = self.colors[color_id]
-            colorb = Button(tab, bg=color, command=self.choose_color)
+            colorb = Button(tab, bg=color, width=1, height=1, command=self.choose_color)
             colorb.grid(row=i+1, column=1, sticky=E)
 
-        Label(tab, text=self.get_details_text(ox)).grid(row=2, sticky=W)
+        Label(tab, text=self.get_details_text(ox)).grid(row=2, sticky=W, columnspan=2)
         tab.id = ox.id
         tab.pack()
         self.tabs.append(tab)

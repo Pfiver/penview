@@ -19,7 +19,7 @@ class PVAction:
         
 pvaction_name = dict((getattr(PVAction, a), a) for a in PVAction.__dict__)
 
-debug_flag = 1
+debug_flag = 0
 def debug(*args):
     if not debug_flag:
         return
@@ -59,7 +59,7 @@ if __name__ == "__main__":
     if debug_flag:
         controller.dispatch_events()
         controller.q(PVAction.open_exp)
-        controller.q(PVAction.open_exp)
+#        controller.q(PVAction.open_exp)
     #    controller.q(PVAction.open_exp)
 
     # wait for gui thread (exits when the main window gets closed)

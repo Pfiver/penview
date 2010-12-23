@@ -83,7 +83,8 @@ def Excel2CSV(path):
     # Now close the document 
     oDoc.close( True )
 
-dirpath = "/home/archon/Desktop/Marc Patrick/"
+#dirpath = "/home/archon/Desktop/Marc Patrick/"
+dirpath = "/home/archon/WualaDrive/mygroups/Colab2000/Pendulum/Messdaten/USB-Stick/Mario Moritz"
 #dirpath = "/invalid"
 
 inputfiles = []
