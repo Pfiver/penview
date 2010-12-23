@@ -9,17 +9,16 @@ from data_region import XYPlot, PVTable
 from ttk import Notebook # ttk wrapper for TABS
 
 class TabRegion(Frame):
-    def __init__(self, parent, pvconf, ctrl):
-        Frame.__init__(self, parent)
+    def __init__(self, parent, pvconf, ctrl, **kwargs):
+        Frame.__init__(self, parent, **kwargs)
 
         self.tabs = []
-        self.colors = ["grey", "black", "red", "green", "blue", "cyan", "yellow", "magenta"]
-        self.colors_id = count()
+#        self.colors = ["grey", "black", "red", "green", "blue", "cyan", "yellow", "magenta"]
 
         pvconf.add_ox_listener(self.ox_update)
 
         # Tabs in notebook_region
-        self.notebook_region = Notebook(self)
+        self.notebook_region = Notebook(self, width=350)
         
         # Graph and Table Buttons in switch_region
         self.switch_region = Frame(self)
@@ -47,29 +46,31 @@ class TabRegion(Frame):
             else:
                 view_buttons[v].config(relief=RAISED)
 
-    def choose_color(self):
-#        color_id = self.colors_id.next()
-        color = self.colors[0]
+    def choose_color(self, ox):
+        color = ox.perspective.colors[0]
         tkColorChooser.askcolor()
         
     def addTab(self, ox):
-        tab = Frame(self)
+        tab = Frame(self, bg='green')
         Checkbutton(tab, text="Zeit").grid(row=0, sticky=W)
 
         checkb = Checkbutton(tab, text="Zeit")
+        checkb.select()
         checkb.grid(row=0, column=0, sticky=W)
 
         for i in range(ox.get_nvalues()):
             checkb = Checkbutton(tab, text=ox.get_desc(i))
-            checkb.grid(row=1, column=0, sticky=W)
-            color_id = self.colors_id.next()
-            color = self.colors[color_id]
+            checkb.select()
+            checkb.grid(row=i+1, column=0, sticky=W)
+            color = ox.perspective.colors[i+1]
             colorb = Button(tab, bg=color, command=self.choose_color)
             colorb.grid(row=i+1, column=1, sticky=E)
 
-        Label(tab, text=self.get_details_text(ox)).grid(row=2, sticky=W)
+        details = Label(tab, text=self.get_details_text(ox),
+                        justify=LEFT, anchor=W, bg='orange')
+        details.grid(columnspan=2, sticky=W)
         tab.id = ox.id
-        tab.pack()
+        tab.pack(fill=BOTH, expand=1)
         self.tabs.append(tab)
         self.notebook_region.add(tab, text="Exp %d" % ox.id)
         
