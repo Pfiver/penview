@@ -1,6 +1,7 @@
 from Queue import Queue
 from threading import Thread
 from traceback import print_exc
+from tkMessageBox import showerror
 
 from penview import *
 from file_wizard import *
@@ -23,6 +24,7 @@ class PVController(Thread):
                 self.get_handler(a)()
             except Exception, e:
                 print "Exception in PVController.run(): " + str(e)
+                showerror(app_name, str(e))
                 if debug_flag:
                     print_exc()
             finally:

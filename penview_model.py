@@ -166,7 +166,7 @@ class ExperimentPerspective:
         self.y_values = yvals  # list of indices of values visible on yaxis
         self.values_listeners = []
         
-        random_color = lambda: "#%06x" % randint(0, 1 << 24)
+        random_color = lambda: "#%03x" % randint(0, 1 << 12)
         self.colors = [random_color() for i in [xvals] + yvals]
         
     def add_values_listener(self, update):

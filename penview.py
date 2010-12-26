@@ -19,6 +19,8 @@ class PVAction:
         
 pvaction_name = dict((getattr(PVAction, a), a) for a in PVAction.__dict__)
 
+app_name = "PenView"
+
 debug_flag = True
 
 import sys
