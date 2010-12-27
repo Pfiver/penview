@@ -23,6 +23,7 @@ class PenViewUI(Thread):
 
         ## top-level widget
         self.frame0 = Frame(self.tk) # top-level container widget
+#        self.frame0.minsize(800,600)
 
         ## menubar
         self.menu_bar = Menu(self.tk)

@@ -11,8 +11,8 @@ from data_region import XYPlot, PVTable
 from ttk import Notebook # ttk wrapper for TABS
 
 class TabRegion(Frame):
-    def __init__(self, parent, pvconf, ctrl):
-        Frame.__init__(self, parent)
+    def __init__(self, parent, pvconf, ctrl, **kwargs):
+        Frame.__init__(self, parent, **kwargs)
 
         self.tabs = {}
         self.conf = pvconf
@@ -20,7 +20,7 @@ class TabRegion(Frame):
         pvconf.add_ox_listener(self.ox_update)
 
         # Tabs in notebook_region
-        self.notebook_region = Notebook(self)
+        self.notebook_region = Notebook(self, width=350)
         
         # Graph and Table Buttons in switch_region
         self.switch_region = Frame(self)
