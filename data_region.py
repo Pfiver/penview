@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from Tkinter import *
 from itertools import chain
 from functools import partial
@@ -13,7 +15,7 @@ class DataRegion(Frame):
         self.controller = ctrl
 
         pvconf.add_ox_listener(self.ox_update)
-        pvconf.add_view_listener(self.view_update)
+        pvconf.add_viewmode_listener(self.viewmode_update)
 
         self.controls_region = PlotControls(self, self.conf)
         self.plot_region = ScrollRegion(self)
@@ -53,10 +55,10 @@ class DataRegion(Frame):
 #                                       self.conf.values_upd[ox.perspective.x_values], self.conf.values_upd[index])
 #        self.xy_plot.plot_data(range(100), range(100), 4, 8)
 
-    def view_update(self, conf):
-        view_method = { XYPlot: self.show_plot,
-                        PVTable: self.show_table}
-        view_method[conf.view]()
+    def viewmode_update(self, conf):
+        show = { XYPlot: self.show_plot,
+                 PVTable: self.show_table}
+        show[conf.viewmode]()
 
 class ScrollRegion(Frame):
     def __init__(self, parent):
@@ -114,19 +116,18 @@ class XYPlot(Canvas):
         self.bind('<Configure>', self.resize_handler)
 
         pvconf.add_ox_listener(self.update_ox)
-        pvconf.add_view_listener(self.update_scale)
+        pvconf.add_scale_listener(self.update_scale)
 
     def update_ox(self, conf):
         ox, oy = conf.reset_upd(self.ppd, self.width, self.height)
-        debug("ox: %d - oy: %d", ox, oy)
+
         self.origin.set_origin(ox, oy)             # initialize scale to a sane default (all data visible)
         self.clear(self.fgcolor)
 
         for ox in conf.open_experiments:
-            for index in ox.perspective.y_values:
-                self.plot_data(ox.values[ox.perspective.x_values], ox.values[index],
-                               conf.values_upd[ox.perspective.x_values], conf.values_upd[index],
-                               color=ox.perspective.colors[index])
+            for index in ox.view.y_values:
+                self.plot_data(ox.values[ox.view.x_values], ox.values[index],
+                               conf.values_upd[ox.view.x_values], conf.values_upd[index], color=ox.view.colors[index])
 
     def update_scale(self, conf):
         pass
@@ -216,7 +217,7 @@ class PlotControls(Frame):
         if self.xchooser:
             self.xchooser.pack_forget()
 
-        ppct = conf.open_experiments[0].perspective
+        view = conf.open_experiments[0].view
 
         # y-axis controls
         for i in range(conf.nvalues):
@@ -232,10 +233,10 @@ class PlotControls(Frame):
             self.labels[i+1] = ul
 
         # x-axis controls
-        if ppct.x_values == 0:      # time on x-axis
+        if view.x_values == 0:      # time on x-axis
             xlabel = "s"
         else:
-            xlabel = conf.units[ppct.x_values-1]    # because time is allways "s", ppct.units key "0" is v1_unit
+            xlabel = conf.units[view.x_values-1]    # because time is allways "s", view.units key "0" is v1_unit
 
         self.labels[0] = Label(self, text="s")
         self.labels[0].pack(side=RIGHT)
@@ -253,7 +254,7 @@ class PlotControls(Frame):
   
         for i in range(min([ox.get_nvalues() for ox in conf.open_experiments])):
             desc = ""
-            for vdesc in [ox.get_desc(i) for ox in conf.open_experiments]:
+            for vdesc in [ox.get_desc(i + 1) for ox in conf.open_experiments]:
                 if not desc.startswith(vdesc):
                     desc += " (%s)" % vdesc
             x_values_list.append(vdesc)

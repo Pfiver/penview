@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from random import *
 from Tkinter import *
 from threading import Thread, Event
@@ -11,7 +13,9 @@ class PenViewUI(Thread):
 
     def __init__(self):
         Thread.__init__(self)
-        self.init_done = Event()     # clear until run() has initialized all widgets
+        self.init = Event()     # clear until run() has initialized all widgets
+        self.idle = Event()     # usually set
+        self.idle.set()
 
     def run(self):
         # tk object
@@ -38,7 +42,7 @@ class PenViewUI(Thread):
         self.menu_bar.add_cascade(label="Help", menu=self.help_menu)
 
         ## main widget with vertical "splitter" bar
-        self.main_region = PanedWindow(self.frame0, showhandle=1)
+        self.main_region = PanedWindow(self.frame0, sashwidth=4)
 
         ## TAB is on the left
         self.tab_region = TabRegion(self.main_region, self.conf, self.controller)
@@ -64,9 +68,9 @@ class PenViewUI(Thread):
         self.tk.config(menu=self.menu_bar)
         self.main_region.pack(fill=BOTH, expand=1)
 
-        self.conf.set_view(self.conf.view)
+        self.conf.set_viewmode(self.conf.viewmode)
 
-        self.init_done.set()
+        self.init.set()
         self.tk.mainloop()
     
     def stop(self):
@@ -80,8 +84,10 @@ class PenViewUI(Thread):
         self.controller = controller
 
     def wait_idle(self):
-        self.init_done.wait()                    # wait until "tk" and widgets are initialized
-        self.tk.update()           # FIXME: urk ... main thread is not in mainloop
+        self.init.wait()                    # possibly wait for run() to instantiate Tk and call its mainloop() first
+        self.tk.after_idle(self.idle.set)   # arrange for the "idle" Event to be set by tk.mainloop() when it's idle
+        self.idle.wait()                    # wait for it
+        self.idle.clear()                   # the ui is usually considered busy
 
     def map_handler(self, event):
         # Here we'd have to check the original height of the
@@ -94,4 +100,3 @@ class PenViewUI(Thread):
 #        print "W: %d" % self.xy_plot.winfo_width()
 #        print "h: %d" % self.frame0.winfo_height()
 #        print "H: %d" % self.xy_plot.winfo_height()
-

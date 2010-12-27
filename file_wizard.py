@@ -34,8 +34,8 @@ class OpenWizard:
         return askopenfilename(filetypes=(("Experiment Files", "*.sqlite"),))
     
     @classmethod
-    def open_experiment(cls):
-        return OpenExperiment(ExperimentFile(cls.get_path()))
+    def get_ex_file(cls):
+        return ExperimentFile(cls.get_path())
 
 class ImportWizard:
 
@@ -51,7 +51,7 @@ class ImportWizard:
         return asksaveasfilename(filetypes=(("Experiment Files", "*.sqlite"),))
     
     @classmethod
-    def open_experiment(cls):
+    def get_ex_file(cls):
         csv = CSVImporter(cls.get_csv_path())
         while True:
             ex_path = cls.get_experiment_path()
@@ -66,7 +66,7 @@ class ImportWizard:
         ex_file.store_values(1, csv.values)
         ex_file.store_metadata(csv.metadata)
         
-        return OpenExperiment(ex_file)
+        return ex_file
 
 if impl == "gtk":
 

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from Queue import Queue
 from threading import Thread
 from traceback import print_exc
@@ -56,10 +58,10 @@ class PVController(Thread):
         self.stop()
 
     def do_open_exp(self):
-        self.open_helper(OpenWizard.open_experiment())
+        self.open_helper(OpenExperiment(OpenWizard.get_ex_file(), self.ui))
 
     def do_import_exp(self):
-        self.open_helper(ImportWizard.open_experiment())
+        self.open_helper(OpenExperiment(ImportWizard.get_ex_file(), self.ui))
 
     def open_helper(self, ox):
         self.conf.add_open_experiment(ox)

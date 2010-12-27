@@ -1,7 +1,9 @@
 # encoding: utf-8
+
 from Tkinter import *
 from itertools import count
-import tkColorChooser
+from functools import partial
+from tkColorChooser import askcolor
 
 from penview_model import *
 from data_region import XYPlot, PVTable
@@ -12,9 +14,8 @@ class TabRegion(Frame):
     def __init__(self, parent, pvconf, ctrl):
         Frame.__init__(self, parent)
 
-        self.tabs = []
-        self.colors = ["grey", "black", "red", "green", "blue", "cyan", "yellow", "magenta"]
-        self.colors_id = count()
+        self.tabs = {}
+        self.conf = pvconf
 
         pvconf.add_ox_listener(self.ox_update)
 
@@ -27,71 +28,88 @@ class TabRegion(Frame):
         self.table_button = Button(self.switch_region, text="Table", command=lambda: ctrl.q(PVAction.show_table))
         self.graph_button.pack(side=LEFT, fill=X, expand=YES)
         self.table_button.pack(side=LEFT, fill=X, expand=YES)
-        pvconf.add_view_listener(self.view_update)
+        pvconf.add_viewmode_listener(self.viewmode_update)
 
         # pack()
         self.notebook_region.pack(fill=BOTH, expand=1)
         self.switch_region.pack(fill=X, side=BOTTOM)
 
-    def ox_update(self, conf):
-        for a in conf.open_experiments:
-            if a.id not in map(lambda t: t.id, self.tabs):
-                self.addTab(a)
+        # keep a reference to some empty BitmapImage
+        # ehr well .. this is needed because if you write Button(image=BitmapImage(), ...)
+        # the BitmapImage object will be reaped by the garbage collector and the button doesn't work
+        self.bi = BitmapImage()
 
-    def view_update(self, conf):
+    def ox_update(self, conf):
+        for ox in conf.open_experiments:
+            if ox.id not in self.tabs:
+                self.addTab(ox)
+                ox.view.add_listener(self.experiment_view_update)
+
+    def viewmode_update(self, conf):
         view_buttons = { XYPlot: self.graph_button,
                          PVTable: self.table_button }
         for v in view_buttons:
-            if conf.view == v:
+            if conf.viewmode == v:
                 view_buttons[v].config(relief=SUNKEN)
             else:
                 view_buttons[v].config(relief=RAISED)
 
-    def choose_color(self):
-#        color_id = self.colors_id.next()
-        color = self.colors[0]
-        tkColorChooser.askcolor()
+    def experiment_view_update(self, ox):
+        tab = self.tabs[ox.id]
+        for i in range(ox.get_nvalues() + 1):
+#            tab.valueboxes[i]....
+            tab.colorbuttons[i].config(bg=ox.view.colors[i], activebackground=ox.view.colors[i])
+
+    def choose_color(self, view, i):
+        view.set_color(i, askcolor()[1])
         
     def addTab(self, ox):
         tab = Frame(self)
-        Checkbutton(tab, text="Zeit").grid(row=0, sticky=W)
+        tab.valueboxes = {}
+        tab.colorbuttons = {}
 
-        checkb = Checkbutton(tab, text="Zeit")
-        checkb.grid(row=0, column=0, sticky=W)
+        for i in range(ox.get_nvalues() + 1):
+            box = Checkbutton(tab, text=ox.get_desc(i))
+            box.grid(row=i, column=0, sticky=W)
+            tab.valueboxes[i] = box
+            # creating a button with image=... lets you specify with and height in pixels
+            button = Button(tab, image=self.bi, width=10, height=10,
+                            bg=ox.view.colors[i], activebackground=ox.view.colors[i], command=partial(self.choose_color, ox.view, i))
+            button.grid(row=i, column=1, padx=4, pady=4)
+            tab.colorbuttons[i] = button
 
-        for i in range(ox.get_nvalues()):
-            checkb = Checkbutton(tab, text=ox.get_desc(i))
-            checkb.grid(row=1, column=0, sticky=W)
-            color_id = self.colors_id.next()
-            color = self.colors[color_id]
-            colorb = Button(tab, bg=color, command=self.choose_color)
-            colorb.grid(row=i+1, column=1, sticky=E)
-
-        Label(tab, text=self.get_details_text(ox)).grid(row=2, sticky=W)
-        tab.id = ox.id
+        Label(tab, text=self.get_details_text(ox), justify=LEFT).grid(columnspan=2, sticky=W)
+        tab.grid_columnconfigure(0, weight=1)
         tab.pack()
-        self.tabs.append(tab)
+        self.tabs[ox.id] = tab
+
         self.notebook_region.add(tab, text="Exp %d" % ox.id)
-        
-    def get_details_text(self, ox):
+
+    @classmethod 
+    def get_details_text(cls, ox):
         """return actor_name, date and ev. additional_details from OpenExperiment"""
-        #Durchgeführt von: Namen
-        actor_name = ox.get_actor_name()
-        details_text =  "Durchgeführt von %s" % actor_name
-        #Datum
+
+        # Datum
         date = ox.get_date()
         YYYY = date[0:4]
         MM = date[4:6]
         DD = date[6:8]
-#        print "YYYYMMDD: %s.%s.%s" % ( DD, MM, YYYY )
-        details_text += "\nDatum, %s.%s.%s" % ( DD, MM, YYYY )
+        text = "Datum: %s.%s.%s" % ( DD, MM, YYYY )
+        text += "\n"
+
+        # Gruppe: Namen
+        actor_name = ox.get_actor_name()
+        text += "Gruppe: %s" % actor_name
+        text += "\n"
+
         try:
-            #Konstante (z.b. Federkonstante)
-            additional_info = ox.get_additional_info()
-            details_text += "\n%s" % additional_info
+            # Zusätzliche Informationen (z.b. Federkonstante)
+            text += ox.get_additional_info()
+            text += "\n"
         except:
             pass
-        return details_text
+
+        return text
         
         # import tkColorChooser
         # tkColorChooser.askcolor()
