@@ -92,9 +92,6 @@ class PenViewConf:
             min_values.insert(i, imin)
             max_values.insert(i, imax)
 
-        debug("min: " + str(min_values))
-        debug("max: " + str(max_values))
-
         maxranges = [max_values[i] - min_values[i] for i in range(cols)]
 
         xmaxrange = maxranges[0]
@@ -110,7 +107,7 @@ class PenViewConf:
         return (int(pxoff), int(pyoff))
 
 class OpenExperiment:
-    ids = count()
+    num = count()
 
     def __init__(self, ex_file, ui):
         """
@@ -119,7 +116,7 @@ class OpenExperiment:
                 path  file-path
         """
 
-        self.id = OpenExperiment.ids.next()
+        self.num = OpenExperiment.num.next()
 
         self.file = ex_file
         self.view = ExperimentView(self, ui)
@@ -164,14 +161,24 @@ class ExperimentView:
 
         # one listener can be registered:
         #
-        # add_...          get notified on ...
-        # values_listener: change of visible data series or their colors
+        # add_...    get notified on ...
+        # listener:  change of visible data series or their colors
 
         self.experiment = ox
         self.listeners = []
         self.x_values = 0                               # index of current xaxis values
         self.y_values = range(1, ox.get_nvalues() + 1)  # list of indices of values visible on yaxis
         self.colors = self.random_colors(ox.get_nvalues() + 1, 128)
+
+        # FIXME: we have to think it over again!!!
+        # for extensibility reasons (more then one application window with different scales and colors
+        # I wanted an experiment to be able to have more then one view
+        # a view has an associated ui
+        # an ui has an associated conf
+        # a conf has a number of open experiments
+        # ........... it seems to work right now but does if all make sense or are there contradicting paradigms ? :-)
+
+        self.ui = ui
 
     @classmethod
     def random_colors(cls, ncolors, min_distance):
@@ -215,15 +222,15 @@ class ExperimentView:
 
     def set_xaxis(self, index):
         self.x_values = index
-        for update in self.listeners: update(self.experiment)
+        for update in self.listeners: update(self)
 
     def set_yaxis(self, indices):
         self.y_values = indices
-        for update in self.listeners: update(self.experiment)
+        for update in self.listeners: update(self)
 
     def set_color(self, i, color):
         self.colors[i] = color
-        for update in self.listeners: update(self.experiment)
+        for update in self.listeners: update(self)
 
 class RecentExperiment:
     def __init__(self):

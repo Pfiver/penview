@@ -14,7 +14,6 @@ class DataRegion(Frame):
         self.conf = pvconf
         self.controller = ctrl
 
-        pvconf.add_ox_listener(self.ox_update)
         pvconf.add_viewmode_listener(self.viewmode_update)
 
         self.controls_region = PlotControls(self, self.conf)
@@ -26,7 +25,8 @@ class DataRegion(Frame):
 #        self.table_region = PVTable(self, self.conf)
 
     def show_table(self):
-        raise Exception("Sorry, table view not yet implemented")
+        raise Exception("Sorry, table view is not yet implemented")
+
         self.plot_region.pack_forget()          # FIXME: on the first call the widgets are not yet packed
         self.controls_region.pack_forget()
 
@@ -38,22 +38,6 @@ class DataRegion(Frame):
         # urk - use the pack-regions-that-should-stay-visible-on-window-resize-first hack
         self.controls_region.pack(side=BOTTOM, fill=X, expand=0)
         self.plot_region.pack(fill=BOTH, expand=1)
-        
-    def ox_update(self, conf):
-        pass
-
-#        debug(str(conf.values_upd))
-
-#        x0 = conf.open_experiments[0]
-#        self.x_scale.v.set(conf.values_upd[x0.perspective.x_values])
-#        for i in range(conf.open_experiments[0].get_nvalues()):
-#            self.y_scales[i].v.set(self.conf.values_upd[i + 1])
-#
-#        for ox in self.conf.open_experiments:
-#            for index in ox.perspective.y_values:
-#                self.xy_plot.plot_data(ox.values[ox.perspective.x_values], ox.values[index],
-#                                       self.conf.values_upd[ox.perspective.x_values], self.conf.values_upd[index])
-#        self.xy_plot.plot_data(range(100), range(100), 4, 8)
 
     def viewmode_update(self, conf):
         show = { XYPlot: self.show_plot,
@@ -112,25 +96,50 @@ class XYPlot(Canvas):
         Canvas.__init__(self, self.parent, bg=self.bgcolor,
                               width=self.width, height=self.height)
 
-        self.clear(self.fgcolor)
+        self.draw_axes(self.fgcolor)
         self.bind('<Configure>', self.resize_handler)
+
+        self.lines = {}                             # a dictionaray containing all lines we have ever plotted
+                                                    # the keys are 2-tuples of (references to) x- and y-value arrays 
 
         pvconf.add_ox_listener(self.update_ox)
         pvconf.add_scale_listener(self.update_scale)
+
+    def add_line(self, view, index):
+        # plot a line for the values at index, against view.x_values and keep track of it
+        #
+        #  color is determined by the view
+        #  values_upd is determined by the conf
+        #  values are taken from the experiment associated with the view
+        #
+        data = (view.experiment.values[view.x_values], view.experiment.values[index])
+        if data not in self.lines:
+#                self.data_line(view.experiment.values[view.x_values], view.experiment.values[index],
+            self.lines[data] = \
+                self.data_line(*data,
+                               x_upd=view.ui.conf.values_upd[view.x_values], y_upd=view.ui.conf.values_upd[index], fill=view.colors[index])
 
     def update_ox(self, conf):
         ox, oy = conf.reset_upd(self.ppd, self.width, self.height)
 
         self.origin.set_origin(ox, oy)             # initialize scale to a sane default (all data visible)
-        self.clear(self.fgcolor)
 
         for ox in conf.open_experiments:
             for index in ox.view.y_values:
-                self.plot_data(ox.values[ox.view.x_values], ox.values[index],
-                               conf.values_upd[ox.view.x_values], conf.values_upd[index], color=ox.view.colors[index])
+                self.add_line(ox.view, index)
+            if self.update_view not in ox.view.listeners:
+                ox.view.add_listener(self.update_view)
 
     def update_scale(self, conf):
         pass
+
+    def update_view(self, view):
+        for index in view.y_values:
+            line = view.experiment.values[index]
+            if line not in self.lines:                           # if we haven't dreawn it yet, do it now
+                self.add_line(view, index)
+            elif view.colors[index] != self.itemcget(self.lines[line], "fill"):    # otherwise, change the color if it has changed
+                self.itemconfigure(self.lines[line], fill=view.colors[index])
 
     def pack(self, *args, **kwargs):
         Canvas.pack(self,  *args, **kwargs)
@@ -149,33 +158,30 @@ class XYPlot(Canvas):
             args.append(p[0])          
             args.append(self.height - p[1])
 
-        self.create_line(*args, **kwargs)
+        return self.create_line(*args, **kwargs)
 
-    def clear(self, _color="black"):
-        self.delete(ALL)
+    def data_line(self, x, y, x_upd, y_upd, **kwargs):
+        x = map(lambda v: v / float(x_upd) * self.ppd + self.origin.x, x)
+        y = map(lambda v: v / float(y_upd) * self.ppd + self.origin.y, y)
+        return self.line(zip(x, y), **kwargs)
+
+    def draw_axes(self, color="black"):
+#        self.delete(ALL)
         O = self.origin
         # positive axes
-        self.line(((O.x, O.y), (self.width, O.y)), width=1, fill=_color)
-        self.line(((O.x, O.y), (O.x, self.height)), width=1, fill=_color)
+        self.line(((O.x, O.y), (self.width, O.y)), width=1, fill=color)
+        self.line(((O.x, O.y), (O.x, self.height)), width=1, fill=color)
         for x in range(O.x, self.width, self.ppd):
             self.line(((x, O.y - 3), (x, O.y + 3)))
         for y in range(O.y, self.height, self.ppd):
             self.line(((O.x - 3, y), (O.x + 3, y)))
         # negative axes
-        self.line(((O.x, O.y), (0, O.y)), width=1, fill=_color)
-        self.line(((O.x, O.y), (O.x, 0)), width=1, fill=_color)
+        self.line(((O.x, O.y), (0, O.y)), width=1, fill=color)
+        self.line(((O.x, O.y), (O.x, 0)), width=1, fill=color)
         for x in range(O.x, 0, -self.ppd):
             self.line(((x, O.y - 3), (x, O.y + 3)))
         for y in range(O.y, 0, -self.ppd):
-            self.line(((O.x - 3, y), (O.x + 3, y))) 
-
-    def plot_data(self, x, y, x_upd, y_upd, color=None):
-        if color == None: color = self.fgcolor
-        x_upd += 0.0
-        y_upd += 0.0
-        x = map(lambda v: v / x_upd * self.ppd + self.origin.x, x)
-        y = map(lambda v: v / y_upd * self.ppd + self.origin.y, y)
-        self.line(zip(x, y), fill=color)
+            self.line(((O.x - 3, y), (O.x + 3, y)))
 
     def resize_handler(self, event):
         pass

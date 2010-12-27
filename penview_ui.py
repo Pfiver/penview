@@ -20,10 +20,10 @@ class PenViewUI(Thread):
     def run(self):
         # tk object
         self.tk = Tk() # the main window
+        self.tk.minsize(800,600)
 
         ## top-level widget
         self.frame0 = Frame(self.tk) # top-level container widget
-#        self.frame0.minsize(800,600)
 
         ## menubar
         self.menu_bar = Menu(self.tk)
@@ -46,7 +46,7 @@ class PenViewUI(Thread):
         self.main_region = PanedWindow(self.frame0, sashwidth=4)
 
         ## TAB is on the left
-        self.tab_region = TabRegion(self.main_region, self.conf, self.controller)
+        self.tab_region = TabRegion(self.main_region, self)
 
         ## DATA is on the right
         self.data_region = DataRegion(self.main_region, self.conf, self.controller)
@@ -86,9 +86,12 @@ class PenViewUI(Thread):
 
     def wait_idle(self):
         self.init.wait()                    # possibly wait for run() to instantiate Tk and call its mainloop() first
-        self.tk.after_idle(self.idle.set)   # arrange for the "idle" Event to be set by tk.mainloop() when it's idle
+        self.tk.after_idle(self.idle.set)   # arrange for the "idle" Event to be set once tk.mainloop() is idle
         self.idle.wait()                    # wait for it
         self.idle.clear()                   # the ui is usually considered busy
+
+    def after_idle(self, action):
+        self.tk.after_idle(action)
 
     def map_handler(self, event):
         # Here we'd have to check the original height of the
