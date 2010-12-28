@@ -41,7 +41,7 @@ class TabRegion(Frame):
         self.switch_region.pack(fill=X, side=BOTTOM)
 
         # once all gui elements are mapped, record that fact
-        window.after_idle(self.mapped.set)                # at this point, ui.tk is known to be instantiated
+        window.after_idle(self.mapped.set)
 
         # keep a reference to some empty BitmapImage
         # ehr well .. this is needed because if you write Button(image=BitmapImage(), ...)

@@ -14,12 +14,13 @@ class PVWindow(Thread):
         self.conf = conf
         self.controller = None
         self.init = Event()     # clear until run() has initialized all widgets
-        self.idle = Event()     # usually set
+        self.idle = Event()     # set unless somebody calls wait_idle()
         self.idle.set()
 
     def run(self):
         # tk object
         self.tk = Tk() # the main window
+        self.tk.title(app_name)
         self.tk.minsize(800, 600)
 
         ## top-level widget
@@ -73,7 +74,8 @@ class PVWindow(Thread):
 
         self.init.set()
         self.tk.mainloop()
-    
+        self.do(PVAction.quit_app)
+
     def stop(self):
         if self.is_alive():
             self.tk.quit()

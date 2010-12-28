@@ -20,20 +20,22 @@ Coding Conventions
 Description of individual files
 -------------------------------
 - data_access.py:
-This is a module which is used by all groups doing this project. It provides a simple api
-for accessing and storing experiment data in an SQLite database file.
+
+	This is a module which is used by all groups doing this project. It provides a simple api
+	for accessing and storing experiment data in an SQLite database file.
 
 - data_import.py:
-This file implements an CSVImporter tool class used to import data from csv files. The csv format
-is documented here:
 
--...     
-
+	This file implements an CSVImporter tool class used to import data from csv files. The csv format
+	is documented here:
 
 
 
 
-----
+-----------------------------------------------------------------------------------------------
+
+
+
 The reminder of the file is not any more relevant to the documentation of the PenView software
 
 Some markdown (md) formatting tests:

@@ -10,7 +10,9 @@ from model import *
 from dialog import *
 
 class PVController(Thread):
-    
+
+    # constructor & api methods
+    #
     def __init__(self, conf, window):
         Thread.__init__(self)
         self.conf = conf
@@ -24,13 +26,21 @@ class PVController(Thread):
     def q(self, action):
         self.action_q.put(action)
 
+    def wait_idle(self):
+        self.window.wait_idle()
+        self.action_q.join()
+
+    def stop(self):
+        self.loop = False
+
+    # target function called by Thread.start()
+    #
     def run(self):
         while self.loop:
             task = self.action_q.get()
             try:
                 self.get_handler(task)()
             except Exception, e:
-                print "Exception in PVController.run(): " + str(e)
                 if debug_flag:
                     print_exc()
                 else:
@@ -38,12 +48,16 @@ class PVController(Thread):
             finally:
                 self.action_q.task_done()
 
-    def wait_idle(self):
-        self.window.wait_idle()
-        self.action_q.join()
+    # helper function
+    #
+    def get_handler(self, action):
+        try:
+            return getattr(self, "do_" + pvaction_name[action])
+        except AttributeError:
+            raise Exception("Sorry, '%s' is not yet implemented" % pvaction_name[action])
 
-    # all event handlers
-
+    # event handlers for most defined actions
+    #
     def do_quit_app(self):
         self.window.stop()
         self.stop()
@@ -51,8 +65,8 @@ class PVController(Thread):
     def do_show_graph(self):
         self.conf.set_viewmode(ViewMode.graph)
 
-#    def do_show_table(self):
-#        self.conf.set_viewmode(ViewMode.table)
+    def do_show_table(self):
+        self.conf.set_viewmode(ViewMode.table)
 
     def do_open_exp(self):
         self._open(OpenWizard.get_ex_file())
@@ -60,11 +74,7 @@ class PVController(Thread):
     def do_import_exp(self):
         self._open(ImportWizard.get_ex_file())
 
+    # private helper functions
+    #    
     def _open(self, exp_file):
         self.conf.add_open_experiment(OpenExperiment(exp_file, self.window))
-
-    def get_handler(self, action):
-        try:
-            return getattr(self, "do_" + pvaction_name[action])
-        except AttributeError:
-            raise Exception("Sorry, '%s' is not yet implemented" % pvaction_name[action])

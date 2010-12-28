@@ -14,33 +14,46 @@
 # (EpyDoc generated) documentation is available on wuala:
 #    http://content.wuala.com/contents/patrick2000/Shared/school/11_Projekt/Pendulum/Dokumentation/DB%20V3.pdf?dl=1
 
+# actions handled by the application controller
+#
 class PVAction:
     open_exp, import_exp, quit_app, show_help, show_about, show_table, show_graph = range(7)
-        
+
+# a map to get the name of an action by number
+#
 pvaction_name = dict((getattr(PVAction, a), a) for a in PVAction.__dict__)
 
+# the possible experiment view modes
+#
 class ViewMode:
     graph, table = range(2)
 
+# the name of this application
+#
 app_name = "PenView"
 
-debug_flag = True
+# debugging infrastructure
+#
+debug_flag = False
 
 if not debug_flag:
     def debug(*args):
         pass
 else:
-    import sys
+    import os, sys
     def debug(*args):
         if len(args) and type(args[0]) != str:
             args = " - ".join(str(arg) for arg in args)
-        f = sys._getframe(1)
-        line = f.f_lineno
-        func = f.f_code.co_name
-        file = f.f_code.co_filename
-        class_ = f.f.f_locals.values()[0].__class__
-        print "%s [%4d] in %s.%s(): %s" % (file, line, class_, func, args[0] % args[1:])
+        frame = sys._getframe(1); func = frame.f_code.co_name
+        if 'self' in frame.f_locals: func = frame.f_locals['self'].__class__.__name__ + "." + func
+        print "(%s:%d) in %s(): %s" % (os.path.basename(frame.f_code.co_filename), frame.f_lineno, func, args[0] % args[1:])
 
+# "public static void main"
+#
+# the if clause makes it possible for this file to serve two purposes at once:
+#  1. as the container of applications main method
+#  2. as a general "header" file that can be imported by all modules of the application
+#
 if __name__ == "__main__":
 
     # say hi
@@ -48,7 +61,6 @@ if __name__ == "__main__":
 
     # some import path trickery
     import os, sys
-    print os.path.join(os.path.dirname(sys._getframe().f_code.co_filename), "lib")
     sys.path.append(os.path.join(os.path.dirname(sys._getframe().f_code.co_filename), "lib"))
 
     # import the main modules

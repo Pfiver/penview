@@ -14,20 +14,21 @@ from penview import *
 #  each ExperimentView has ONE associated PVWindow
 
 class PVConf:
+    """
+    4 different types of listeners can be registered:
+    
+    add_...(update):        update gets called on:
+        ox_listener            opening/closing of experiments
+        x_listener             change of x_values index
+        scale_listener         change of scaling (values_upd)
+        viewmode_listener      change of viewmode (table/graph)
+    
+    the update functions supplied should take exactly one argument, the conf object
+    """
     def __init__(self):
 
         self.units = {}                 # the units of all data series - keys = index of a data series in the "values" matrix
                                         # len(units) is equal to the maximum number of data series of all currently open experiments
- 
-        # 4 different types of listeners can be registered:
-        #
-        # add_...              get notified on4 ...
-        # ox_listener:         opening/closing of experiments
-        # x_listener:          chenge of x_values index number
-        # scale_listener:      change of scaling (values_upd)
-        # viewmode_listener:   view change (table/graph)
-        #
-        # the update functions supplied should take exactly one argument, the conf object
 
         self.open_experiments = []      # list of OpenExperiment objects - the experiments currently opened
         self.ox_listeners = []
@@ -49,16 +50,20 @@ class PVConf:
             if i not in self.units:               # this experiments has more values than any other currently open experiment
                 self.units[i] = ox.get_units(i)      # and therefore sets the standard now
             elif self.units[i] != ox.get_units(i):
-                raise Exception("can't open this experiment - units not matching those of of already open experiments")
+                s = len(self.open_experiments) > 1 and "s" or ""
+                raise Exception("This experiment can't be opened!\n\n" +
+                                "The units are not matching those of the other already opened experiment%s." % s)
 
         self.open_experiments.append(ox)
 
         for update in self.ox_listeners: update(self)
 
+    # we should use properties more often, they're cool
+    #
     def _get_nvalues(self):
         return len(self.units)
 
-    nvalues = property(fget=_get_nvalues)        # as seen here: http://arkanis.de/weblog/2010-12-19-are-getters-and-setters-object-oriented#comment-2010-12-19-23-58-06-chris-w
+    nvalues = property(fget=_get_nvalues)
 
     def set_x_values(self, index):
         self.x_values = index
@@ -83,9 +88,6 @@ class PVConf:
 
     def add_viewmode_listener(self, update):     # table <> plot switch helper
         self.viewmode_listeners.append(update)
-
-    def set_controller(self, controller):
-        self.controller = controller
 
     def reset_upd(self, ppd, width, height):
 
@@ -123,13 +125,15 @@ class PVConf:
         return (int(pxoff), int(pyoff))
 
 class OpenExperiment:
+    """
+    this structure holds the experiment data
+    """
+
+    # a counter to assign a unique id to each open experiment
+    #
     ids = count()
+
     def __init__(self, ex_file, window):
-        """
-        initialize Experiment: load values and metadata table into classvariables
-             :Parameters:
-                path  file-path
-        """
 
         self.id = OpenExperiment.ids.next()
 
@@ -137,9 +141,8 @@ class OpenExperiment:
         self.views = { window: ExperimentView(self, window) }   # it could one day be possible to display an OpenExperiment
                                                                 # simultaneously in different windows, in different colors, ...
 
+        self.values = zip(*ex_file.load_values())
         self.metadata = ex_file.load_metadata()
-        self.records = ex_file.load_values()
-        self.values = zip(*self.records)
 
     def get_additional_info(self):
         additional_info = self.metadata['additional_info']
@@ -158,9 +161,6 @@ class OpenExperiment:
     def get_exp_name(self):
         exp_name = self.metadata['exp_name']
         return exp_name
-    
-    def get_nvalues(self):
-        return self.file.nvalues
 
     def get_desc(self, n):
         """return vn_desc"""
@@ -172,15 +172,19 @@ class OpenExperiment:
     def get_units(self, n):
         return self.metadata['v' + str(n+1) + '_unit']
 
+    # simplified access to self.file.nvalues without copying it
+    #
+    nvalues = property(fget=lambda self: self.file.nvalues)
+
 class ExperimentView:
+    """
+    one kind of listener can be registered:
+    
+    add_listener(update):  update gets called on change of visible data series or colors
+    """
     def __init__(self, ox, window):
 
         self.window = window
-
-        # one listener can be registered:
-        #
-        # add_...    get notified on ...
-        # listener:  change of visible data series or their colors
 
         self.listeners = []
         self.y_values = set(range(1, ox.get_nvalues() + 1))           # list of indices of values visible on y-axis
@@ -190,6 +194,7 @@ class ExperimentView:
     def random_colors(cls, ncolors, min_distance):
 
         colors = []
+        ntries = 3 * ncolors
 
         get_one = lambda: \
             (randint(0, 255), randint(0, 255), randint(0, 255))
@@ -202,13 +207,13 @@ class ExperimentView:
             # loop until...
             while True:
                 # try 3 * ncolors times
-                for j in range(3 * ncolors):
+                for j in range(ntries):
                     new = get_one()
                     # check if the distance from every other color exceeds the minimum distance
                     for existing in colors:
                         # if not, try again
                         if distance(new, existing) < min_distance:
-                            # set new = None, so in case this is the last of (3 * ncolors) tries at that min_distance
+                            # set new = None, so in case this is the last of ntries tries at that min_distance
                             # the outer loop can detect the failure
                             new = None
                             break
@@ -218,6 +223,7 @@ class ExperimentView:
                 # this function never fails, so if a suitable color is
                 # still not found, decrease min_distance (permanently, for the current function call)
                 # eventually, this could decrease to zero, in which case distance() CAN'T be smaller any more
+                debug("no suitable random color found after %d tries - decreasing min_distance" % ntries)
                 min_distance /= 2
             colors.append(new)
 
@@ -242,4 +248,3 @@ class RecentExperiment:
     def __init__(self):
         self.name = None
         self.path = None
-
