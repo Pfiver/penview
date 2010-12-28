@@ -1,10 +1,7 @@
-#Tue Dec 28 15:22:46 CET 2010
+#Wed Dec 29 00:45:57 CET 2010
 eclipse.preferences.version=1
-encoding//examples/data_access_example.py=utf-8
-encoding//examples/data_import_example.py=utf-8
 encoding//mini-spikes/sqlite-test.py=utf-8
 encoding//scripts/xls2csv.py=utf-8
-encoding//tests/data_access_tester.py=utf-8
 encoding/controller.py=utf-8
 encoding/data_access.py=utf-8
 encoding/data_import.py=utf-8

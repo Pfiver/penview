@@ -3,13 +3,24 @@
 
 import os, sys
 
-debug_flag = 1
-def debug(*args):
-    if not debug_flag:
-        return
-    import sys
-    if len(args) < 1: args=[""]
-    print sys._getframe(1).f_code.co_name + ": " + args[0] % args[1:]
+# debugging infrastructure
+#
+debug_flag = False
+
+if not debug_flag:
+    def debug(*args):
+        pass
+else:
+    def debug(*args):
+        if len(args) and type(args[0]) != str:
+            args = " - ".join(str(arg) for arg in args)
+        frame = sys._getframe(1); func = frame.f_code.co_name
+        if 'self' in frame.f_locals: func = frame.f_locals['self'].__class__.__name__ + "." + func
+        print "(%s:%d) in %s(): %s" % (os.path.basename(frame.f_code.co_filename), frame.f_lineno, func, args[0] % args[1:])
+
+# this script is in penview/scripts OOoLib is stored in penview/lib - adjust the module import search path
+#
+sys.path.append(os.path.join(os.path.dirname(sys._getframe().f_code.co_filename), "../lib"))
 
 import shlex, subprocess
 cmdinput = "/usr/bin/soffice -accept=socket,host=localhost,port=8100;urp"
@@ -119,4 +130,5 @@ for file in inputfiles:
     except:
         raise Exception("No such file: %s" % filepath)
 
-office.terminate()
+# has already forked
+#office.terminate()
