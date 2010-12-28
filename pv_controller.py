@@ -67,10 +67,10 @@ class PVController(Thread):
         self.conf.add_open_experiment(ox)
 
     def do_show_table(self):
-        self.conf.set_view(PVTable)
-        
+        self.conf.set_viewmode(PVTable)
+
     def do_show_graph(self):
-        self.conf.set_view(XYPlot)
+        self.conf.set_viewmode(XYPlot)
 
     def dispatch_events(self):
         self.ui.wait_idle()

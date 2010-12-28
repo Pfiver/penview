@@ -7,10 +7,10 @@ from penview import *
 from data_access import ExperimentFile
 from data_region import XYPlot, PVTable
 
-class PenViewConf:
+class WindowConf:
+    def __init__(self, ui):
 
-    def __init__(self):
-
+        self.ui = ui
         self.units = {}              # you can always count on 
                                      # len(units) == the number of values of the currently open experiment that has the most values
 
@@ -18,6 +18,7 @@ class PenViewConf:
         #
         # add_...              get notified on ...
         # ox_listener:         opening/closing of experiments
+        # x_listener:          chenge of x_values index number
         # scale_listener:      change of scaling (values_upd)
         # viewmode_listener:   view change (table/graph)
         #
@@ -26,7 +27,10 @@ class PenViewConf:
         self.open_experiments = []    # list of OpenExperiment objects - the experiments currently opened
         self.ox_listeners = []
 
-        self.values_upd = {}          # dict of scaling factors for values
+        self.x_values = 0             # index of the values currently used for the x-axis
+        self.x_listeners = []
+
+        self.values_upd = {}          # dict of scaling factors for all values
         self.scale_listeners = []
 
         self.viewmode = XYPlot        # either XYPlot or PVTable (a class object)
@@ -51,6 +55,10 @@ class PenViewConf:
 
     nvalues = property(fget=_get_nvalues)        # as seen here: http://arkanis.de/weblog/2010-12-19-are-getters-and-setters-object-oriented#comment-2010-12-19-23-58-06-chris-w
 
+    def set_x_values(self, index):
+        self.x_values = index
+        for update in self.x_listeners: update(self)
+
     def set_scale(self, n, scale):
         self.values_upd[n] = scale
         for update in self.scale_listeners: update(self)
@@ -61,6 +69,9 @@ class PenViewConf:
 
     def add_ox_listener(self, update):
         self.ox_listeners.append(update)
+
+    def add_x_listener(self, update):
+        self.x_listeners.append(update)
 
     def add_scale_listener(self, update):
         self.scale_listeners.append(update)
@@ -107,8 +118,7 @@ class PenViewConf:
         return (int(pxoff), int(pyoff))
 
 class OpenExperiment:
-    num = count()
-
+    ids = count()
     def __init__(self, ex_file, ui):
         """
         initialize Experiment: load values and metadata table into classvariables
@@ -116,14 +126,15 @@ class OpenExperiment:
                 path  file-path
         """
 
-        self.num = OpenExperiment.num.next()
+        self.id = OpenExperiment.ids.next()
 
         self.file = ex_file
-        self.view = ExperimentView(self, ui)
+        self.views = { ui: ExperimentView(self, ui) }       # an OpenExperiment could be displayed in different windows (ui's)
+                                                            # initially we create one view for use with the ui provided
 
-        self.values = zip(*ex_file.load_values())
-        self.sqlvalues = ex_file.load_values()
         self.metadata = ex_file.load_metadata()
+        self.records = ex_file.load_values()
+        self.values = zip(*self.records)
 
     def get_additional_info(self):
         additional_info = self.metadata['additional_info']
@@ -159,18 +170,7 @@ class OpenExperiment:
 class ExperimentView:
     def __init__(self, ox, ui):
 
-        # one listener can be registered:
-        #
-        # add_...    get notified on ...
-        # listener:  change of visible data series or their colors
-
-        self.experiment = ox
-        self.listeners = []
-        self.x_values = 0                               # index of current xaxis values
-        self.y_values = range(1, ox.get_nvalues() + 1)  # list of indices of values visible on yaxis
-        self.colors = self.random_colors(ox.get_nvalues() + 1, 128)
-
-        # FIXME: we have to think it over again!!!
+        # FIXME: we should think it over again:
         # for extensibility reasons (more then one application window with different scales and colors
         # I wanted an experiment to be able to have more then one view
         # a view has an associated ui
@@ -178,7 +178,17 @@ class ExperimentView:
         # a conf has a number of open experiments
         # ........... it seems to work right now but does if all make sense or are there contradicting paradigms ? :-)
 
+        self.ox = ox
         self.ui = ui
+
+        # one listener can be registered:
+        #
+        # add_...    get notified on ...
+        # listener:  change of visible data series or their colors
+
+        self.listeners = []
+        self.y_values = set(range(1, ox.get_nvalues() + 1))           # list of indices of values visible on y-axis
+        self.colors = self.random_colors(ox.get_nvalues() + 1, 128)
 
     @classmethod
     def random_colors(cls, ncolors, min_distance):
@@ -220,16 +230,16 @@ class ExperimentView:
     def add_listener(self, update):
         self.listeners.append(update)
 
-    def set_xaxis(self, index):
-        self.x_values = index
-        for update in self.listeners: update(self)
-
-    def set_yaxis(self, indices):
-        self.y_values = indices
-        for update in self.listeners: update(self)
-
     def set_color(self, i, color):
         self.colors[i] = color
+        for update in self.listeners: update(self)
+
+    def add_y_values(self, index):
+        self.y_values.add(index)
+        for update in self.listeners: update(self)
+
+    def remove_y_values(self, index):
+        self.y_values.remove(index)
         for update in self.listeners: update(self)
 
 class RecentExperiment:

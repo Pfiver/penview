@@ -46,11 +46,11 @@ if __name__ == "__main__":
 
     # import and instantiate and connect application parts (Model-View-Controller)
     from penview_ui import PenViewUI
-    from penview_model import PenViewConf
+    from penview_model import WindowConf
     from pv_controller import PVController
 
     ui = PenViewUI()                    # View
-    conf = PenViewConf()                # Model
+    conf = WindowConf(ui)               # Model
     controller = PVController(ui, conf) # Controller
 
     ui.set_conf(conf)

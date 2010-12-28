@@ -1,30 +1,30 @@
 # encoding: utf-8
 
 from Tkinter import *
-from itertools import chain
+from itertools import izip
 from functools import partial
 
 from penview import *
 from recipe_52266 import MultiListbox
 
 class DataRegion(Frame):
-    def __init__(self, parent, pvconf, ctrl):
+    def __init__(self, parent, conf):
         Frame.__init__(self, parent)
 
-        self.conf = pvconf
-        self.controller = ctrl
+        self.conf = conf
 
-        pvconf.add_viewmode_listener(self.viewmode_update)
+        conf.add_viewmode_listener(self.viewmode_update)
 
         self.controls_region = PlotControls(self, self.conf)
         self.plot_region = ScrollRegion(self)
 
-        self.xy_plot = XYPlot(pvconf, self.plot_region, 800, 600)
+        self.xy_plot = XYPlot(self.plot_region, conf, 800, 600)
         self.xy_plot.pack(fill=BOTH, expand=1)
 
 #        self.table_region = PVTable(self, self.conf)
 
     def show_table(self):
+        self.conf.ui.controller.q(PVAction.show_graph)
         raise Exception("Sorry, table view is not yet implemented")
 
         self.plot_region.pack_forget()          # FIXME: on the first call the widgets are not yet packed
@@ -84,10 +84,11 @@ class XYPlot(Canvas):
             self.x = x
             self.y = y
 
-    def __init__(self, pvconf, parent, width, height):
+    def __init__(self, parent, conf, width, height):
         self.origin = XYPlot.Origin(0, 0)
         self.upd = 1                                # units per division
         self.ppd = 100                              # pixel per division
+        self.conf = conf
         self.parent = parent
         self.width, self.height = width, height
 
@@ -99,89 +100,139 @@ class XYPlot(Canvas):
         self.draw_axes(self.fgcolor)
         self.bind('<Configure>', self.resize_handler)
 
-        self.lines = {}                             # a dictionaray containing all lines we have ever plotted
-                                                    # the keys are 2-tuples of (references to) x- and y-value arrays 
+        self.upds = {}
+        self.lines = {}                             # this is a dict of dicts to which the keys are an ExperimentView and a values index
 
-        pvconf.add_ox_listener(self.update_ox)
-        pvconf.add_scale_listener(self.update_scale)
+        conf.add_ox_listener(self.ox_update)
+        conf.add_scale_listener(self.scale_update)
 
     def add_line(self, view, index):
         # plot a line for the values at index, against view.x_values and keep track of it
-        #
         #  color is determined by the view
         #  values_upd is determined by the conf
         #  values are taken from the experiment associated with the view
-        #
-        data = (view.experiment.values[view.x_values], view.experiment.values[index])
-        if data not in self.lines:
-#                self.data_line(view.experiment.values[view.x_values], view.experiment.values[index],
-            self.lines[data] = \
-                self.data_line(*data,
-                               x_upd=view.ui.conf.values_upd[view.x_values], y_upd=view.ui.conf.values_upd[index], fill=view.colors[index])
+        self.lines[view][index] = \
+            self.data_line(view.ox.values[self.conf.x_values], view.ox.values[index],
+                           x_upd=self.conf.values_upd[self.conf.x_values], y_upd=self.conf.values_upd[index], fill=view.colors[index])
+        # it works both ways and I'm not 100% sure now which is the right one 
+        #                   x_upd=view.ui.conf.values_upd[view.ui.conf.x_values], y_upd=view.ui.conf.values_upd[index], fill=view.colors[index])
 
-    def update_ox(self, conf):
-        ox, oy = conf.reset_upd(self.ppd, self.width, self.height)
+    def remove_line(self, view, index):
+        # delete the line that has been plotted for the values at index and loose track of it
 
-        self.origin.set_origin(ox, oy)             # initialize scale to a sane default (all data visible)
+        self.delete(self.lines[view][index])
+        del self.lines[view][index]
 
-        for ox in conf.open_experiments:
-            for index in ox.view.y_values:
-                self.add_line(ox.view, index)
-            if self.update_view not in ox.view.listeners:
-                ox.view.add_listener(self.update_view)
+    def ox_update(self, conf):
+        # reset scale to a sane default (all data visible)
+        self.upds = {}
+        self.origin.set_origin(*conf.reset_upd(self.ppd, self.width, self.height))
+        self.upds = conf.values_upd.copy()
 
-    def update_scale(self, conf):
-        pass
+        for ox in conf.open_experiments:           
+            view = ox.views[self.conf.ui]
+            if view not in self.lines:              # find added experiments, add our view_listener and call it once to display them
+                self.lines[view] = {}               # a dictionaray containing all lines we have plotted
+                self.view_update(view)
+                view.add_listener(self.view_update)
 
-    def update_view(self, view):
-        for index in view.y_values:
-            line = view.experiment.values[index]
-            if line not in self.lines:                           # if we haven't dreawn it yet, do it now
-                self.add_line(view, index)
-            elif view.colors[index] != self.itemcget(self.lines[line], "fill"):    # otherwise, change the color if it has changed
-                self.itemconfigure(self.lines[line], fill=view.colors[index])
+        # from http://effbot.org/zone/python-list.htm:
+        #  Note that the for-in statement maintains an internal index, which is incremented for each loop iteration.
+        #  This means that if you modify the list you’re looping over, the indexes will get out of sync, and you may
+        #  end up skipping over items, or process the same item multiple times.
+        #  To work around this, you can loop over a copy of the list: 
+        # Seems to hold true for dicts as well. If you don't get a copy of the keys
+        # using dict.keys() and modify the dict in the loop, a RuntimeError is raised
+        for view in self.lines.keys():
+            if view.ox not in conf.open_experiments:
+                for index in self.lines[view]:
+                    self.delete(self.lines[view][index])
+                del self.lines[view]
+                
+
+    def scale_update(self, conf):
+        for i in self.upds:
+            if self.upds[i] != conf.values_upd[i]:
+                self.upds[i] = conf.values_upd[i]
+                if i == conf.x_values:                  # if the x-scale has changed, we have to redraw every single line
+                    self.clear()
+                    for ox in conf.open_experiments:           
+                        view = ox.views[self.conf.ui]
+                        self.lines[view] = {}
+                        self.view_update(view)
+                    return                              # next - otherwise an y-scale has changed
+                for view in self.lines:                 # FIXME: seems slow
+                    self.remove_line(view, i)
+                    self.add_line(view, i)
+
+    def x_update(self, conf):   
+        self.clear()            # if we plot against different x_values, we have to start over
+        for ox in conf.open_experiments:           
+            view = ox.views[self.conf.ui]
+            self.lines[view] = {}               # a dictionaray containing all lines we have plotted
+            self.view_update(view)
+
+    def view_update(self, view):
+        for index in range(view.ox.get_nvalues() + 1):      # loop over all values (indexes)
+            if index == self.conf.x_values:                 # if the values are used as the x_axis
+                continue                                    # next - otherwise these are y-values
+            if index not in view.y_values:                  # if the values should not be displayed
+                if index in self.lines[view]:               # but are currently visible
+                    self.remove_line(view, index)           # hide them
+                continue                                    # next - otherwise these values ARE supposed to be visible
+            if index not in self.lines[view]:               # if the values are currently not visible
+                self.add_line(view, index)                  # display them
+                continue                                    # next - otherwise these values ARE supposed to be and WERE already visible
+            if self.itemcget(self.lines[view][index], "fill") != view.colors[index]:    # if the color has changed
+                self.itemconfig(self.lines[view][index], fill=view.colors[index])       # change the color
 
     def pack(self, *args, **kwargs):
         Canvas.pack(self,  *args, **kwargs)
         if self.parent.__class__ == ScrollRegion:
             self.parent.child_added(self)
 
-    def line(self, points, **kwargs):
+    def clear(self):
+        for view in self.lines.keys():
+            for index in self.lines[view]:
+                self.delete(self.lines[view][index])
+            del self.lines[view]
+
+    def draw_line(self, points, **kwargs):
         """
         draw a line along a list of point coordinates
         :parameters:
             points    list of point coordinates in the form: ((x1, y1), (x2, y2))
         """
+        # using a generator expression avoids many copy operations
+        return self.create_line(list((x, self.height - y) for x, y in points), **kwargs)
 
-        args = []
-        for p in points:
-            args.append(p[0])          
-            args.append(self.height - p[1])
+    def data_line(self, xlist, ylist, x_upd, y_upd, **kwargs):
+        """
+        plot the points in ylist against the those in xlist
+        scale the coordinate axes by y_upd and x_upd respectively
+        """
+        xscale = lambda x: x / float(x_upd) * self.ppd + self.origin.x
+        yscale = lambda y: y / float(y_upd) * self.ppd + self.origin.y
 
-        return self.create_line(*args, **kwargs)
-
-    def data_line(self, x, y, x_upd, y_upd, **kwargs):
-        x = map(lambda v: v / float(x_upd) * self.ppd + self.origin.x, x)
-        y = map(lambda v: v / float(y_upd) * self.ppd + self.origin.y, y)
-        return self.line(zip(x, y), **kwargs)
+        # using izip and generator expressions avoids many copy operations
+        return self.draw_line(izip((xscale(x) for x in xlist), (yscale(y) for y in ylist)), **kwargs)
 
     def draw_axes(self, color="black"):
-#        self.delete(ALL)
         O = self.origin
         # positive axes
-        self.line(((O.x, O.y), (self.width, O.y)), width=1, fill=color)
-        self.line(((O.x, O.y), (O.x, self.height)), width=1, fill=color)
+        self.draw_line(((O.x, O.y), (self.width, O.y)), width=1, fill=color)
+        self.draw_line(((O.x, O.y), (O.x, self.height)), width=1, fill=color)
         for x in range(O.x, self.width, self.ppd):
-            self.line(((x, O.y - 3), (x, O.y + 3)))
+            self.draw_line(((x, O.y - 3), (x, O.y + 3)))
         for y in range(O.y, self.height, self.ppd):
-            self.line(((O.x - 3, y), (O.x + 3, y)))
+            self.draw_line(((O.x - 3, y), (O.x + 3, y)))
         # negative axes
-        self.line(((O.x, O.y), (0, O.y)), width=1, fill=color)
-        self.line(((O.x, O.y), (O.x, 0)), width=1, fill=color)
+        self.draw_line(((O.x, O.y), (0, O.y)), width=1, fill=color)
+        self.draw_line(((O.x, O.y), (O.x, 0)), width=1, fill=color)
         for x in range(O.x, 0, -self.ppd):
-            self.line(((x, O.y - 3), (x, O.y + 3)))
+            self.draw_line(((x, O.y - 3), (x, O.y + 3)))
         for y in range(O.y, 0, -self.ppd):
-            self.line(((O.x - 3, y), (O.x + 3, y)))
+            self.draw_line(((O.x - 3, y), (O.x + 3, y)))
 
     def resize_handler(self, event):
         pass
@@ -198,21 +249,35 @@ class XYPlot(Canvas):
 class PlotControls(Frame):
     def __init__(self, parent, conf):
         Frame.__init__(self, parent)
-        
+
+        self.conf = conf
+        self.iscale = False
         self.labels = {}
         self.scalers = {}
         self.xchooser = None
 
-        conf.add_ox_listener(self.update_ox)
-        conf.add_scale_listener(self.update_scales)
+        conf.add_ox_listener(self.ox_update)
+        conf.add_scale_listener(self.scale_update)
 
-    def update_ox(self, conf):
+    def ox_update(self, conf):
         if len(conf.open_experiments):
             self.update_controls(conf)
 
-    def update_scales(self, conf):
+    def scale_update(self, conf):
+        if self.iscale:
+            return
+        iscale = True
         for i in conf.values_upd:
             self.scalers[i].v.set(conf.values_upd[i])
+        iscale = False
+
+    def controls_handler(self, v, i, *ign):
+        if self.iscale:
+            return
+        self.iscale = True
+        try: self.conf.set_scale(i, v.get())
+        except: pass
+        self.iscale = False
 
     def update_controls(self, conf):
         # controls_region setup - keep pack()ing order !
@@ -223,13 +288,14 @@ class PlotControls(Frame):
         if self.xchooser:
             self.xchooser.pack_forget()
 
-        view = conf.open_experiments[0].view
+        view = conf.open_experiments[0].views[conf.ui]
 
         # y-axis controls
         for i in range(conf.nvalues):
-            v = StringVar()
-            v.trace("w", partial(self.controls_handler, v))
-            sb = Spinbox(self, from_=0, width=5, textvariable=v)
+            v = DoubleVar()
+            sb = Spinbox(self, from_=0, to=99999, width=5, textvariable=v)
+            # keep the order here - trace() v AFTER using it for Spinbox()
+            v.trace("w", partial(self.controls_handler, v, i+1))
             sb.v = v
             sb.pack(side=LEFT)
             self.scalers[i+1] = sb
@@ -239,17 +305,18 @@ class PlotControls(Frame):
             self.labels[i+1] = ul
 
         # x-axis controls
-        if view.x_values == 0:      # time on x-axis
-            xlabel = "s"
+        if conf.x_values == 0:      # time on x-axis
+            xunits = "s"
         else:
-            xlabel = conf.units[view.x_values-1]    # because time is allways "s", view.units key "0" is v1_unit
+            xunits = conf.units[conf.x_values-1]    # because time is always "s", conf.units key "0" refers to the v1_unit metadata variable
 
-        self.labels[0] = Label(self, text="s")
+        self.labels[0] = Label(self, text=xunits)
         self.labels[0].pack(side=RIGHT)
 
-        v = StringVar()
-        v.trace("w", partial(self.controls_handler, v))
-        self.scalers[0] = Spinbox(self, from_=0, width=5, textvariable=v)
+        v = DoubleVar()
+        self.scalers[0] = Spinbox(self, from_=0, to=99999, width=5, textvariable=v)
+        # keep the order here - trace() v AFTER using it for Spinbox()
+        v.trace("w", partial(self.controls_handler, v, 0))
         self.scalers[0].v = v
         self.scalers[0].pack(side=RIGHT)
 
@@ -268,19 +335,14 @@ class PlotControls(Frame):
         self.xchooser = OptionMenu(self, v, *x_values_list)
         self.xchooser.v = v
         self.xchooser.pack(side=RIGHT)
-
-    def controls_handler(self, v, *ign):
-#        debug( v.get() )
-        pass
     
 class PVTable(MultiListbox):
     def __init__(self, parent, conf):
         self.parent = parent
         MultiListbox.__init__(self, self.parent, ("No Data",)) # Workaround for first call error: "AttributeError: PVTable instance has no attribute 'tk'"
-        conf.add_ox_listener(self.update_ox)
+        conf.add_ox_listener(self.ox_update)
  
-    def update_ox(self, conf):
-        debug()
+    def ox_update(self, conf):
         headers = ["Zeit",]
         data = []
         for ox in conf.open_experiments:

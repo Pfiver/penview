@@ -12,37 +12,37 @@ from data_region import XYPlot, PVTable
 from ttk import Notebook # ttk wrapper for TABS
 
 class TabRegion(Frame):
-    def __init__(self, parent, view):
+    def __init__(self, parent, ui):
         Frame.__init__(self, parent)
 
         self.mapped = Event()           # are we packed ?
 
+        self.ui = ui
         self.tabs = {}
-        self.view = view
 
         if not isinstance(parent, PanedWindow):
             raise InternalError("parent must be a PanedWindow")
         self.parent = parent    # parent is a PanedWindow
 
-        view.conf.add_ox_listener(self.ox_update)
+        ui.conf.add_ox_listener(self.ox_update)
 
         # Tabs in notebook_region
         self.notebook_region = Notebook(self)
         
         # Graph and Table Buttons in switch_region
         self.switch_region = Frame(self)
-        self.graph_button = Button(self.switch_region, text="Graph", command=lambda: view.controller.q(PVAction.show_graph))
-        self.table_button = Button(self.switch_region, text="Table", command=lambda: view.controller.q(PVAction.show_table))
+        self.graph_button = Button(self.switch_region, text="Graph", command=lambda: ui.controller.q(PVAction.show_graph))
+        self.table_button = Button(self.switch_region, text="Table", command=lambda: ui.controller.q(PVAction.show_table))
         self.graph_button.pack(side=LEFT, fill=X, expand=YES)
         self.table_button.pack(side=LEFT, fill=X, expand=YES)
-        view.conf.add_viewmode_listener(self.viewmode_update)
+        ui.conf.add_viewmode_listener(self.viewmode_update)
 
         # pack()
         self.notebook_region.pack(fill=BOTH, expand=1)
         self.switch_region.pack(fill=X, side=BOTTOM)
 
         # once all gui elements are mapped, record that fact
-        self.view.after_idle(self.mapped.set)                # at this point, view.tk is known to be instantiated
+        self.ui.after_idle(self.mapped.set)                # at this point, ui.tk is known to be instantiated
 
         # keep a reference to some empty BitmapImage
         # ehr well .. this is needed because if you write Button(image=BitmapImage(), ...)
@@ -57,7 +57,7 @@ class TabRegion(Frame):
         for ox in conf.open_experiments:
             if ox not in self.tabs:
                 self.add_tab(ox)
-                ox.view.add_listener(self.experiment_view_update)
+                ox.views[self.ui].add_listener(self.view_update)
 
         # re-add ourselves to the parent PanedWindow Widget
         # this will resize the tab_region to make all elements all tabs fit
@@ -66,45 +66,54 @@ class TabRegion(Frame):
 
         # wait until everything is packed and re-set the packed Event
         # FIXME: sometimes self.mapped is set() BEFORE all tabs and labels have their final size
-        self.view.after_idle(self.mapped.set)
+        self.ui.after_idle(self.mapped.set)
 
         # TODO: now the size of the XYPlot might have changed - (how) is this recognized ?
 
-    def viewmode_update(self, conf):
-        view_buttons = { XYPlot: self.graph_button,
-                         PVTable: self.table_button }
-        for v in view_buttons:
-            if conf.viewmode == v:
-                view_buttons[v].config(relief=SUNKEN)
-            else:
-                view_buttons[v].config(relief=RAISED)
-
-    def experiment_view_update(self, view):
-        tab = self.tabs[view.experiment]
-        for i in range(view.experiment.get_nvalues() + 1):
+    def view_update(self, view):
+        tab = self.tabs[view.ox]
+        for i in range(view.ox.get_nvalues() + 1):
 #            tab.valueboxes[i]....
             tab.colorbuttons[i].config(bg=view.colors[i], activebackground=view.colors[i])
 
+    def viewmode_update(self, conf):
+        if conf.viewmode == XYPlot:
+            self.table_button.config(relief=RAISED)
+            self.graph_button.config(relief=SUNKEN)
+        elif conf.viewmode == PVTable:
+            self.graph_button.config(relief=RAISED)
+            self.table_button.config(relief=SUNKEN)
+
     def choose_color(self, view, i):
         view.set_color(i, askcolor()[1])
-        
+
+    def choose_values(self, view, i, v, *ign):
+        if v.get():
+            view.add_y_values(i)
+        else:
+            view.remove_y_values(i)
+
     def add_tab(self, ox):
         tab = Frame(self)
         tab.valueboxes = {}
         tab.colorbuttons = {}
 
         for i in range(ox.get_nvalues() + 1):
-    
+            view = ox.views[self.ui]
+
             # Display Selection Checkboxes
-            box = Checkbutton(tab, text=ox.get_desc(i))
+            v = BooleanVar(value=i in [self.ui.conf.x_values] + list(view.y_values))
+            v.trace("w", partial(self.choose_values, view, i, v))
+            box = Checkbutton(tab, text=ox.get_desc(i), variable=v,
+                              state={True: DISABLED, False: NORMAL}[i == self.ui.conf.x_values])
             box.grid(row=i, column=0, sticky=W)
             tab.valueboxes[i] = box
             
             # Color Cooser Buttons
             #  -> creating a Button with image=... lets one specify with and height in pixels
             button = Button(tab, image=self.bi, width=10, height=10,
-                            command=partial(self.choose_color, ox.view, i),
-                            bg=ox.view.colors[i], activebackground=ox.view.colors[i])
+                            command=partial(self.choose_color, view, i),
+                            background=view.colors[i], activebackground=view.colors[i])
             button.grid(row=i, column=1, padx=4, pady=4)
             tab.colorbuttons[i] = button
 
@@ -121,7 +130,7 @@ class TabRegion(Frame):
 
         # keep track of the whole tab and add it to our notebook
         self.tabs[ox] = tab
-        self.notebook_region.add(tab, text="Exp %d" % ox.num)
+        self.notebook_region.add(tab, text="Exp %d" % ox.id)
 
     def config_handler(self, event):
         # FIXME: see comment in ox_update()
