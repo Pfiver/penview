@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 impl = "tkinter"
 try:
     import gtk
@@ -18,18 +20,15 @@ from penview_model import *
 class OpenWizard:
 
     xi = count()
-    examples = (
-                'examples/Chaotische Schwingung (Chaos4).sqlite',
-                'examples/Doppelte nicht- Chaotische Schwingung (Chaos3.6).sqlite',
-                'examples/abklingkonstante.sqlite',
-                'examples/eigenfrequenz_chaos2.sqlite',
-                'examples/motorkalibrierung.sqlite',
-    )
+    examples = ('examples/Chaotische Schwingung (Chaos4).sqlite',
+                'examples/Doppelte nicht- Chaotische Schwingung (Chaos3.6).sqlite')
 
     @classmethod
     def get_path(cls):
         if debug_flag:
-            return cls.examples[cls.xi.next()]
+            next = cls.xi.next()
+            if next < len(cls.examples):
+                return cls.examples[next]
 
         return askopenfilename(filetypes=(("Experiment Files", "*.sqlite"),))
     
@@ -38,9 +37,6 @@ class OpenWizard:
         return ExperimentFile(cls.get_path())
 
 class ImportWizard:
-
-    xi = count()
-    examples = ('examples/Abklingkonstante.csv')
 
     @classmethod
     def get_csv_path(cls):
@@ -61,7 +57,7 @@ class ImportWizard:
                 os.unlink(ex_path)
                 break
 
-        ex_file = ExperimentFile(ex_path, csv.rowsize-1)
+        ex_file = ExperimentFile(ex_path, csv.rowsize - 1)
         
         ex_file.store_values(1, csv.values)
         ex_file.store_metadata(csv.metadata)

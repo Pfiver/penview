@@ -8,11 +8,11 @@ from penview import *
 from tab_region import TabRegion
 from data_region import DataRegion
 
-# The "view"
-class PenViewUI(Thread):
-
-    def __init__(self):
+class PVWindow(Thread):
+    def __init__(self, conf):
         Thread.__init__(self)
+        self.conf = conf
+        self.controller = None
         self.init = Event()     # clear until run() has initialized all widgets
         self.idle = Event()     # usually set
         self.idle.set()
@@ -20,7 +20,7 @@ class PenViewUI(Thread):
     def run(self):
         # tk object
         self.tk = Tk() # the main window
-        self.tk.minsize(800,600)
+        self.tk.minsize(800, 600)
 
         ## top-level widget
         self.frame0 = Frame(self.tk) # top-level container widget
@@ -30,14 +30,14 @@ class PenViewUI(Thread):
 
         ### file menu
         self.file_menu = Menu(self.menu_bar, tearoff=0)
-        self.file_menu.add_command(label="Open...", command=lambda: self.controller.q(PVAction.open_exp))
-        self.file_menu.add_command(label="Import...", command=lambda: self.controller.q(PVAction.import_exp))
-        self.file_menu.add_command(label="Quit", command=lambda: self.controller.q(PVAction.quit_app))
+        self.file_menu.add_command(label="Open...", command=lambda: self.do(PVAction.open_exp))
+        self.file_menu.add_command(label="Import...", command=lambda: self.do(PVAction.import_exp))
+        self.file_menu.add_command(label="Quit", command=lambda: self.do(PVAction.quit_app))
     
         ### help menu
         self.help_menu = Menu(self.menu_bar, tearoff=0)
-        self.help_menu.add_command(label="Contents", command=lambda: self.controller.q(PVAction.show_help))
-        self.help_menu.add_command(label="About", command=lambda: self.controller.q(PVAction.show_about))
+        self.help_menu.add_command(label="Contents", command=lambda: self.do(PVAction.show_help))
+        self.help_menu.add_command(label="About", command=lambda: self.do(PVAction.show_about))
     
         self.menu_bar.add_cascade(label="File", menu=self.file_menu)
         self.menu_bar.add_cascade(label="Help", menu=self.help_menu)
@@ -49,7 +49,7 @@ class PenViewUI(Thread):
         self.tab_region = TabRegion(self.main_region, self)
 
         ## DATA is on the right
-        self.data_region = DataRegion(self.main_region, self.conf)
+        self.data_region = DataRegion(self.main_region, self)
 
         ## 1. pack() then -> 2. add()  -- Reihenfolge beachten!
         self.tab_region.pack(fill=BOTH, expand=1)
@@ -78,20 +78,23 @@ class PenViewUI(Thread):
         if self.is_alive():
             self.tk.quit()
 
-    def set_conf(self, conf):
-        self.conf = conf
-
-    def set_controller(self, controller):
-        self.controller = controller
-
     def wait_idle(self):
-        self.init.wait()                    # possibly wait for run() to instantiate Tk and call its mainloop() first
-        self.tk.after_idle(self.idle.set)   # arrange for the "idle" Event to be set once tk.mainloop() is idle
-        self.idle.wait()                    # wait for it
-        self.idle.clear()                   # the ui is usually considered busy
+        self.init.wait()                 # possibly wait for run() to instantiate Tk and call its mainloop() first
+        self.after_idle(self.idle.set)   # arrange for the "idle" Event to be set once tk.mainloop() is idle
+        self.idle.wait()                 # wait for it
+        self.idle.clear()                # the ui is usually considered busy
 
     def after_idle(self, action):
         self.tk.after_idle(action)
+
+    def do(self, action):
+        if not self.controller:
+            raise Exception("Do it yourself!")
+        else:
+            self.controller.q(action)
+
+    def set_controller(self, controller):
+        self.controller = controller
 
     def map_handler(self, event):
         # Here we'd have to check the original height of the

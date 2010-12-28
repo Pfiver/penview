@@ -4,19 +4,24 @@ from random import randint
 from itertools import count
 
 from penview import *
-from data_access import ExperimentFile
-from data_region import XYPlot, PVTable
 
-class WindowConf:
-    def __init__(self, ui):
+# The application could be extended, such that an OpenExperiment could be
+# displayed in more then one application window simultaneously, with different scales and colors.
+# Therefore...
+#  each PVWindow has ONE associated PVConf
+#  each PVConf has A NUMBER OF associated OpenExperiments
+#  each OpenExperiment has ONE associated ExperimentView PER PVConf that it is listed in
+#  each ExperimentView has ONE associated PVWindow
 
-        self.ui = ui
-        self.units = {}              # you can always count on 
-                                     # len(units) == the number of values of the currently open experiment that has the most values
+class PVConf:
+    def __init__(self):
 
-        # 3 different types of listeners can be registered:
+        self.units = {}                 # the units of all data series - keys = index of a data series in the "values" matrix
+                                        # len(units) is equal to the maximum number of data series of all currently open experiments
+ 
+        # 4 different types of listeners can be registered:
         #
-        # add_...              get notified on ...
+        # add_...              get notified on4 ...
         # ox_listener:         opening/closing of experiments
         # x_listener:          chenge of x_values index number
         # scale_listener:      change of scaling (values_upd)
@@ -24,19 +29,19 @@ class WindowConf:
         #
         # the update functions supplied should take exactly one argument, the conf object
 
-        self.open_experiments = []    # list of OpenExperiment objects - the experiments currently opened
+        self.open_experiments = []      # list of OpenExperiment objects - the experiments currently opened
         self.ox_listeners = []
 
-        self.x_values = 0             # index of the values currently used for the x-axis
+        self.x_values = 0               # index of the values currently used for the x-axis
         self.x_listeners = []
 
-        self.values_upd = {}          # dict of scaling factors for all values
+        self.values_upd = {}            # dict of scaling factors for all values
         self.scale_listeners = []
 
-        self.viewmode = XYPlot        # either XYPlot or PVTable (a class object)
+        self.viewmode = ViewMode.graph  # current viewmode: graph or table
         self.viewmode_listeners = []
 
-        self.recent_experiments = []  # list of RecentExperiment objects - maximum size 5, fifo semantics
+        self.recent_experiments = []    # list of RecentExperiment objects - maximum size 5, fifo semantics
 
     def add_open_experiment(self, ox):
 
@@ -119,7 +124,7 @@ class WindowConf:
 
 class OpenExperiment:
     ids = count()
-    def __init__(self, ex_file, ui):
+    def __init__(self, ex_file, window):
         """
         initialize Experiment: load values and metadata table into classvariables
              :Parameters:
@@ -129,8 +134,8 @@ class OpenExperiment:
         self.id = OpenExperiment.ids.next()
 
         self.file = ex_file
-        self.views = { ui: ExperimentView(self, ui) }       # an OpenExperiment could be displayed in different windows (ui's)
-                                                            # initially we create one view for use with the ui provided
+        self.views = { window: ExperimentView(self, window) }   # it could one day be possible to display an OpenExperiment
+                                                                # simultaneously in different windows, in different colors, ...
 
         self.metadata = ex_file.load_metadata()
         self.records = ex_file.load_values()
@@ -168,18 +173,9 @@ class OpenExperiment:
         return self.metadata['v' + str(n+1) + '_unit']
 
 class ExperimentView:
-    def __init__(self, ox, ui):
+    def __init__(self, ox, window):
 
-        # FIXME: we should think it over again:
-        # for extensibility reasons (more then one application window with different scales and colors
-        # I wanted an experiment to be able to have more then one view
-        # a view has an associated ui
-        # an ui has an associated conf
-        # a conf has a number of open experiments
-        # ........... it seems to work right now but does if all make sense or are there contradicting paradigms ? :-)
-
-        self.ox = ox
-        self.ui = ui
+        self.window = window
 
         # one listener can be registered:
         #

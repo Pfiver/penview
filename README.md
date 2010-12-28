@@ -11,6 +11,12 @@ Coding Conventions
 - All method names ending in _update are callbacks that are registered as listeners
   with certain objects and are then called by those objects when some properties change.
 
+- Imports are organized as follows:
+  - first python standard library modules
+  - second additional third party library modules
+  - third penview, which is imported in all penview modules
+  - fourth individual penview modules
+
 Description of individual files
 -------------------------------
 - data_access.py:

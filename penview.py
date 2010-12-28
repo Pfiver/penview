@@ -19,58 +19,61 @@ class PVAction:
         
 pvaction_name = dict((getattr(PVAction, a), a) for a in PVAction.__dict__)
 
+class ViewMode:
+    graph, table = range(2)
+
 app_name = "PenView"
 
 debug_flag = True
 
-import sys
-from os import path
-
-def debug(*args):
-    if not debug_flag:
-        return
-    if len(args) < 1:
-        args = [""]
-    elif type(args[0]) != str:
-        args = list(args)
-        args[0] = str(args[0])
-    f = sys._getframe(1)
-    print "%s: %s(): %s" % (f.f_locals.values()[0].__class__, f.f_code.co_name, args[0] % args[1:])
-
-sys.path.append(path.join(path.dirname(sys._getframe().f_code.co_filename), "lib"))
+if not debug_flag:
+    def debug(*args):
+        pass
+else:
+    import sys
+    def debug(*args):
+        if len(args) and type(args[0]) != str:
+            args = " - ".join(str(arg) for arg in args)
+        f = sys._getframe(1)
+        line = f.f_lineno
+        func = f.f_code.co_name
+        file = f.f_code.co_filename
+        class_ = f.f.f_locals.values()[0].__class__
+        print "%s [%4d] in %s.%s(): %s" % (file, line, class_, func, args[0] % args[1:])
 
 if __name__ == "__main__":
 
     # say hi
-    print "Welcome to PenView!"
+    print "Welcome to %s!" % app_name
 
-    # import and instantiate and connect application parts (Model-View-Controller)
-    from penview_ui import PenViewUI
-    from penview_model import WindowConf
-    from pv_controller import PVController
+    # some import path trickery
+    import os, sys
+    print os.path.join(os.path.dirname(sys._getframe().f_code.co_filename), "lib")
+    sys.path.append(os.path.join(os.path.dirname(sys._getframe().f_code.co_filename), "lib"))
 
-    ui = PenViewUI()                    # View
-    conf = WindowConf(ui)               # Model
-    controller = PVController(ui, conf) # Controller
+    # import the main modules
+    from model import PVConf
+    from window import PVWindow
+    from controller import PVController
 
-    ui.set_conf(conf)
-    ui.set_controller(controller)
-    conf.set_controller(controller)
+    # instantiate the different parts of the application
+    conf = PVConf()                    # Model
+    window = PVWindow(conf)               # View
+    controller = PVController(conf, window)  # Controller
 
-    # noisily start helper the part's threads
-    ui.start()
-    print "UI Running"
-    
+    # and start the threads
+    window.start()
     controller.start()
-    print "Controller Running"
 
+    # for easy debugging during the development phase, automatically open some experiments
+    # the storage path of experiments being opened are defined in dialogs.py in OpenWizard in "examples"
     if debug_flag:
-        controller.dispatch_events()
+        controller.wait_idle()
         controller.q(PVAction.open_exp)
         controller.q(PVAction.open_exp)
-    #    controller.q(PVAction.open_exp)
 
-    # wait for gui thread (exits when the main window gets closed)
-    ui.join()
-    controller.q(PVAction.quit_app)
+    # wait for the controller finish
+    controller.join()
+    
+    # say bye
     print "Good Bye - Hope to se you again!"
