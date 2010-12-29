@@ -17,9 +17,7 @@ class XYPlot(Canvas):
         def __init__(self, x, y):
             self.x = x
             self.y = y
-        def set_origin(self, x, y):
-            self.x = x
-            self.y = y
+        set_origin = __init__
 
     def __init__(self, parent, window, width, height):
         Canvas.__init__(self, parent, width=width, height=height)
@@ -31,7 +29,7 @@ class XYPlot(Canvas):
         self.ppd = 100                              # pixel per division
         self.origin = XYPlot.Origin(0, 0)
 
-        self.draw_axes()
+        self.draw_axes()			    # FIXME: this is too early
         self.bind('<Configure>', self.resize_handler)
 
         self.upds = {}
@@ -60,6 +58,8 @@ class XYPlot(Canvas):
         # reset scale to a sane default (all data visible)
         self.upds = {}
         self.origin.set_origin(*conf.reset_upd(self.ppd, self.width, self.height))
+						    # FIXME: we should be able to calculate the origin ourselves
+						    # (and redraw the axes accordingly)
         self.upds = conf.values_upd.copy()
 
         for ox in conf.open_experiments:           

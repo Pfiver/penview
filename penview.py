@@ -39,7 +39,7 @@ app_name = "PenView"
 # debug infrastructure
 #  FIXME: next time use "logging" module
 #
-debug_flag = True
+debug_flag = False
 
 #  if debug_flag is True or penview is run with a "-debug" argument,
 #  debug() is redefined later on
@@ -59,7 +59,7 @@ if __name__ == "__main__":
 
     # debug infrastructure - part 2
     #
-    if debug_flag or (len(sys.argv) > 1 and sys.argv[0] == "-debug"):
+    if debug_flag or (len(sys.argv) > 1 and sys.argv[1] == "-debug"):
         def debug(*args):
             if len(args) and type(args[0]) != str:
                 args = " - ".join(str(arg) for arg in args)
