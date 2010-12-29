@@ -35,13 +35,13 @@ class PVTable(MultiListbox):
     def get_header(self, ox):
         # Add Description (Table Header)
         header = []
-        for i in range(ox.get_nvalues()):
+        for i in range(ox.nvalues):
             header.append( ox.get_desc(i), )
         return header
 
     def get_data(self, ox):
         data = []
-        self.cols = ox.get_nvalues() # get the count of columns
+        self.cols = ox.nvalues # get the count of columns
         self.rows = len(ox.values[1]) # get the length of v1 values (v1 exists!)
         # Add Data from Experiment Table
         for row in range(self.rows):

@@ -14,8 +14,8 @@ from itertools import count
 from tkMessageBox import askokcancel
 
 from penview import *
-from data_import import *
-from penview_model import *
+from data_import import CSVImporter
+from data_access import ExperimentFile
 
 class OpenWizard:
 

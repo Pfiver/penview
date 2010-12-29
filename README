@@ -6,17 +6,6 @@ experiments conducted during "Praktikum 1" at the end of the third semester of t
 bachelor of science in life sciences technologies courcse at the FHNW university of
 applied sciences in Muttenz, Switzerland. 
 
-Coding Conventions
-------------------
-- All method names ending in _update are callbacks that are registered as listeners
-  with certain objects and are then called by those objects when some properties change.
-
-- Imports are organized as follows:
-  - first python standard library modules
-  - second additional third party library modules
-  - third penview, which is imported in all penview modules
-  - fourth individual penview modules
-
 Description of individual files
 -------------------------------
 - data_access.py:
@@ -29,24 +18,16 @@ Description of individual files
 	This file implements an CSVImporter tool class used to import data from csv files. The csv format
 	is documented here:
 
+Coding Conventions
+------------------
+- All method names ending in _update are callbacks that are registered as listeners
+  with certain objects and are then called by those objects when some properties change.
+
+- Imports are organized as follows:
+  - first python standard library modules
+  - second additional third party library modules
+  - third penview, which is imported in all penview modules
+  - fourth individual penview modules
 
 
-
------------------------------------------------------------------------------------------------
-
-
-
-The reminder of the file is not any more relevant to the documentation of the PenView software
-
-Some markdown (md) formatting tests:
-
-[links](http://www.google.com) work like this
-
-### Header 3
-
-> This is a blockquote.
-> 
-> This is the second paragraph in the blockquote.
->
-> ## This is an H2 in a blockquote
-
+...don't forget you can put links [links](http://www.google.com) in here as well

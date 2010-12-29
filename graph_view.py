@@ -105,7 +105,7 @@ class XYPlot(Canvas):
                     self.add_line(view, i)
 
     def view_update(self, view):
-        for index in range(view.ox.get_nvalues() + 1):      # loop over all values (indexes)
+        for index in range(view.ox.nvalues + 1):            # loop over all values (indexes)
             if index == self.window.conf.x_values:          # if the values are used as the x_axis
                 continue                                    # next - otherwise these are y-values
             if index not in view.y_values:                  # if the values should not be displayed
@@ -250,7 +250,7 @@ class PlotControls(Frame):
         v.trace("w", partial(self.controls_handler, v))
         x_values_list = ["Zeit"]
   
-        for i in range(min([ox.get_nvalues() for ox in conf.open_experiments])):
+        for i in range(min([ox.nvalues for ox in conf.open_experiments])):
             desc = ""
             for vdesc in [ox.get_desc(i + 1) for ox in conf.open_experiments]:
                 if not desc.startswith(vdesc):

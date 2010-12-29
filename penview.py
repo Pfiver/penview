@@ -34,7 +34,7 @@ app_name = "PenView"
 
 # debugging infrastructure
 #
-debug_flag = False
+debug_flag = True
 
 if not debug_flag:
     def debug(*args):

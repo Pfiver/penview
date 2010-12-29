@@ -46,7 +46,7 @@ class PVConf:
 
     def add_open_experiment(self, ox):
 
-        for i in range(ox.get_nvalues()):
+        for i in range(ox.nvalues):
             if i not in self.units:               # this experiments has more values than any other currently open experiment
                 self.units[i] = ox.get_units(i)      # and therefore sets the standard now
             elif self.units[i] != ox.get_units(i):
@@ -86,14 +86,14 @@ class PVConf:
     def add_scale_listener(self, update):
         self.scale_listeners.append(update)
 
-    def add_viewmode_listener(self, update):     # table <> plot switch helper
+    def add_viewmode_listener(self, update):	# table <> plot switch helper
         self.viewmode_listeners.append(update)
 
-    def reset_upd(self, ppd, width, height):
+    def reset_upd(self, ppd, width, height):	# FIXME FIXME FIXME: FIXME
 
         experiments = self.open_experiments
 
-        cols = experiments[0].get_nvalues() + 1
+        cols = experiments[0].nvalues + 1
 
         min_values = []
         max_values = []
@@ -184,11 +184,12 @@ class ExperimentView:
     """
     def __init__(self, ox, window):
 
+	self.ox = ox
         self.window = window
 
         self.listeners = []
-        self.y_values = set(range(1, ox.get_nvalues() + 1))           # list of indices of values visible on y-axis
-        self.colors = self.random_colors(ox.get_nvalues() + 1, 128)
+        self.y_values = set(range(1, ox.nvalues + 1))           # list of indices of values visible on y-axis
+        self.colors = self.random_colors(ox.nvalues + 1, 128)
 
     @classmethod
     def random_colors(cls, ncolors, min_distance):

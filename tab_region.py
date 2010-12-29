@@ -71,7 +71,7 @@ class TabRegion(Frame):
 
     def view_update(self, view):
         tab = self.tabs[view.ox]
-        for i in range(view.ox.get_nvalues() + 1):
+        for i in range(view.ox.nvalues + 1):
 #            tab.valueboxes[i]....
             tab.colorbuttons[i].config(bg=view.colors[i], activebackground=view.colors[i])
 
@@ -97,7 +97,7 @@ class TabRegion(Frame):
         tab.valueboxes = {}
         tab.colorbuttons = {}
 
-        for i in range(ox.get_nvalues() + 1):
+        for i in range(ox.nvalues + 1):
             view = ox.views[self.window]
             state = { True: NORMAL, False: DISABLED }[ i != self.window.conf.x_values ]
 
