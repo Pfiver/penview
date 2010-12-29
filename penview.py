@@ -19,9 +19,13 @@
 class PVAction:
     open_exp, import_exp, quit_app, show_help, show_about, show_table, show_graph = range(7)
 
-# a map to get the name of an action by number
-#
-pvaction_name = dict((getattr(PVAction, a), a) for a in PVAction.__dict__)
+    # a function to map an action number to its name
+    #
+    @classmethod
+    def name(cls, number):
+        for attr in cls.__dict__:
+            if getattr(cls, attr) == number:
+                return attr
 
 # the possible experiment view modes
 #
@@ -32,21 +36,14 @@ class ViewMode:
 #
 app_name = "PenView"
 
-# debugging infrastructure
+# debug infrastructure
+#  FIXME: next time use "logging" module
 #
 debug_flag = True
 
-if not debug_flag:
-    def debug(*args):
-        pass
-else:
-    import os, sys
-    def debug(*args):
-        if len(args) and type(args[0]) != str:
-            args = " - ".join(str(arg) for arg in args)
-        frame = sys._getframe(1); func = frame.f_code.co_name
-        if 'self' in frame.f_locals: func = frame.f_locals['self'].__class__.__name__ + "." + func
-        print "(%s:%d) in %s(): %s" % (os.path.basename(frame.f_code.co_filename), frame.f_lineno, func, args[0] % args[1:])
+#  if debug_flag is True or penview is run with a "-debug" argument,
+#  debug() is redefined later on
+def debug(*args): pass
 
 # "public static void main"
 #
@@ -56,17 +53,34 @@ else:
 #
 if __name__ == "__main__":
 
-    # say hi
-    print "Welcome to %s!" % app_name
-
     # some import path trickery
     import os, sys
     sys.path.append(os.path.join(os.path.dirname(sys._getframe().f_code.co_filename), "lib"))
+
+    # debug infrastructure - part 2
+    #
+    if debug_flag or (len(sys.argv) > 1 and sys.argv[0] == "-debug"):
+        def debug(*args):
+            if len(args) and type(args[0]) != str:
+                args = " - ".join(str(arg) for arg in args)
+            frame = sys._getframe(1); func = frame.f_code.co_name
+            if 'self' in frame.f_locals: func = frame.f_locals['self'].__class__.__name__ + "." + func
+            print "(%s:%d) in %s(): %s" % (os.path.basename(frame.f_code.co_filename), frame.f_lineno, func, args[0] % args[1:])
+
+        # this is delicate as well: you have to "import penview" and then set penview.debug(_flag)
+        #  - "from penview import debug" won't work
+        #  - check mini-spikes/global_vars for full investigation
+        import penview
+        penview.debug = debug
+        penview.debug_flag = debug_flag = True
 
     # import the main modules
     from model import PVConf
     from window import PVWindow
     from controller import PVController
+ 
+    # say hi
+    print "Welcome to %s!" % app_name
 
     # instantiate the different parts of the application
     conf = PVConf()                    # Model

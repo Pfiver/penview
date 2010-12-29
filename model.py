@@ -14,8 +14,11 @@ from penview import *
 #  each ExperimentView has ONE associated PVWindow
 
 class PVConf:
+
     """
-    4 different types of listeners can be registered:
+    this is the central configuration data structure
+
+    4 different types of listeners can be registered here:
     
     add_...(update):        update gets called on:
         ox_listener            opening/closing of experiments
@@ -25,7 +28,9 @@ class PVConf:
     
     the update functions supplied should take exactly one argument, the conf object
     """
+
     def __init__(self):
+        debug("this")
 
         self.units = {}                 # the units of all data series - keys = index of a data series in the "values" matrix
                                         # len(units) is equal to the maximum number of data series of all currently open experiments
@@ -50,7 +55,7 @@ class PVConf:
             if i not in self.units:               # this experiments has more values than any other currently open experiment
                 self.units[i] = ox.get_units(i)      # and therefore sets the standard now
             elif self.units[i] != ox.get_units(i):
-                s = len(self.open_experiments) > 1 and "s" or ""
+                s = "s" if len(self.open_experiments) > 1 else ""
                 raise Exception("This experiment can't be opened!\n\n" +
                                 "The units are not matching those of the other already opened experiment%s." % s)
 
@@ -191,8 +196,8 @@ class ExperimentView:
         self.y_values = set(range(1, ox.nvalues + 1))           # list of indices of values visible on y-axis
         self.colors = self.random_colors(ox.nvalues + 1, 128)
 
-    @classmethod
-    def random_colors(cls, ncolors, min_distance):
+    @staticmethod
+    def random_colors(ncolors, min_distance):
 
         colors = []
         ntries = 3 * ncolors

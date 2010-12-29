@@ -52,9 +52,9 @@ class PVController(Thread):
     #
     def get_handler(self, action):
         try:
-            return getattr(self, "do_" + pvaction_name[action])
+            return getattr(self, "do_" + PVAction.name(action))
         except AttributeError:
-            raise Exception("Sorry, '%s' is not yet implemented" % pvaction_name[action])
+            raise Exception("Sorry, '%s' is not yet implemented" % PVAction.name(action))
 
     # event handlers for most defined actions
     #

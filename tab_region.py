@@ -143,8 +143,8 @@ class TabRegion(Frame):
 #    def map_handler(self, event):
 #        print event
 
-    @classmethod 
-    def get_details_text(cls, ox):
+    @staticmethod
+    def get_details_text(ox):
         """return actor_name, date and ev. additional_details from OpenExperiment"""
 
         # Datum

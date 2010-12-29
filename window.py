@@ -20,8 +20,8 @@ class PVWindow(Thread):
     def run(self):
         # tk object
         self.tk = Tk() # the main window
-        self.tk.title(app_name)
         self.tk.minsize(800, 600)
+        self.tk.title(app_name)
 
         ## top-level widget
         self.frame0 = Frame(self.tk) # top-level container widget
