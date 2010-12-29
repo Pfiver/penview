@@ -5,4 +5,19 @@ pvpages="$penview/../penview-pages/epydoc"
 
 rm -rf "$pvpages"
 mkdir -p "$pvpages"
-epydoc -o "$pvpages" --no-private --name PenView --url http://p2000.github.com/penview/ "$penview"/*.py
+
+export PYTHONPATH="$penview/lib"
+
+epydoc -v -o "$pvpages" --no-private --name PenView --url http://p2000.github.com/penview/ "$penview"/*.py
+
+read -p "git add commit push ? "
+
+[[ "$REPLY" == [yY]* ]] || exit
+
+cd "$pvpages"
+
+git add .
+
+git commit -am "epydoc regenerated"
+
+git push
