@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 import sys
+import utils
 from data_access import ExperimentFile
 
 dbpath = '/tmp/' # for POSIX compatible Systems (e.g. MacOSX or Linux )
@@ -51,4 +52,5 @@ print e.load_metadata()
 e.close()
 
 # delete Database if it is a file on the filesystem
-if dbdestination != ":memory:": os.unlink(dbdestination)   
+if dbdestination != ":memory:":
+	os.unlink(dbdestination)

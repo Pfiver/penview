@@ -53,9 +53,7 @@ def debug(*args): pass
 #
 if __name__ == "__main__":
 
-    # some import path trickery
     import os, sys
-    sys.path.append(os.path.join(os.path.dirname(sys._getframe().f_code.co_filename), "lib"))
 
     # debug infrastructure - part 2
     #
@@ -75,9 +73,9 @@ if __name__ == "__main__":
         penview.debug_flag = debug_flag = True
 
     # import the main modules
-    from model import PVConf
-    from window import PVWindow
-    from controller import PVController
+    from model import PVConf				# FIXME: we need to check if python-tk is installed, as on a standard ubuntu maverick
+    from window import PVWindow				# system it is seemingly NOT installed by default
+    from controller import PVController			#  ... in case it is not and we're on a debian system, suggest "sudo apt-get install python-tk"
  
     # say hi
     print "Welcome to %s!" % app_name
@@ -96,7 +94,7 @@ if __name__ == "__main__":
     if debug_flag:
         controller.wait_idle()
         controller.q(PVAction.open_exp)
-        controller.q(PVAction.open_exp)
+    #    controller.q(PVAction.open_exp)
 
     # wait for the controller finish
     controller.join()

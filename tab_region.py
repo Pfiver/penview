@@ -6,7 +6,7 @@ from threading import Event
 from functools import partial
 from tkColorChooser import askcolor
 
-from ttk import Notebook
+from lib.ttk import Notebook
 
 from model import *
 

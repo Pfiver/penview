@@ -20,7 +20,8 @@ from data_access import ExperimentFile
 class OpenWizard:
 
     xi = count()
-    examples = ('examples/Chaotische Schwingung (Chaos4).sqlite',
+    examples = ('examples/Gedämpfte Schwingung mit Magnet 1mm.sqlite',
+                'examples/Chaotische Schwingung (Chaos4).sqlite',
                 'examples/Doppelte nicht- Chaotische Schwingung (Chaos3.6).sqlite')
 
     @classmethod

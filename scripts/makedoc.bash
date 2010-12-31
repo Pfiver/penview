@@ -8,7 +8,7 @@ mkdir -p "$pvpages"
 
 export PYTHONPATH="$penview/lib"
 
-epydoc -v -o "$pvpages" --no-private --name PenView --url http://p2000.github.com/penview/ "$penview"/*.py
+epydoc -v -o "$pvpages" --no-private --docformat restructuredtext --name PenView --url http://p2000.github.com/penview/ "$penview"/*.py
 
 read -p "git add commit push ? "
 
