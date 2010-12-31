@@ -20,9 +20,12 @@ from data_access import ExperimentFile
 class OpenWizard:
 
     xi = count()
-    examples = ('examples/Gedämpfte Schwingung mit Magnet 1mm.sqlite',
-                'examples/Chaotische Schwingung (Chaos4).sqlite',
-                'examples/Doppelte nicht- Chaotische Schwingung (Chaos3.6).sqlite')
+    examples = (
+#                'tests/sample-data/Chaotische Schwingung (Chaos4).sqlite',			# two "compatible" experiments
+#                'tests/sample-data/Doppelte nicht- Chaotische Schwingung (Chaos3.6).sqlite',	# with one measurment series
+
+		'tests/sample-data/Gedämpfte Schwingung mit Magnet 1mm.sqlite',			# one without time values
+    )
 
     @classmethod
     def get_path(cls):
@@ -91,9 +94,9 @@ if impl == "gtk":
         dialog.add_filter(filter)
         dialog.set_default_response(gtk.RESPONSE_OK)
 
-# aaaw on
+# aaaw
 #
-# urk - this took a bit long (~10hrs)
+# this took a _bit_ long (~10hrs)
 #
 # initial problems because of metacity (the gnome window manager) focus-stealing-prevention kicking in:
 #  starting from the second time selecting creating an open/save dialog, it was not focused initially under ubuntu lucid (10.04)
