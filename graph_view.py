@@ -202,9 +202,16 @@ class PlotControls(Frame):
         if self.iscale:
             return
         self.iscale = True
-        try: self.window.conf.set_scale(i, v.get())
-        except: pass
-        self.iscale = False
+        try:
+            scale = v.get()    # can raise "ValueError: Empyty String for float"
+            if scale == 0:
+                scale = 0.001
+                v.set(scale)
+            self.window.conf.set_scale(i, scale)
+        except ValueError:
+            pass
+        finally:
+	    self.iscale = False
 
     def update_controls(self, conf):
         # controls_region setup - keep pack()ing order !
@@ -225,7 +232,7 @@ class PlotControls(Frame):
             sb.pack(side=LEFT)
             self.scalers[i+1] = sb
 
-            ul = Label(self, text=conf.units[i])
+            ul = Label(self, text=conf.units[i]+"/div")
             ul.pack(side=LEFT)
             self.labels[i+1] = ul
 
@@ -235,7 +242,7 @@ class PlotControls(Frame):
         else:
             xunits = conf.units[conf.x_values-1]    # because time is always "s", conf.units key "0" refers to the v1_unit metadata variable
 
-        self.labels[0] = Label(self, text=xunits)
+        self.labels[0] = Label(self, text=xunits+"/div")
         self.labels[0].pack(side=RIGHT)
 
         v = DoubleVar()

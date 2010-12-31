@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # encoding: utf-8
 #
 # Authors:
@@ -13,6 +14,7 @@
 #    https://github.com/P2000/penview
 # (EpyDoc generated) documentation is available on wuala:
 #    http://content.wuala.com/contents/patrick2000/Shared/school/11_Projekt/Pendulum/Dokumentation/DB%20V3.pdf?dl=1
+#
 
 # actions handled by the application controller
 #
@@ -94,7 +96,7 @@ if __name__ == "__main__":
     if debug_flag:
         controller.wait_idle()
         controller.q(PVAction.open_exp)
-    #    controller.q(PVAction.open_exp)
+        controller.q(PVAction.open_exp)
 
     # wait for the controller finish
     controller.join()
