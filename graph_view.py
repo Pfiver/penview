@@ -278,7 +278,7 @@ class ScrollRegion(Frame):
         self.xscrollbar.grid(row=1, column=0, sticky=E+W)
         self.yscrollbar.grid(row=0, column=1, sticky=N+S)
 
-    def scroll_cild(self, child_widget):
+    def scroll_child(self, child_widget):
         self.child_widget = child_widget
         self.xscrollbar.config(command=child_widget.xview)
         self.yscrollbar.config(command=child_widget.yview)

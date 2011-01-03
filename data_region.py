@@ -20,7 +20,7 @@ class DataRegion(Frame):
         self.xy_plot = XYPlot(self.plot_region, window, 800, 600)
         self.xy_plot.pack(fill=BOTH, expand=1)
 
-        self.plot_region.scroll_cild(self.xy_plot)
+        self.plot_region.scroll_child(self.xy_plot)
 
         # set up the table view
         #
