@@ -6,24 +6,40 @@ experiments conducted during "Praktikum 1" at the end of the third semester of t
 bachelor of science in life sciences technologies course at the FHNW university of
 applied sciences in Muttenz, Switzerland. 
 
-The Code follows a mix of the Model View Controller- and the Backend-/Frondent-Paradigm.
+Our code follows a mix of the Model View Controller- and the Backend-/Frondent-Paradigm.
+
+Prerequisites
+-------------
+
+An Operating System with python 
+(Python2.6 is recommended [>=2.6])
+
+- Tested on Ubuntu 10.04.
+- Windows XP(not working yet!) 
+- and OS X not yet tested
+
+How To Use the Program
+----------------------
+
+Execute the file penview.py to startup the PenView.
+Or run on a terminal: ~/penview:# python ./penview.py
 
 File Hierarchy
 --------------
 penview/
 ├── controller.py	# Controller module
-├── data_access.py  # Model Abstraction for SQLite-Access
-├── data_import.py  # Model CSV-File Import Module
+├── data_access.py  # Model: Abstraction for SQLite-Access
+├── data_import.py  # Model: CSV-File Import Module
 ├── data_region.py  # View for the right hand side of the UI
 ├── dev/		    # Directory for mini-spikes
-├── dialog.py		# Wizard Magic! (handles Import and Opening of Experiment Files) 
+├── dialog.py		# Wizard Magic! (handles Import of CSV and Opening of Experiment Files) 
 ├── doc/			# Documentation Directory
 ├── graph_view.py   # View for the Plot region
 ├── lib/			# external and unchanged modules from other Authors
 │   ├── __init__.py # Python Magic! (converts a directory into a package)
 │   ├── OOoLib.py	# Excel to CSV Conversion Script Library (needs installed OpenOffice to run)
 │   └── ttk.py      # ttk Extends tkinter with a UI Tab function
-├── model.py		# Model Data Structure Module
+├── model.py		# Model: Data Structure Module
 ├── penview.py*     # Main Program (Starting Point)
 ├── README			# this README
 ├── recipe_52266.py # MultiListbox Tkinter widget
@@ -33,18 +49,6 @@ penview/
 ├── tests/		    # Test Code and Example Data
 ├── utils/			# Utility Scripts (not meant to be platform independent
 └── window.py		# Main View (Container for Views)
-
-Description of individual files
--------------------------------
-- data_access.py:
-
-	This is a module which is used by all groups doing this project. It provides a simple api
-	for accessing and storing experiment data in an SQLite database file.
-
-- data_import.py:
-
-	This file implements an CSVImporter tool class used to import data from csv files. The csv format
-	is documented here:
 
 Coding Conventions
 ------------------
