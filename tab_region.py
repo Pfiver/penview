@@ -97,6 +97,11 @@ class TabRegion(Frame):
         tab.valueboxes = {}
         tab.colorbuttons = {}
 
+        # Display Experiment Name
+        exp_name = Label(tab, text=ox.get_exp_name(), font=13)
+        exp_name.grid(row=0, sticky=W)
+        tab.exp_name = exp_name
+
         for i in range(ox.nvalues + 1):
             view = ox.views[self.window]
             state = { True: NORMAL, False: DISABLED }[ i != self.window.conf.x_values ]
@@ -105,7 +110,7 @@ class TabRegion(Frame):
             v = BooleanVar(value=i in [self.window.conf.x_values] + list(view.y_values))
             v.trace("w", partial(self.choose_values, view, i, v))
             box = Checkbutton(tab, text=ox.get_desc(i), variable=v, state=state)
-            box.grid(row=i, column=0, sticky=W)
+            box.grid(row=i+1, column=0, sticky=W)
             tab.valueboxes[i] = box
             
             # Color Cooser Buttons
@@ -113,7 +118,7 @@ class TabRegion(Frame):
             button = Button(tab, image=self.bi, width=10, height=10,
                             command=partial(self.choose_color, view, i),
                             background=view.colors[i], activebackground=view.colors[i], state=state)
-            button.grid(row=i, column=1, padx=4, pady=4)
+            button.grid(row=i+1, column=1, padx=4, pady=4)
             tab.colorbuttons[i] = button
 
         # Additional Info Label
