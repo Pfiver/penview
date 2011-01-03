@@ -20,7 +20,7 @@ class XYPlot(Canvas):
         set_origin = __init__
 
     def __init__(self, parent, window, width, height):
-        Canvas.__init__(self, parent, width=width, height=height, bg="white" )
+        Canvas.__init__(self, parent, width=width, height=height, bg="white")
 
         self.window = window
         self.width, self.height = width, height

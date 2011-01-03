@@ -2,13 +2,14 @@
 
 cd "${0%/*}/"
 
+prog=$0
 penview=$PWD/..
 ghpages=$PWD/gh-pages
 
 _makedoc() {
 	if ! [ -d "$ghpages" ]
 	then
-		echo 'run "$0 --gh-pages-setup" first' >&2
+		echo run \`$prog --gh-pages-setup\' first >&2
 		exit 1
 	fi
 	rm -rf "$ghpages/epydoc"
@@ -50,6 +51,6 @@ in
 	;;
 	--gh-pages-setup) _gh-pages-setup
 	;;
-	*) echo "usage: $0 [--gh-pages-setup]"
+	*) echo "usage: $prog [--gh-pages-setup]"
 	;;
 esac
