@@ -20,7 +20,7 @@ _makedoc() {
 	cd "$ghpages"
 	git add .
 	git commit --amend -C HEAD
-	git push
+	git push --force
 }
 
 _gh-pages-setup() {
