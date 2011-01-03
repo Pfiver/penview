@@ -89,7 +89,7 @@ if __name__ == "__main__":
 
     # and start the threads
     window.start()
-    controller.start()
+#    controller.start()
 
     # for easy debugging during the development phase, automatically open some experiments
     # the storage path of experiments being opened are defined in dialogs.py in OpenWizard in "examples"
@@ -99,7 +99,7 @@ if __name__ == "__main__":
         controller.q(PVAction.open_exp)
 
     # wait for the controller finish
-    controller.join()
+    window.join()
     
     # say bye
     print "Good Bye - Hope to se you again!"

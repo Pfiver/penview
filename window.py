@@ -93,7 +93,7 @@ class PVWindow(Thread):
         if not self.controller:
             raise Exception("Do it yourself!")
         else:
-            self.controller.q(action)
+            self.controller.do(action)
 
     def set_controller(self, controller):
         self.controller = controller

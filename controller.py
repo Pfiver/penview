@@ -23,6 +23,15 @@ class PVController(Thread):
 
         window.set_controller(self)
 
+    def do(self, action):
+        try:
+            self.get_handler(action)()
+        except Exception, e:
+            if debug_flag:
+                print_exc()
+            else:
+                showerror(app_name, str(e))
+
     def q(self, action):
         self.action_q.put(action)
 
