@@ -44,7 +44,7 @@ class PVController(Thread):
                 if debug_flag:
                     print_exc()
                 else:
-                    showerror(app_name, str(e))
+                    self.window.tk_do(showerror, app_name, str(e))
             finally:
                 self.action_q.task_done()
 
