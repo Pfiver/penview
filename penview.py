@@ -16,7 +16,7 @@
 #    http://content.wuala.com/contents/patrick2000/Shared/school/11_Projekt/Pendulum/Dokumentation/DB%20V3.pdf?dl=1
 #
 
-# actions handled by the application controller
+# actions the controller knows how to handle
 #
 class PVAction:
     open_exp, import_exp, quit_app, show_help, show_about, show_table, show_graph, reset_scale = range(8)
@@ -34,9 +34,10 @@ class PVAction:
 class ViewMode:
     graph, table = range(2)
 
-# the name of this application
+# name and version of this application
 #
 app_name = "PenView"
+app_version = "1.0-rc3"
 
 # debug infrastructure
 #  FIXME: next time use "logging" module

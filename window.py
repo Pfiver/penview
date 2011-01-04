@@ -3,7 +3,7 @@
 from Tkinter import *
 from Queue import Queue
 from functools import partial
-from threading import Thread, Event, current_thread
+from threading import Event, Thread, current_thread
 
 from penview import *
 from tab_region import TabRegion
@@ -16,43 +16,58 @@ class PVWindow(Thread):
         self.controller = None
         self.tk_do_q = Queue()  # a queue of things we have to do (function closures)
         self.tk_do_ret = {}     # a dictionary of Event objects to indicate something is done,
-                                # accompanied by the return values of those closures
+                                # accompanied by return values and possible exceptions
         self.init = Event()     # clear until run() has initialized all widgets
         self.idle = Event()     # set unless somebody calls wait_idle()
         self.idle.set()
 
     def run(self):
-        # tk object
-        self.tk = Tk() # the main window
+        # the root widget
+        self.tk = Tk()
+
         self.tk.minsize(800, 600)
         self.tk.title(app_name)
+        self.tk.protocol("WM_DELETE_WINDOW", lambda: self.do(PVAction.quit_app))
 
-        ## top-level widget
-        self.frame0 = Frame(self.tk) # top-level container widget
+        # top-level widget
+        self.frame0 = Frame(self.tk)
 
-        ## menubar
+        # menubar
         self.menu_bar = Menu(self.tk)
 
-        ### file menu
+        ## file menu
         self.file_menu = Menu(self.menu_bar, tearoff=0)
-        self.file_menu.add_command(label="Open...", command=lambda: self.do(PVAction.open_exp))
-        self.file_menu.add_command(label="Import...", command=lambda: self.do(PVAction.import_exp))
-        self.file_menu.add_command(label="Quit", command=lambda: self.do(PVAction.quit_app))
+        self.file_menu.add_command(label="Open...",     command=lambda: self.do(PVAction.open_exp))
+        self.file_menu.add_command(label="Import...",   command=lambda: self.do(PVAction.import_exp))
+        self.file_menu.add_command(label="Quit",        command=lambda: self.do(PVAction.quit_app))
     
-        ### view menu
+        ## view menu
         self.view_menu = Menu(self.menu_bar, tearoff=0)
-        self.view_menu.add_command(label="Reset Scale", command=lambda: self.do(PVAction.reset_scale))
-    
-        ### help menu
+        self.view_menu.add_command(label="Reset Scale", command=lambda: self.do(PVAction.reset_scale), state=DISABLED)
+
+        ### this function en- or disables the "Reset Scale" menu entry
+        def vm_listener(conf):
+            if len(conf.open_experiments) > 0 and conf.viewmode == ViewMode.graph:
+                self.view_menu.entryconfig(0, state=NORMAL)
+            else:
+                self.view_menu.entryconfig(0, state=DISABLED)
+
+        ### register our viewmode_listener
+        self.conf.add_ox_listener(self.tk_cb(vm_listener))
+        self.conf.add_viewmode_listener(self.tk_cb(vm_listener))
+
+        ## help menu
         self.help_menu = Menu(self.menu_bar, tearoff=0)
-        self.help_menu.add_command(label="Contents", command=lambda: self.do(PVAction.show_help))
-        self.help_menu.add_command(label="About", command=lambda: self.do(PVAction.show_about))
+        self.help_menu.add_command(label="Contents",    command=lambda: self.do(PVAction.show_help))
+        self.help_menu.add_command(label="About",       command=lambda: self.do(PVAction.show_about))
     
+        ## add the menues to the menubar
         self.menu_bar.add_cascade(label="File", menu=self.file_menu)
         self.menu_bar.add_cascade(label="View", menu=self.view_menu)
         self.menu_bar.add_cascade(label="Help", menu=self.help_menu)
 
-        ## main widget with vertical "splitter" bar
+        # main widget with vertical "splitter" bar
+        ## frame0 currently contains only this widget but might hold a tool- and/or menubar as well in the future
         self.main_region = PanedWindow(self.frame0, sashwidth=4)
 
         ## TAB is on the left
@@ -76,24 +91,21 @@ class PVWindow(Thread):
         self.tk.config(menu=self.menu_bar)
         self.main_region.pack(fill=BOTH, expand=1)
 
-        # set the default viewmode to make the window look more interresting
+        # set the default viewmode to make the window look more interesting
         self.conf.set_viewmode(self.conf.viewmode)
 
-        # bind out private virtual thread context switch helper event handler
-        self.tk.bind("<<PVEvent>>", self._tk_do_cb)
+        # bind out virtual private event to the thread context switch helper event handler
+        self.tk.bind("<<PVEvent>>", self.tk_do_handler)
 
         # register the fact that everything is set up now
         self.init.set()
 
         # call Tk.mainloop()
         self.tk.mainloop()
-        
-        # make sure the controller to quit
-        self.do(PVAction.quit_app)
 
     def stop(self):
-        if self.is_alive():
-            self.tk.quit()
+        if self.is_alive():             # does tk window still exist ?
+            self.tk_do(self.tk.quit)    # do a context switch if necessary
 
     def wait_idle(self):
         "wait until the Tk.mainloop() thread is idle i.e. no more events are pending"
@@ -104,50 +116,46 @@ class PVWindow(Thread):
 
     def after_idle(self, action):
         "schedule a function to be called by the tk.mainloop() thread as soon as it is idle - the calling thread returns immediately"
-        self.tk_do(self.tk.after_idle, action)              # do a context switch
+        self.tk_do(self.tk.after_idle, action)              # do a context switch if necessary
 
     def tk_do(self, task, *args):
-        "switch thread context to the Tk.mainloop() thread and let task(*args) be called from there"
-        if current_thread() == self:
-            return task(*args)
-#       else:
-        method = partial(task, *args)                       # create a function closure
-        self.tk_do_q.put(method)                            # and safe a reference
+        "call task(*args) from the PVWindow/Tk.mainloop() thread"
+        if current_thread() == self:                        # already in the right thread
+            return task(*args)                              # just call the function - otherwise we have to switch
+        method = partial(task, *args)                       # create a closure to call the function with the specified arguments
+        self.tk_do_q.put(method)                            # and queue that to be called in the <<PVEvent>> handler, tk_do_handler()
         self.tk_do_ret[method] = Event()                    # plus, use the reference as a key to the tk_do_ret dictionary and insert an Event()
-        self.tk.event_generate("<<PVEvent>>", when='tail')  # queue a <<PVEvent>> on the Tk.mainloop() that will cause the closure to be called
-        self.tk_do_ret[method].wait()                       # now wait for the event to be set by in _tk_do_cb()
-        e = self.tk_do_ret[method].exception                # safe exception (if any)
-        ret = self.tk_do_ret[method].value                  # safe the return value
-        del self.tk_do_ret[method]                          # cleanup
-        if e: raise e
-#       else:
-        return ret
+        self.tk.event_generate("<<PVEvent>>", when='tail')  # queue a virtual Event for the Tk.mainloop()
+        self.tk_do_ret[method].wait()                       # now wait for the handler to be called and event to be set
+        e = self.tk_do_ret[method].exception                # safe the exceptions produced by the closure (if any)
+        ret = self.tk_do_ret[method].value                  # and the return value
+        del self.tk_do_ret[method]                          # and delete the event
+        if e: raise e                                       # if an exception occured, raise here it the calling thread - otherwise go ahead
+        return ret                                          # return the return value
 
-    def tk_cb(self, task):
-        "return a function closure thatwhen called will arrange for 'task' being called from the Tk.mainloop() thread"
-        return partial(self.tk_do, task)
-
-    def _tk_do_cb(self, event):
+    def tk_do_handler(self, event):
         "call the current self.tk_task"
-        try:
-            method = self.tk_do_q.get_nowait()                      # remove one task from the queue
-        except:
-            debug("Nothing to do ?")
-            return
+        method = self.tk_do_q.get_nowait()                  # remove one task from the queue
         self.tk_do_ret[method].value = None
         self.tk_do_ret[method].exception = None
         try:
-            self.tk_do_ret[method].value = method()             # execute the method and safe the return value
+            self.tk_do_ret[method].value = method()         # execute the method and safe the return value
         except Exception, e:
             self.tk_do_ret[method].exception = e
         finally:
-            self.tk_do_ret[method].set()                        # record the fact that the method has returned
+            self.tk_do_ret[method].set()                    # record the fact that the method has returned
+
+    def tk_cb(self, task):
+        "return a function closure, that, when called, will schedule 'task' to be called from the Tk.mainloop() thread"
+        return partial(self.tk_do, task)
 
     def do(self, action):
+        "tells the controller to perform the specified action and returns immediately"
         if not self.controller:
             raise Exception("No controller")
         else:
             self.controller.q(action)
 
     def set_controller(self, controller):
+        "tell this window who's controlling it"
         self.controller = controller

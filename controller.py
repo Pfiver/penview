@@ -1,9 +1,10 @@
 # encoding: utf-8
 
+import os
 from Queue import Queue
 from threading import Thread
 from traceback import print_exc
-from tkMessageBox import showerror
+from tkMessageBox import showinfo, showerror
 
 from penview import *
 from model import *
@@ -68,18 +69,40 @@ class PVController(Thread):
     def do_show_table(self):
         self.conf.set_viewmode(ViewMode.table)
 
+    def do_show_about(self):
+        self.window.tk_do(showinfo, "%s" % app_name, "Version %s" % app_version)
+
+    def do_show_help(self):
+        import webbrowser
+        homepage = "http://p2000.github.com/penview/"
+        message = """Your default web browser should take you to the PenView home page, %s, shortly.\n""" % homepage + \
+                  """Check the "Documentation" section there and if you still need further help, please don't hesitate to write an email to the developpers."""
+        webbrowser.open(homepage)
+        self.window.tk_do(showinfo, "%s" % app_name, message)
+
     def do_open_exp(self):
-        self.conf.add_open_experiment(OpenExperiment(ExperimentFile(self.window.tk_do(Dialog.get_ex_path)), self.window))
+        path = self.window.tk_do(Dialog.get_ex_path)
+        if not path:
+            return
+        self.conf.add_open_experiment(OpenExperiment(ExperimentFile(path), self.window))
 
     def do_import_exp(self):
-        csv = CSVImporter(self.window.tk_do(Dialog.get_csv_path))
+        path = self.window.tk_do(Dialog.get_csv_path)
+        if not path:
+            return
+        csv = CSVImporter(path)
         while True:
             ex_path = self.window.tk_do(Dialog.get_ex_path)
-            if not path.exists(ex_path):
+            if not ex_path:
+                return
+            if not os.path.exists(ex_path):
                 break
-            if askokcancel("Experiment File", "File exists. Overwrite?"):
+            if self.window.tk_do(askokcancel, "Experiment File", "File exists. Overwrite?"):
                 os.unlink(ex_path)
                 break
+
+        if not ex_path.endswith(".sqlite"):
+            ex_path += ".sqlite"
 
         ex_file = ExperimentFile(ex_path, csv.rowsize - 1)
         
@@ -91,3 +114,4 @@ class PVController(Thread):
     def do_reset_scale(self):
         plot = self.window.data_region.xy_plot
         self.conf.reset_upd(plot.ppd, plot.width, plot.height)
+

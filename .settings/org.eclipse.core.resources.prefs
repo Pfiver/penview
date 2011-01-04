@@ -1,7 +1,8 @@
-#Wed Dec 29 00:45:57 CET 2010
+#Tue Jan 04 20:32:36 CET 2011
 eclipse.preferences.version=1
 encoding//mini-spikes/sqlite-test.py=utf-8
 encoding//scripts/xls2csv.py=utf-8
+encoding//utils/csv2sqlite.py=utf-8
 encoding/controller.py=utf-8
 encoding/data_access.py=utf-8
 encoding/data_import.py=utf-8

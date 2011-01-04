@@ -17,7 +17,7 @@ class XYPlot(Canvas):
         def __init__(self, x, y):
             self.x = x
             self.y = y
-        set_origin = __init__
+        set = __init__
 
     def __init__(self, parent, window, width, height):
         Canvas.__init__(self, parent, width=width, height=height, bg="white")
@@ -29,8 +29,7 @@ class XYPlot(Canvas):
         self.ppd = 100                              # pixel per division
         self.origin = XYPlot.Origin(0, 0)
 
-        self.draw_axes()			    # FIXME: this is too early
-        self.bind('<Configure>', self.resize_handler)
+        self.draw_axes()                            # FIXME: this is too early
 
         self.upds = {}
         self.lines = {}                             # this is a dict of dicts to which the keys are an ExperimentView and a values index
@@ -57,9 +56,11 @@ class XYPlot(Canvas):
     def ox_update(self, conf):
         # reset scale to a sane default (all data visible)
         self.upds = {}
-        self.origin.set_origin(*conf.reset_upd(self.ppd, self.width, self.height))
-						    # FIXME: we should be able to calculate the origin ourselves
-						    # (and redraw the axes accordingly)
+#        conf.reset_upd(self)                            # reset the upd
+#        self.origin.set(conf.default_origin(self))      # reset the origin
+	    # FIXME: we should be able to calculate the origin ourselves
+	    # (and redraw the axes accordingly)
+        self.origin.set(*conf.reset_upd(self.ppd, self.width, self.height))
         self.upds = conf.values_upd.copy()
 
         for ox in conf.open_experiments:           
@@ -107,7 +108,7 @@ class XYPlot(Canvas):
     def view_update(self, view):
         for index in range(view.ox.nvalues + 1):            # loop over all values (indexes)
             if index == self.window.conf.x_values:          # if the values are used as the x_axis
-                continue                                    # next - otherwise these are y-values
+                continue                                    # next - otherwise, these are y-values
             if index not in view.y_values:                  # if the values should not be displayed
                 if index in self.lines[view]:               # but are currently visible
                     self.remove_line(view, index)           # hide them
@@ -160,18 +161,6 @@ class XYPlot(Canvas):
             self.draw_line(((x, O.y - 3), (x, O.y + 3)))
         for y in range(O.y, 0, -self.ppd):
             self.draw_line(((O.x - 3, y), (O.x + 3, y)))
-
-    def resize_handler(self, event):
-        pass
-#        print "w: %d" % self.winfo_width()
-#        print "W: %d" % self.parent.winfo_width()
-#        print "h: %d" % self.winfo_height()
-#        print "H: %d" % self.parent.winfo_height()
-#        self.repaint(self.bgcolor)
-#        self.width = event.width
-#        self.height = event.height
-#        self.canvas.configure(width=self.width, height=self.height)
-#        self.repaint(self.fgcolor)
 
 class PlotControls(Frame):
     def __init__(self, parent, window):
@@ -276,6 +265,7 @@ class ScrollRegion(Frame):
         self.xscrollbar.config(command=child_widget.xview)
         self.yscrollbar.config(command=child_widget.yview)
         child_widget.grid(row=0, column=0, sticky=N+S+E+W)
+
         child_widget.config(scrollregion=(0, 0, child_widget.width, child_widget.height),
                             xscrollcommand=self.xscrollbar.set, yscrollcommand=self.yscrollbar.set)
 
