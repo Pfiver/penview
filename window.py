@@ -39,12 +39,17 @@ class PVWindow(Thread):
         self.file_menu.add_command(label="Import...", command=lambda: self.do(PVAction.import_exp))
         self.file_menu.add_command(label="Quit", command=lambda: self.do(PVAction.quit_app))
     
+        ### view menu
+        self.view_menu = Menu(self.menu_bar, tearoff=0)
+        self.view_menu.add_command(label="Reset Scale", command=lambda: self.do(PVAction.reset_scale))
+    
         ### help menu
         self.help_menu = Menu(self.menu_bar, tearoff=0)
         self.help_menu.add_command(label="Contents", command=lambda: self.do(PVAction.show_help))
         self.help_menu.add_command(label="About", command=lambda: self.do(PVAction.show_about))
     
         self.menu_bar.add_cascade(label="File", menu=self.file_menu)
+        self.menu_bar.add_cascade(label="View", menu=self.view_menu)
         self.menu_bar.add_cascade(label="Help", menu=self.help_menu)
 
         ## main widget with vertical "splitter" bar

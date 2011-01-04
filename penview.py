@@ -19,7 +19,7 @@
 # actions handled by the application controller
 #
 class PVAction:
-    open_exp, import_exp, quit_app, show_help, show_about, show_table, show_graph = range(7)
+    open_exp, import_exp, quit_app, show_help, show_about, show_table, show_graph, reset_scale = range(8)
 
     # a function to map an action number to its name
     #

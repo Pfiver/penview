@@ -87,3 +87,7 @@ class PVController(Thread):
         ex_file.store_metadata(csv.metadata)
         
         self.conf.add_open_experiment(OpenExperiment(ex_file, self.window))
+        
+    def do_reset_scale(self):
+        plot = self.window.data_region.xy_plot
+        self.conf.reset_upd(plot.ppd, plot.width, plot.height)
