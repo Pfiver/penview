@@ -81,7 +81,7 @@ class PVWindow(Thread):
 
     def stop(self):
         if self.is_alive():
-            self.tk.event_generate("<<PVEvent>>", data=self.tk.quit)
+            self.tk_do(self.tk.quit)
 
     def wait_idle(self):
         self.init.wait()                 # possibly wait for run() to instantiate Tk and call its mainloop() first
@@ -90,17 +90,17 @@ class PVWindow(Thread):
         self.idle.clear()                # the ui is usually considered busy
 
     def after_idle(self, action):
-        self.tk.event_generate("<<PVEvent>>", data=partial(self.tk.after_idle, action))
+        self.tk_do(self.tk.after_idle, action)
 
-    def tk_do_cb(self, event):
-        print(dir(event))
-        event.user_data()
+    def tk_do(self, task, *args):
+        self.tk_task = partial(task, *args)
+        self.tk.event_generate("<<PVEvent>>", when='tail')
 
     def tk_cb(self, task):
-        def _cb(*args):
-            self.tk.event_generate("<<PVEvent>>", data=partial(task, *args), when='tail')
-        return _cb
-        
+        return partial(self.tk_do, task)
+
+    def tk_do_cb(self, event):
+        self.tk_task()
 
     def do(self, action):
         if not self.controller:

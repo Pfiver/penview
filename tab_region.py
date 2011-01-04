@@ -56,7 +56,7 @@ class TabRegion(Frame):
         for ox in conf.open_experiments:
             if ox not in self.tabs:
                 self.add_tab(ox)
-                ox.views[self.window].add_listener(window.tk_cb(self.view_update))
+                ox.views[self.window].add_listener(self.window.tk_cb(self.view_update))
 
         # re-add ourselves to the parent PanedWindow Widget
         # this will resize the tab_region to make all elements all tabs fit
