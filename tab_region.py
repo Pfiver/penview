@@ -23,7 +23,7 @@ class TabRegion(Frame):
         self.tabs = {}
         self.mapped = Event()           # are we packed ?
 
-        window.conf.add_ox_listener(self.ox_update)
+        window.conf.add_ox_listener(window.tk_cb(self.ox_update))
 
         # Tabs in notebook_region
         self.notebook_region = Notebook(self)
@@ -34,7 +34,7 @@ class TabRegion(Frame):
         self.table_button = Button(self.switch_region, text="Table", command=lambda: window.do(PVAction.show_table))
         self.graph_button.pack(side=LEFT, fill=X, expand=YES)
         self.table_button.pack(side=LEFT, fill=X, expand=YES)
-        window.conf.add_viewmode_listener(self.viewmode_update)
+        window.conf.add_viewmode_listener(window.tk_cb(self.viewmode_update))
 
         # pack()
         self.notebook_region.pack(fill=BOTH, expand=1)
@@ -56,7 +56,7 @@ class TabRegion(Frame):
         for ox in conf.open_experiments:
             if ox not in self.tabs:
                 self.add_tab(ox)
-                ox.views[self.window].add_listener(self.view_update)
+                ox.views[self.window].add_listener(window.tk_cb(self.view_update))
 
         # re-add ourselves to the parent PanedWindow Widget
         # this will resize the tab_region to make all elements all tabs fit

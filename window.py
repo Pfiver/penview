@@ -2,6 +2,7 @@
 
 from random import *
 from Tkinter import *
+from functools import partial
 from threading import Thread, Event
 
 from penview import *
@@ -72,13 +73,15 @@ class PVWindow(Thread):
 
         self.conf.set_viewmode(self.conf.viewmode)
 
+        self.tk.bind("<<PVEvent>>", self.tk_do_cb)
+
         self.init.set()
         self.tk.mainloop()
         self.do(PVAction.quit_app)
 
     def stop(self):
         if self.is_alive():
-            self.tk.quit()
+            self.tk.event_generate("<<PVEvent>>", data=self.tk.quit)
 
     def wait_idle(self):
         self.init.wait()                 # possibly wait for run() to instantiate Tk and call its mainloop() first
@@ -87,13 +90,23 @@ class PVWindow(Thread):
         self.idle.clear()                # the ui is usually considered busy
 
     def after_idle(self, action):
-        self.tk.after_idle(action)
+        self.tk.event_generate("<<PVEvent>>", data=partial(self.tk.after_idle, action))
+
+    def tk_do_cb(self, event):
+        print(dir(event))
+        event.user_data()
+
+    def tk_cb(self, task):
+        def _cb(*args):
+            self.tk.event_generate("<<PVEvent>>", data=partial(task, *args), when='tail')
+        return _cb
+        
 
     def do(self, action):
         if not self.controller:
             raise Exception("Do it yourself!")
         else:
-            self.controller.do(action)
+            self.controller.q(action)
 
     def set_controller(self, controller):
         self.controller = controller

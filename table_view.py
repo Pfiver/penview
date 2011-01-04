@@ -12,7 +12,7 @@ class PVTable(MultiListbox):
         debug("lots of work ahead here")
         self.parent = parent
         MultiListbox.__init__(self, self.parent, ("No Data",)) # Workaround for first call error: "AttributeError: PVTable instance has no attribute 'tk'"
-#        conf.add_ox_listener(self.ox_update)
+#        conf.add_ox_listener(window.tk_cb(self.ox_update))
  
     def ox_update(self, conf):
         headers = ["Zeit",]

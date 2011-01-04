@@ -28,7 +28,7 @@ class DataRegion(Frame):
 
         # make sure we know when to switch
         #
-        window.conf.add_viewmode_listener(self.viewmode_update)
+        window.conf.add_viewmode_listener(window.tk_cb(self.viewmode_update))
 
     def show_table(self):
         self.plot_region.pack_forget()          # FIXME: on the first call the widgets are actually not yet packed

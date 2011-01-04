@@ -35,8 +35,8 @@ class XYPlot(Canvas):
         self.upds = {}
         self.lines = {}                             # this is a dict of dicts to which the keys are an ExperimentView and a values index
 
-        window.conf.add_ox_listener(self.ox_update)
-        window.conf.add_scale_listener(self.scale_update)
+        window.conf.add_ox_listener(window.tk_cb(self.ox_update))
+        window.conf.add_scale_listener(window.tk_cb(self.scale_update))
 
     def add_line(self, view, index):
         # plot a line for the values at index, against view.x_values and keep track of it
@@ -67,7 +67,7 @@ class XYPlot(Canvas):
             if view not in self.lines:              # find added experiments, add our view_listener and call it once to display them
                 self.lines[view] = {}               # a dictionary containing all lines we have plotted
                 self.view_update(view)
-                view.add_listener(self.view_update)
+                view.add_listener(self.window.tk_cb(self.view_update))
 
         # from http://effbot.org/zone/python-list.htm:
         #  Note that the for-in statement maintains an internal index, which is incremented for each loop iteration.
@@ -183,8 +183,8 @@ class PlotControls(Frame):
         self.scalers = {}
         self.xchooser = None
 
-        window.conf.add_ox_listener(self.ox_update)
-        window.conf.add_scale_listener(self.scale_update)
+        window.conf.add_ox_listener(window.tk_cb(self.ox_update))
+        window.conf.add_scale_listener(window.tk_cb(self.scale_update))
 
     def ox_update(self, conf):
         if len(conf.open_experiments):
