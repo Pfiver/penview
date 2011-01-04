@@ -62,7 +62,7 @@ if __name__ == "__main__":
     if debug_flag or (len(sys.argv) > 1 and sys.argv[1] == "-debug"):
         def debug(*args):
             if len(args) and type(args[0]) != str:
-                args = " - ".join(str(arg) for arg in args)
+                args = (" - ".join(str(arg) for arg in args),)
             frame = sys._getframe(1); func = frame.f_code.co_name
             if 'self' in frame.f_locals: func = frame.f_locals['self'].__class__.__name__ + "." + func
             print "(%s:%d) in %s(): %s" % (os.path.basename(frame.f_code.co_filename), frame.f_lineno, func, args[0] % args[1:])

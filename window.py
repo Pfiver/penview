@@ -111,8 +111,11 @@ class PVWindow(Thread):
         self.tk_do_ret[method] = Event()                    # plus, use the reference as a key to the tk_do_ret dictionary and insert an Event()
         self.tk.event_generate("<<PVEvent>>", when='tail')  # queue a <<PVEvent>> on the Tk.mainloop() that will cause the closure to be called
         self.tk_do_ret[method].wait()                       # now wait for the event to be set by in _tk_do_cb()
+        e = self.tk_do_ret[method].exception                # safe exception (if any)
         ret = self.tk_do_ret[method].value                  # safe the return value
         del self.tk_do_ret[method]                          # cleanup
+        if e: raise e
+#       else:
         return ret
 
     def tk_cb(self, task):
@@ -121,11 +124,19 @@ class PVWindow(Thread):
 
     def _tk_do_cb(self, event):
         "call the current self.tk_task"
-        if self.tk_do_q.empty():
-            raise Exception("Nothing to do")
-        method = self.tk_do_q.get()                         # remove one task from the queue
-        self.tk_do_ret[method].value = method()             # execute the method and safe the return value
-        self.tk_do_ret[method].set()                        # record the fact that the method has returned
+        try:
+            method = self.tk_do_q.get_nowait()                      # remove one task from the queue
+        except:
+            debug("Nothing to do ?")
+            return
+        self.tk_do_ret[method].value = None
+        self.tk_do_ret[method].exception = None
+        try:
+            self.tk_do_ret[method].value = method()             # execute the method and safe the return value
+        except Exception, e:
+            self.tk_do_ret[method].exception = e
+        finally:
+            self.tk_do_ret[method].set()                        # record the fact that the method has returned
 
     def do(self, action):
         if not self.controller:
