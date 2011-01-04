@@ -30,7 +30,7 @@ class PVConf:
     """
 
     def __init__(self):
-        debug("this")
+        debug("debug is on")
 
         self.units = {}                 # the units of all data series - keys = index of a data series in the "values" matrix
                                         # len(units) is equal to the maximum number of data series of all currently open experiments

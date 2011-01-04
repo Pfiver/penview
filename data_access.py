@@ -67,7 +67,7 @@ class ExperimentFile:
         tables = [n[0] for n in self.c.fetchall()]
         
         # Test if 1st parameter has the right vartype
-        if type(p) != str:
+        if not isinstance(p, basestring):
             raise Exception("Input Error: First parameter must be a string")
         # Test if 2nd parameter has the right vartype
         if type(nv) != int:

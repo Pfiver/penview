@@ -3,7 +3,7 @@
 from Tkinter import *
 from Queue import Queue
 from functools import partial
-from threading import Thread, Event
+from threading import Thread, Event, current_thread
 
 from penview import *
 from tab_region import TabRegion
@@ -14,7 +14,9 @@ class PVWindow(Thread):
         Thread.__init__(self)
         self.conf = conf
         self.controller = None
-        self.tk_q = Queue()
+        self.tk_do_q = Queue()  # a queue of things we have to do (function closures)
+        self.tk_do_ret = {}     # a dictionary of Event objects to indicate something is done,
+                                # accompanied by the return values of those closures
         self.init = Event()     # clear until run() has initialized all widgets
         self.idle = Event()     # set unless somebody calls wait_idle()
         self.idle.set()
@@ -73,7 +75,7 @@ class PVWindow(Thread):
         self.conf.set_viewmode(self.conf.viewmode)
 
         # bind out private virtual thread context switch helper event handler
-        self.tk.bind("<<PVEvent>>", self.tk_do_cb)
+        self.tk.bind("<<PVEvent>>", self._tk_do_cb)
 
         # register the fact that everything is set up now
         self.init.set()
@@ -101,19 +103,29 @@ class PVWindow(Thread):
 
     def tk_do(self, task, *args):
         "switch thread context to the Tk.mainloop() thread and let task(*args) be called from there"
-        print task
-        self.tk_q.put(partial(task, *args))                 # create a function closure and safe a reference
+        if current_thread() == self:
+            return task(*args)
+#       else:
+        method = partial(task, *args)                       # create a function closure
+        self.tk_do_q.put(method)                            # and safe a reference
+        self.tk_do_ret[method] = Event()                    # plus, use the reference as a key to the tk_do_ret dictionary and insert an Event()
         self.tk.event_generate("<<PVEvent>>", when='tail')  # queue a <<PVEvent>> on the Tk.mainloop() that will cause the closure to be called
+        self.tk_do_ret[method].wait()                       # now wait for the event to be set by in _tk_do_cb()
+        ret = self.tk_do_ret[method].value                  # safe the return value
+        del self.tk_do_ret[method]                          # cleanup
+        return ret
 
     def tk_cb(self, task):
         "return a function closure thatwhen called will arrange for 'task' being called from the Tk.mainloop() thread"
         return partial(self.tk_do, task)
 
-    def tk_do_cb(self, event):
+    def _tk_do_cb(self, event):
         "call the current self.tk_task"
-        if self.tk_q.empty():
+        if self.tk_do_q.empty():
             raise Exception("Nothing to do")
-        return self.tk_q.get()()
+        method = self.tk_do_q.get()                         # remove one task from the queue
+        self.tk_do_ret[method].value = method()             # execute the method and safe the return value
+        self.tk_do_ret[method].set()                        # record the fact that the method has returned
 
     def do(self, action):
         if not self.controller:

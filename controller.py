@@ -69,12 +69,21 @@ class PVController(Thread):
         self.conf.set_viewmode(ViewMode.table)
 
     def do_open_exp(self):
-        self._open(OpenWizard.get_ex_file())
+        self.conf.add_open_experiment(OpenExperiment(ExperimentFile(self.window.tk_do(Dialog.get_ex_path)), self.window))
 
     def do_import_exp(self):
-        self._open(ImportWizard.get_ex_file())
+        csv = CSVImporter(self.window.tk_do(Dialog.get_csv_path))
+        while True:
+            ex_path = self.window.tk_do(Dialog.get_ex_path)
+            if not path.exists(ex_path):
+                break
+            if askokcancel("Experiment File", "File exists. Overwrite?"):
+                os.unlink(ex_path)
+                break
 
-    # private helper functions
-    #    
-    def _open(self, exp_file):
-        self.conf.add_open_experiment(OpenExperiment(exp_file, self.window))
+        ex_file = ExperimentFile(ex_path, csv.rowsize - 1)
+        
+        ex_file.store_values(1, csv.values)
+        ex_file.store_metadata(csv.metadata)
+        
+        self.conf.add_open_experiment(OpenExperiment(ex_file, self.window))

@@ -17,7 +17,7 @@ from penview import *
 from data_import import CSVImporter
 from data_access import ExperimentFile
 
-class OpenWizard:
+class Dialog:
 
     xi = count()
     examples = (
@@ -28,45 +28,17 @@ class OpenWizard:
     )
 
     @classmethod
-    def get_path(cls):
+    def get_ex_path(cls):
         if debug_flag:
             next = cls.xi.next()
             if next < len(cls.examples):
                 return cls.examples[next]
 
         return askopenfilename(filetypes=(("Experiment Files", "*.sqlite"),))
-    
-    @classmethod
-    def get_ex_file(cls):
-        return ExperimentFile(cls.get_path())
-
-class ImportWizard:
 
     @classmethod
     def get_csv_path(cls):
         return askopenfilename(filetypes=(("CSV Files", "*.csv"),))
-
-    @classmethod
-    def get_experiment_path(cls):
-        return asksaveasfilename(filetypes=(("Experiment Files", "*.sqlite"),))
-    
-    @classmethod
-    def get_ex_file(cls):
-        csv = CSVImporter(cls.get_csv_path())
-        while True:
-            ex_path = cls.get_experiment_path()
-            if not path.exists(ex_path):
-                break
-            if askokcancel("Experiment File", "File exists. Overwrite?"):
-                os.unlink(ex_path)
-                break
-
-        ex_file = ExperimentFile(ex_path, csv.rowsize - 1)
-        
-        ex_file.store_values(1, csv.values)
-        ex_file.store_metadata(csv.metadata)
-        
-        return ex_file
 
 if impl == "gtk":
 
