@@ -178,7 +178,6 @@ class PlotControls(Frame):
         Frame.__init__(self, parent)
 
         self.window = window
-        self.iscale = False
         self.labels = {}
         self.scalers = {}
         self.xchooser = None
@@ -191,27 +190,21 @@ class PlotControls(Frame):
             self.update_controls(conf)
 
     def scale_update(self, conf):
-        if self.iscale:
-            return
-        iscale = True
         for i in conf.values_upd:
             self.scalers[i].v.set(conf.values_upd[i])
-        iscale = False
 
     def controls_handler(self, v, i, *ign):
-        if self.iscale:
-            return
-        self.iscale = True
         try:
-            scale = v.get()    # can raise "ValueError: Empyty String for float"
-            if scale == 0:
-                scale = 0.001
-                v.set(scale)
-            self.window.conf.set_scale(i, scale)
+            scale = v.get()                                 # can raise "ValueError: Empyty String for float"
+
+            if scale != self.window.conf.values_upd[i]:     # I don't particularly like this test but it is at least better then
+                                                            # the original infinite loop prevention with self.iscale ....
+                if scale == 0:
+                    scale = 0.001
+                    v.set(scale)
+                self.window.conf.set_scale(i, scale)
         except ValueError:
             pass
-        finally:
-	    self.iscale = False
 
     def update_controls(self, conf):
         # controls_region setup - keep pack()ing order !

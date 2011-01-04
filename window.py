@@ -1,7 +1,7 @@
 # encoding: utf-8
 
-from random import *
 from Tkinter import *
+from Queue import Queue
 from functools import partial
 from threading import Thread, Event
 
@@ -14,6 +14,7 @@ class PVWindow(Thread):
         Thread.__init__(self)
         self.conf = conf
         self.controller = None
+        self.tk_q = Queue()
         self.init = Event()     # clear until run() has initialized all widgets
         self.idle = Event()     # set unless somebody calls wait_idle()
         self.idle.set()
@@ -61,64 +62,64 @@ class PVWindow(Thread):
         self.main_region.add(self.tab_region)
         self.main_region.add(self.data_region)
 
-        # bind our map handler
-#        self.xy_plot.bind("<Map>", self.map_handler)
-
-        # pack top-level widget
+        # pack() top-level widget
         self.frame0.pack(fill=BOTH, expand=1)
 
-        # pack main widget
+        # pack() main widget
         self.tk.config(menu=self.menu_bar)
         self.main_region.pack(fill=BOTH, expand=1)
 
+        # set the default viewmode to make the window look more interresting
         self.conf.set_viewmode(self.conf.viewmode)
 
+        # bind out private virtual thread context switch helper event handler
         self.tk.bind("<<PVEvent>>", self.tk_do_cb)
 
+        # register the fact that everything is set up now
         self.init.set()
+
+        # call Tk.mainloop()
         self.tk.mainloop()
+        
+        # make sure the controller to quit
         self.do(PVAction.quit_app)
 
     def stop(self):
         if self.is_alive():
-            self.tk_do(self.tk.quit)
+            self.tk.quit()
 
     def wait_idle(self):
+        "wait until the Tk.mainloop() thread is idle i.e. no more events are pending"
         self.init.wait()                 # possibly wait for run() to instantiate Tk and call its mainloop() first
         self.after_idle(self.idle.set)   # arrange for the "idle" Event to be set once tk.mainloop() is idle
         self.idle.wait()                 # wait for it
         self.idle.clear()                # the ui is usually considered busy
 
     def after_idle(self, action):
-        self.tk_do(self.tk.after_idle, action)
+        "schedule a function to be called by the tk.mainloop() thread as soon as it is idle - the calling thread returns immediately"
+        self.tk_do(self.tk.after_idle, action)              # do a context switch
 
     def tk_do(self, task, *args):
-        self.tk_task = partial(task, *args)
-        self.tk.event_generate("<<PVEvent>>", when='tail')
+        "switch thread context to the Tk.mainloop() thread and let task(*args) be called from there"
+        print task
+        self.tk_q.put(partial(task, *args))                 # create a function closure and safe a reference
+        self.tk.event_generate("<<PVEvent>>", when='tail')  # queue a <<PVEvent>> on the Tk.mainloop() that will cause the closure to be called
 
     def tk_cb(self, task):
+        "return a function closure thatwhen called will arrange for 'task' being called from the Tk.mainloop() thread"
         return partial(self.tk_do, task)
 
     def tk_do_cb(self, event):
-        self.tk_task()
+        "call the current self.tk_task"
+        if self.tk_q.empty():
+            raise Exception("Nothing to do")
+        return self.tk_q.get()()
 
     def do(self, action):
         if not self.controller:
-            raise Exception("Do it yourself!")
+            raise Exception("No controller")
         else:
             self.controller.q(action)
 
     def set_controller(self, controller):
         self.controller = controller
-
-    def map_handler(self, event):
-        # Here we'd have to check the original height of the
-        # top-level frame and subtract the height of the xy_plot
-        # to find out how much space the buttons take u, height=50p
-        # - but we use scrollbars now anyway and don't resize the xy_plot canvas on window resize
-        pass
-#        print event.widget.__class__
-#        print "w: %d" % self.frame0.winfo_width()
-#        print "W: %d" % self.xy_plot.winfo_width()
-#        print "h: %d" % self.frame0.winfo_height()
-#        print "H: %d" % self.xy_plot.winfo_height()
