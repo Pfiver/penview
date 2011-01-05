@@ -47,11 +47,6 @@ class TabRegion(Frame):
         # once all gui elements are mapped, record that fact
 #        window.after_idle(self.mapped.set)
 
-        # keep a reference to some empty BitmapImage
-        # ehr well .. this is needed because if you write Button(image=BitmapImage(), ...)
-        # the BitmapImage object will be reaped by the garbage collector and the button doesn't work
-        self.bi = BitmapImage()
-
     def ox_update(self, conf):
         # clear the mapped Event (used by config_handler())
         # as we are going to add and resize some elements now
@@ -77,7 +72,7 @@ class TabRegion(Frame):
         tab = self.tabs[view.ox]
         for i in range(view.ox.nvalues + 1):
 #            tab.valueboxes[i]....
-            tab.colorbuttons[i].config(bg=view.colors[i], activebackground=view.colors[i])
+            tab.colorbuttons[i].image.config(foreground=view.colors[i])
 
     def viewmode_update(self, conf):
         if conf.viewmode == ViewMode.graph:
@@ -119,11 +114,17 @@ class TabRegion(Frame):
             
             # Color Cooser Buttons
             #  -> creating a Button with image=... lets one specify with and height in pixels
-            button = Button(tab, image=self.bi, width=10, height=10,
-                            command=partial(self.choose_color, view, i),
-                            background=view.colors[i], activebackground=view.colors[i], state=state)
+            #  -> for mac's aqua surface, we need a real pixmap because the button ignores all background="color" options
+            # allways keep a reference to some the BitmapImage because if you don't,
+            # the BitmapImage object will be reaped by the garbage collector and the button doesn't work
+            w = h = 10
+            BITMAP = "#define im_width %d\n#define im_height %d\n" % (w, h)
+            BITMAP += "static char im_bits[] = {\n" + ",".join("255" for i in range(w*h)) + "\n};\n"
+            bi = BitmapImage(data=BITMAP, foreground=view.colors[i])
+            button = Button(tab, image=bi, width=10, height=10, command=partial(self.choose_color, view, i), state=state)
             button.grid(row=i+1, column=1, padx=4, pady=4)
             tab.colorbuttons[i] = button
+            button.image = bi
 
         # Additional Info Label
         label = Label(tab, text=self.get_details_text(ox), justify=LEFT)

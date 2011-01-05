@@ -76,7 +76,7 @@ class PVController(Thread):
         import webbrowser
         homepage = "http://p2000.github.com/penview/"
         message = """Your default web browser should take you to the PenView home page, %s, shortly.\n""" % homepage + \
-                  """Check the "Documentation" section there and if you still need further help, please don't hesitate to write an email to the developpers."""
+                  """Check the "Documentation" section there and if you still need further help, please don't hesitate to write an email to the developers."""
         webbrowser.open(homepage)
         self.window.tk_do(showinfo, "%s" % app_name, message)
 
