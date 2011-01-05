@@ -45,7 +45,9 @@ class TabRegion(Frame):
         self.switch_region.pack(fill=X, side=BOTTOM)
 
         # once all gui elements are mapped, record that fact
-#        window.after_idle(self.mapped.set)
+        #  TODO: this statement also has to be watched closely
+        #  same situation as with PVWindow.run(), "self.conf.set_viewmode(self.conf.viewmode)"
+        window.after_idle(self.mapped.set)
 
     def ox_update(self, conf):
         # clear the mapped Event (used by config_handler())

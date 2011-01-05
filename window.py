@@ -3,15 +3,14 @@
 from Tkinter import *
 from Queue import Queue
 from functools import partial
-from threading import Event, Thread, current_thread
+from threading import Event, current_thread
 
 from penview import *
 from tab_region import TabRegion
 from data_region import DataRegion
 
-class PVWindow(Thread):
+class PVWindow:
     def __init__(self, conf):
-        Thread.__init__(self)
         self.conf = conf
         self.controller = None
         self.tk_do_q = Queue()  # a queue of things we have to do (function closures)
@@ -92,7 +91,9 @@ class PVWindow(Thread):
         self.main_region.pack(fill=BOTH, expand=1)
 
         # set the default viewmode to make the window look more interesting
-#        self.conf.set_viewmode(self.conf.viewmode)
+        #  TODO: keep an eye on this - it used not to work after changing tk_thread to be the main thread and
+        #  PVWindow still extending the Thread class, .... i think :-) 
+        self.conf.set_viewmode(self.conf.viewmode)
 
         # bind out virtual private event to the thread context switch helper event handler
         self.tk.bind("<<PVEvent>>", self.tk_do_handler)

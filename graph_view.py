@@ -58,8 +58,6 @@ class XYPlot(Canvas):
 
         conf.reset_scales(self)
 
-        print conf.bounding_box(self)
-
         self.origin.set(*(-min for min, max in conf.bounding_box(self)))
 
         self.redraw_axes()
@@ -111,7 +109,7 @@ class XYPlot(Canvas):
 
         self.width, self.height = self.winfo_width(), self.winfo_height()
         bbox = conf.bounding_box(self)
-        print bbox
+        debug("bbox: %s", bbox)
         self.config(scrollregion=(bbox[0][0], bbox[1][0], bbox[0][1], bbox[1][1]))
 
     def view_update(self, view):
