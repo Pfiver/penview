@@ -39,6 +39,11 @@ class ViewMode:
 app_name = "PenView"
 app_version = "1.0-rc3"
 
+# that was it - I won't buy a mac
+#
+import threading
+tk_thread = threading.current_thread()
+
 # debug infrastructure
 #  FIXME: next time use "logging" module
 #
@@ -89,15 +94,16 @@ if __name__ == "__main__":
     controller = PVController(conf, window)  # Controller
 
     # and start the threads
-    window.start()
+#    window.start()
     controller.start()
+    window.run()
 
     # for easy debugging during the development phase, automatically open some experiments
     # the storage path of experiments being opened are defined in dialogs.py in OpenWizard in "examples"
-    if debug_flag:
-        controller.wait_idle()
-        controller.q(PVAction.open_exp)
-        controller.q(PVAction.open_exp)
+#    if debug_flag:
+#        controller.wait_idle()
+#        controller.q(PVAction.open_exp)
+#        controller.q(PVAction.open_exp)
 
     # wait for the controller finish
     controller.join()

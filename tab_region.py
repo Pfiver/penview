@@ -39,10 +39,10 @@ class TabRegion(Frame):
         # pack()
         self.notebook_region.pack(fill=BOTH, expand=1)
         self.switch_region.pack(fill=X, side=BOTTOM)
-
+        debug("TR1")
         # once all gui elements are mapped, record that fact
-        window.after_idle(self.mapped.set)
-
+#        window.after_idle(self.mapped.set)
+        debug("TR2")
         # keep a reference to some empty BitmapImage
         # ehr well .. this is needed because if you write Button(image=BitmapImage(), ...)
         # the BitmapImage object will be reaped by the garbage collector and the button doesn't work

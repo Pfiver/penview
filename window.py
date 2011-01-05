@@ -72,14 +72,14 @@ class PVWindow(Thread):
 
         ## TAB is on the left
         self.tab_region = TabRegion(self.main_region, self)
-
+        debug("TR")
         ## DATA is on the right
         self.data_region = DataRegion(self.main_region, self)
-
+        debug("DR")
         ## 1. pack() then -> 2. add()  -- Reihenfolge beachten!
         self.tab_region.pack(fill=BOTH, expand=1)
         self.data_region.pack(fill=BOTH, expand=1)
-        
+
         ## add()
         self.main_region.add(self.tab_region)
         self.main_region.add(self.data_region)
@@ -90,21 +90,21 @@ class PVWindow(Thread):
         # pack() main widget
         self.tk.config(menu=self.menu_bar)
         self.main_region.pack(fill=BOTH, expand=1)
-
+        debug("ME")
         # set the default viewmode to make the window look more interesting
-        self.conf.set_viewmode(self.conf.viewmode)
-
+#        self.conf.set_viewmode(self.conf.viewmode)
+        debug("VM")
         # bind out virtual private event to the thread context switch helper event handler
         self.tk.bind("<<PVEvent>>", self.tk_do_handler)
 
         # register the fact that everything is set up now
         self.init.set()
-
+        debug("IS")
         # call Tk.mainloop()
         self.tk.mainloop()
 
     def stop(self):
-        if self.is_alive():             # does tk window still exist ?
+#        if self.is_alive():             # does tk window still exist ?
             self.tk_do(self.tk.quit)    # do a context switch if necessary
 
     def wait_idle(self):
@@ -120,7 +120,8 @@ class PVWindow(Thread):
 
     def tk_do(self, task, *args):
         "call task(*args) from the PVWindow/Tk.mainloop() thread"
-        if current_thread() == self:                        # already in the right thread
+        debug(current_thread())
+        if current_thread() == tk_thread:                   # already in the right thread
             return task(*args)                              # just call the function - otherwise we have to switch
         method = partial(task, *args)                       # create a closure to call the function with the specified arguments
         self.tk_do_q.put(method)                            # and queue that to be called in the <<PVEvent>> handler, tk_do_handler()
