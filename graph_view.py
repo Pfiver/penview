@@ -29,10 +29,10 @@ class XYPlot(Canvas):
         self.ppd = 100                              # pixel per division
         self.origin = XYPlot.Origin(0, 0)
 
-        self.draw_axes()                            # FIXME: this is too early
-
         self.upds = {}
         self.lines = {}                             # this is a dict of dicts to which the keys are an ExperimentView and a values index
+
+        self.axlines = []
 
         window.conf.add_ox_listener(window.tk_cb(self.ox_update))
         window.conf.add_scale_listener(window.tk_cb(self.scale_update))
@@ -49,18 +49,21 @@ class XYPlot(Canvas):
 
     def remove_line(self, view, index):
         # delete the line that has been plotted for the values at index and loose track of it
-
         self.delete(self.lines[view][index])
         del self.lines[view][index]
 
     def ox_update(self, conf):
         # reset scale to a sane default (all data visible)
         self.upds = {}
-#        conf.reset_upd(self)                            # reset the upd
-#        self.origin.set(conf.default_origin(self))      # reset the origin
-	    # FIXME: we should be able to calculate the origin ourselves
-	    # (and redraw the axes accordingly)
-        self.origin.set(*conf.reset_upd(self.ppd, self.width, self.height))
+
+        conf.reset_scales(self)
+
+        print conf.bounding_box(self)
+
+        self.origin.set(*(-min for min, max in conf.bounding_box(self)))
+
+        self.redraw_axes()
+
         self.upds = conf.values_upd.copy()
 
         for ox in conf.open_experiments:           
@@ -102,8 +105,14 @@ class XYPlot(Canvas):
                         self.view_update(view)
                     return                              # next - otherwise an y-scale has changed
                 for view in self.lines:                 # FIXME: seems slow
-                    self.remove_line(view, i)
-                    self.add_line(view, i)
+                    if i in view.y_values:              # redraw only those that are visible
+                        self.remove_line(view, i)
+                        self.add_line(view, i)
+
+        self.width, self.height = self.winfo_width(), self.winfo_height()
+        bbox = conf.bounding_box(self)
+        print bbox
+        self.config(scrollregion=(bbox[0][0], bbox[1][0], bbox[0][1], bbox[1][1]))
 
     def view_update(self, view):
         for index in range(view.ox.nvalues + 1):            # loop over all values (indexes)
@@ -145,22 +154,27 @@ class XYPlot(Canvas):
         # using izip and generator expressions avoids many copy operations
         return self.draw_line(izip((xscale(x) for x in xlist), (yscale(y) for y in ylist)), **kwargs)
 
-    def draw_axes(self, color="black"):
+    def _draw_axes(self, color):
         O = self.origin
         # positive axes
-        self.draw_line(((O.x, O.y), (self.width, O.y)), width=1, fill=color)
-        self.draw_line(((O.x, O.y), (O.x, self.height)), width=1, fill=color)
+        yield self.draw_line(((O.x, O.y), (self.width, O.y)), width=1, fill=color)
+        yield self.draw_line(((O.x, O.y), (O.x, self.height)), width=1, fill=color)
         for x in range(O.x, self.width, self.ppd):
-            self.draw_line(((x, O.y - 3), (x, O.y + 3)))
+            yield self.draw_line(((x, O.y - 3), (x, O.y + 3)))
         for y in range(O.y, self.height, self.ppd):
-            self.draw_line(((O.x - 3, y), (O.x + 3, y)))
+            yield self.draw_line(((O.x - 3, y), (O.x + 3, y)))
         # negative axes
-        self.draw_line(((O.x, O.y), (0, O.y)), width=1, fill=color)
-        self.draw_line(((O.x, O.y), (O.x, 0)), width=1, fill=color)
+        yield self.draw_line(((O.x, O.y), (0, O.y)), width=1, fill=color)
+        yield self.draw_line(((O.x, O.y), (O.x, 0)), width=1, fill=color)
         for x in range(O.x, 0, -self.ppd):
-            self.draw_line(((x, O.y - 3), (x, O.y + 3)))
+            yield self.draw_line(((x, O.y - 3), (x, O.y + 3)))
         for y in range(O.y, 0, -self.ppd):
-            self.draw_line(((O.x - 3, y), (O.x + 3, y)))
+            yield self.draw_line(((O.x - 3, y), (O.x + 3, y)))
+
+    def redraw_axes(self, color="black"):
+        map(self.delete, self.axlines)
+        self.axlines = []
+        map(self.axlines.append, self._draw_axes(color))
 
 class PlotControls(Frame):
     def __init__(self, parent, window):
@@ -171,6 +185,12 @@ class PlotControls(Frame):
         self.scalers = {}
         self.xchooser = None
 
+        self.iscale = False     # This variable is used to prevent race conditions when the scale is updated
+                                # The (prevetion) mechanism depends on there being no context switch between the two listeners/handlers
+                                # This is achieved by the "if current_thread() == self:" test at the top of in PVWindow.tk_do() in window.py
+                                # Probably it could be achieved by not wrapping self.scale_update() into window.tk_do() in the first place,
+                                # but this everything CAN be wrapped and we don't have to worry
+
         window.conf.add_ox_listener(window.tk_cb(self.ox_update))
         window.conf.add_scale_listener(window.tk_cb(self.scale_update))
 
@@ -179,21 +199,27 @@ class PlotControls(Frame):
             self.update_controls(conf)
 
     def scale_update(self, conf):
+        if self.iscale:
+            return
+        self.iscale = True
         for i in conf.values_upd:
             self.scalers[i].v.set(conf.values_upd[i])
+        self.iscale = False
 
     def controls_handler(self, v, i, *ign):
+        if self.iscale:
+            return
+        self.iscale = True
         try:
-            scale = v.get()                                 # can raise "ValueError: Empyty String for float"
-
-            if scale != self.window.conf.values_upd[i]:     # I don't particularly like this test but it is at least better then
-                                                            # the original infinite loop prevention with self.iscale ....
-                if scale == 0:
-                    scale = 0.001
-                    v.set(scale)
-                self.window.conf.set_scale(i, scale)
+            scale = v.get()              # can raise a "ValueError: Empty String for float"
+            if scale == 0:
+                raise ValueError("Scale cannot be zero")
         except ValueError:
-            pass
+            scale = 0.001
+            v.set(scale)
+        finally:
+            self.window.conf.set_scale(i, scale)
+        self.iscale = False
 
     def update_controls(self, conf):
         # controls_region setup - keep pack()ing order !

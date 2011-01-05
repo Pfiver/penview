@@ -68,9 +68,9 @@ if __name__ == "__main__":
             if 'self' in frame.f_locals: func = frame.f_locals['self'].__class__.__name__ + "." + func
             print "(%s:%d) in %s(): %s" % (os.path.basename(frame.f_code.co_filename), frame.f_lineno, func, args[0] % args[1:])
 
-        # this is delicate as well: you have to "import penview" and then set penview.debug(_flag)
-        #  - "from penview import debug" won't work
-        #  - check mini-spikes/global_vars for full investigation
+        # this is delicate as well: you have to "import penview" FIRST and THEN set penview.debug{,_flag}
+        #  - "from penview import debug" doesn't work
+        #  - check dev/global_vars for full investigation
         import penview
         penview.debug = debug
         penview.debug_flag = debug_flag = True
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     # import the main modules
     from model import PVConf				# FIXME: we need to check if python-tk is installed, as on a standard ubuntu maverick
     from window import PVWindow				# system it is seemingly NOT installed by default
-    from controller import PVController			#  ... in case it is not and we're on a debian system, suggest "sudo apt-get install python-tk"
+    from controller import PVController		#  ... in case it is not and we're on a debian system, suggest "sudo apt-get install python-tk"
  
     # say hi
     print "Welcome to %s!" % app_name

@@ -40,7 +40,7 @@ class PVWindow(Thread):
         self.file_menu.add_command(label="Open...",     command=lambda: self.do(PVAction.open_exp))
         self.file_menu.add_command(label="Import...",   command=lambda: self.do(PVAction.import_exp))
         self.file_menu.add_command(label="Quit",        command=lambda: self.do(PVAction.quit_app))
-    
+
         ## view menu
         self.view_menu = Menu(self.menu_bar, tearoff=0)
         self.view_menu.add_command(label="Reset Scale", command=lambda: self.do(PVAction.reset_scale), state=DISABLED)

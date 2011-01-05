@@ -27,7 +27,7 @@ class TabRegion(Frame):
 
         # Tabs in notebook_region
         self.notebook_region = Notebook(self)
-        
+
         # Graph and Table Buttons in switch_region
         self.switch_region = Frame(self)
         self.graph_button = Button(self.switch_region, text="Graph", command=lambda: window.do(PVAction.show_graph))

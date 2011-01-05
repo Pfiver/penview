@@ -112,6 +112,4 @@ class PVController(Thread):
         self.conf.add_open_experiment(OpenExperiment(ex_file, self.window))
         
     def do_reset_scale(self):
-        plot = self.window.data_region.xy_plot
-        self.conf.reset_upd(plot.ppd, plot.width, plot.height)
-
+        self.conf.reset_scales(self.window.data_region.xy_plot)

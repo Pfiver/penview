@@ -49,6 +49,8 @@ class PVConf:
 
         self.recent_experiments = []    # list of RecentExperiment objects - maximum size 5, fifo semantics
 
+        self.min_values, self.max_values = [], [] 
+
     def add_open_experiment(self, ox):
 
         for i in range(ox.nvalues):
@@ -61,7 +63,31 @@ class PVConf:
 
         self.open_experiments.append(ox)
 
+        self._update_extremes()
+
         for update in self.ox_listeners: update(self)
+
+    def _update_extremes(self):
+
+        experiments = self.open_experiments
+
+        cols = len(self.units) + 1
+
+        self.min_values = []
+        self.max_values = []
+        for i in range(cols):
+            imin = None
+            imax = None
+            for j in range(len(experiments)):
+                if i < len(experiments[j].values):
+                    jmin = min(experiments[j].values[i])
+                    jmax = max(experiments[j].values[i])
+                    if not imin or jmin < imin:
+                        imin = jmin
+                    if not imax or jmax > imax:
+                        imax = jmax
+            self.min_values.insert(i, imin)
+            self.max_values.insert(i, imax)
 
     # we should use properties more often, they're cool
     #
@@ -72,15 +98,18 @@ class PVConf:
 
     def set_x_values(self, index):
         self.x_values = index
-        for update in self.x_listeners: update(self)
+        for update in self.x_listeners:
+            update(self)
 
     def set_scale(self, n, scale):
         self.values_upd[n] = scale
-        for update in self.scale_listeners: update(self)
+        for update in self.scale_listeners:
+            update(self)
 
     def set_viewmode(self, mode):
         self.viewmode = mode
-        for update in self.viewmode_listeners: update(self)
+        for update in self.viewmode_listeners:
+            update(self)
 
     def add_ox_listener(self, update):
         self.ox_listeners.append(update)
@@ -94,40 +123,40 @@ class PVConf:
     def add_viewmode_listener(self, update):	# table <> plot switch helper
         self.viewmode_listeners.append(update)
 
-    def reset_upd(self, ppd, width, height):	# FIXME FIXME FIXME: FIXME
+    def reset_scales(self, plot):
+        for i, scale in enumerate(self.default_scales(plot)):
+            self.values_upd[i] = scale
+        for update in self.scale_listeners:
+            update(self)
 
-        experiments = self.open_experiments
+    def default_scales(self, plot):
+        "calculate scales such that all values fit into the given canvas size"
 
-        cols = experiments[0].nvalues + 1
+        cols = len(self.units) + 1
 
-        min_values = []
-        max_values = []
-        for i in range(cols):
-            imin = None
-            imax = None
-            for j in range(len(experiments)):
-                jmin = min(experiments[j].values[i])
-                jmax = max(experiments[j].values[i])
-                if not imin or jmin < imin:
-                    imin = jmin
-                if not imax or jmax > imax:
-                    imax = jmax
-            min_values.insert(i, imin)
-            max_values.insert(i, imax)
+        ppd, width, height = plot.ppd, plot.width, plot.height
 
-        maxranges = [max_values[i] - min_values[i] for i in range(cols)]
-
+        maxranges = [self.max_values[i] - self.min_values[i] for i in range(cols)]
         xmaxrange = maxranges[0]
         ymaxrange = max(maxranges[1:])
 
-        self.set_scale(0, ppd * xmaxrange / float(width))
+        yield xmaxrange * ppd / float(width)
         for i in range(1, cols):
-            self.set_scale(i, ppd * ymaxrange / float(height))
+            yield ymaxrange * ppd / float(height)
 
-        pxoff = - min_values[0] / xmaxrange * float(width)
-        pyoff = - min(min_values[1:]) / ymaxrange * float(height)
+    def bounding_box(self, plot):
+        "calculate the required canvas size to make all values fit into it with the current scales"
 
-        return (int(pxoff), int(pyoff))
+        cols = len(self.units) + 1
+
+        ppd, width, height = plot.ppd, plot.width, plot.height
+
+        maxranges = [(self.max_values[i] - self.min_values[i]) / self.values_upd[i] for i in range(cols)]
+        xmaxrange = maxranges[0]
+        ymaxrange = max(maxranges[1:])
+
+        return ((int(self.min_values[0] / xmaxrange), int(self.max_values[0] / xmaxrange)),
+                (int(min(self.min_values[1:]) / ymaxrange), int(max(self.max_values[1:]) / ymaxrange)))
 
 class OpenExperiment:
     """
