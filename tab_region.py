@@ -6,6 +6,10 @@ from threading import Event
 from functools import partial
 from tkColorChooser import askcolor
 
+import platform
+if platform.system() == 'Darwin':
+    import os
+    os.environ['TILE_LIBRARY'] = os.path.join(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'lib'), 'tile0.8.3')
 from lib.ttk import Notebook
 
 from model import *
@@ -39,10 +43,10 @@ class TabRegion(Frame):
         # pack()
         self.notebook_region.pack(fill=BOTH, expand=1)
         self.switch_region.pack(fill=X, side=BOTTOM)
-        debug("TR1")
+
         # once all gui elements are mapped, record that fact
 #        window.after_idle(self.mapped.set)
-        debug("TR2")
+
         # keep a reference to some empty BitmapImage
         # ehr well .. this is needed because if you write Button(image=BitmapImage(), ...)
         # the BitmapImage object will be reaped by the garbage collector and the button doesn't work

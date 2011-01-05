@@ -37,6 +37,7 @@ penview/
 |   +-- __init__.py      # Python Magic! (converts a directory into a package)
 |   +-- OOoLib.py        # Excel to CSV Conversion Script Library (needs installed OpenOffice to run)
 |   +-- ttk.py           # ttk Extends tkinter with a UI Tab function
+|   +-- tile0.8.3/       # tile is a tcl/tk extension library needed for ttk.py on the mac (Darwin) platform
 +-- model.py             # Model: Data Structure Module
 +-- penview.py*          # Main Program (Starting Point)
 +-- README               # this README
