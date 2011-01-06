@@ -59,13 +59,18 @@ class TabRegion(Frame):
                 self.add_tab(ox)
                 ox.views[self.window].add_listener(self.window.tk_cb(self.view_update))
 
+        # important !
+        self.window.tk.update_idletasks()
+
         # re-add ourselves to the parent PanedWindow Widget
-        # this will resize the tab_region to make all elements all tabs fit
-        self.parent.remove(self)
-        self.parent.add(self, before=self.parent.panes()[0])
+        # this will resize the tab_region to make all elements in all tabs fit
+        for pane in self.parent.panes():
+            self.parent.remove(pane)
+            self.parent.add(pane)
 
         # wait until everything is packed and re-set the packed Event
-        # FIXME: sometimes self.mapped is set() BEFORE all tabs and labels have their final size
+        #  --- FIXME: sometimes self.mapped is set() BEFORE all tabs and labels have their final size ---
+        #  ---> probably fixed by update_idletasks() call above
         self.window.after_idle(self.mapped.set)
 
         # TODO: now the size of the XYPlot might have changed - (how) is this recognized ?
@@ -94,13 +99,13 @@ class TabRegion(Frame):
             view.remove_y_values(i)
 
     def add_tab(self, ox):
-        tab = Frame(self)
+        tab = Frame(self.notebook_region)
         tab.valueboxes = {}
         tab.colorbuttons = {}
 
         # Display Experiment Name
-        exp_name = Label(tab, text=ox.get_exp_name(), font=13)
-        exp_name.grid(row=0, sticky=W)
+        exp_name = Label(tab, text=ox.get_exp_name(), font=13, justify=LEFT)
+        exp_name.grid(row=0, columnspan=2, sticky=W)
         tab.exp_name = exp_name
 
         for i in range(ox.nvalues + 1):
@@ -113,7 +118,7 @@ class TabRegion(Frame):
             box = Checkbutton(tab, text=ox.get_desc(i), variable=v, state=state)
             box.grid(row=i+1, column=0, sticky=W)
             tab.valueboxes[i] = box
-            
+
             # Color Cooser Buttons
             #  -> creating a Button with image=... lets one specify with and height in pixels
             #  -> for mac's aqua surface, we need a real pixmap because the button ignores all background="color" options
@@ -137,11 +142,12 @@ class TabRegion(Frame):
         tab.bind("<Configure>", self.config_handler)
 #        tab.bind("<Map>", self.map_handler)
         tab.grid_columnconfigure(0, weight=1)
-        tab.pack()
+        tab.pack(side=TOP)
 
         # keep track of the whole tab and add it to our notebook
         self.tabs[ox] = tab
         self.notebook_region.add(tab, text="Exp %d" % ox.id)
+        self.notebook_region.select(tab)
 
     def config_handler(self, event):
         # FIXME: see comment in ox_update()

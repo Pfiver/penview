@@ -132,7 +132,8 @@ class PVConf:
     def default_scales(self, plot):            # FIXME !!!
         "calculate scales such that all values fit into the given canvas size"
 
-        ppd, width, height = plot.ppd, plot.winfo_width(), plot.winfo_height()
+        # whatever the reason might be why we're forced to use "- 4" here...
+        ppd, width, height = plot.ppd, plot.winfo_width() - 4, plot.winfo_height() - 4
 
         maxranges = [self.max_values[i] - self.min_values[i] for i in range(self.nvalues + 1)]
 

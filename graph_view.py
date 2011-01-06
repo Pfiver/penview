@@ -10,7 +10,7 @@ class XYPlot(Canvas):
     "a custom canvas to display xy-plots"
 
     def __init__(self, parent, window, width, height):
-        Canvas.__init__(self, parent, width=width, height=height, bg="white")
+        Canvas.__init__(self, parent, width=width, height=height, bg="#eef")
 
         self.window = window
         self.width, self.height = width, height
@@ -273,6 +273,11 @@ class PlotControls(Frame):
         self.xchooser = OptionMenu(self, v, *x_values_list)
         self.xchooser.v = v
         self.xchooser.pack(side=RIGHT)
+
+        # helps !
+        #  to make make the xyplot canvas initially be resized properly
+        #  -> reset_values_upd() setting proper scales -> xyplot bounding box matching canvas size/scroll region  
+        self.window.tk.update_idletasks()
 
 class ScrollRegion(Frame):
     def __init__(self, parent):
