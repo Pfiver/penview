@@ -37,6 +37,10 @@ class Dialog:
         return askopenfilename(filetypes=(("Experiment Files", "*.sqlite"),))
 
     @classmethod
+    def get_new_ex_path(cls):
+        return asksaveasfilename(filetypes=(("Experiment Files", "*.sqlite"),))
+
+    @classmethod
     def get_csv_path(cls):
         return askopenfilename(filetypes=(("CSV Files", "*.csv"),))
 

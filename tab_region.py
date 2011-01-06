@@ -126,7 +126,7 @@ class TabRegion(Frame):
             # the BitmapImage object will be reaped by the garbage collector and the button doesn't work
             w = h = 10
             BITMAP = "#define im_width %d\n#define im_height %d\n" % (w, h)
-            BITMAP += "static char im_bits[] = {\n" + ",".join("255" for i in range(w*h)) + "\n};\n"
+            BITMAP += "static char im_bits[] = {\n" + ",".join("255" for i in range(w*h/8+8)) + "\n};\n"
             bi = BitmapImage(data=BITMAP, foreground=view.colors[i])
             button = Button(tab, image=bi, width=10, height=10, command=partial(self.choose_color, view, i), state=state)
             button.grid(row=i+1, column=1, padx=4, pady=4)

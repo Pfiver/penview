@@ -92,7 +92,7 @@ class PVController(Thread):
             return
         csv = CSVImporter(path)
         while True:
-            ex_path = self.window.tk_do(Dialog.get_ex_path)
+            ex_path = self.window.tk_do(Dialog.get_new_ex_path)
             if not ex_path:
                 return
             if not os.path.exists(ex_path):
