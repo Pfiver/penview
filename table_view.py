@@ -6,52 +6,44 @@ from recipe_52266 import MultiListbox
 
 from penview import *
 
-class PVTable(MultiListbox):
+class PVTable(Frame):
 
     def __init__(self, parent, window):
-        debug("lots of work ahead here")
-        self.parent = parent
-        MultiListbox.__init__(self, self.parent, ("No Data\n",)) # Workaround for first call error: "AttributeError: PVTable instance has no attribute 'tk'"
-#        conf.add_ox_listener(window.tk_cb(self.ox_update))
- 
-    def ox_update(self, conf):
-        headers = ["Zeit",]
-        data = []
-        for ox in conf.open_experiments:
-            # HEADER
-            ox.header = self.get_header(ox)
-            print "ox.header: %s" % ox.header
-            for header in ox.header:
-                headers.append(header)
-            # DATA(s)
-            print len(self.get_data(ox))
-            for j in range(len(self.get_data(ox))):
-#                print "self.get_data(ox)[%d]:" % j
-#                print self.get_data(ox)[j]
-                data.append(self.get_data(ox)[j])
-#        print "calling update_table(headers, data): %s, %s" % (headers, data)
-        self.update_table(headers, data)
-        
-    def get_header(self, ox):
-        # Add Description (Table Header)
-        header = []
-        for i in range(ox.nvalues):
-            header.append( ox.get_desc(i), )
-        return header
+        Frame.__init__(self, parent)
 
-    def get_data(self, ox):
-        data = []
-        self.cols = ox.nvalues # get the count of columns
-        self.rows = len(ox.values[1]) # get the length of v1 values (v1 exists!)
-        # Add Data from Experiment Table
-        for row in range(self.rows):
-#            print "ox.sqlvalues[%s]: %s " % ( row, ox.sqlvalues[row] )
-            data.append(ox.sqlvalues[row],)
-        return data
-                
-    def update_table(self, header, data):
-        MultiListbox.__init__(self, self.parent, header)
-#        print "data: %s" % data
-        for row in range(len(data)):
-#            print "row: %s " % row
-            self.insert(END, data[row])
+        self.window = window
+
+        self.mlb = MultiListbox(self, ("\n",))
+        
+        window.conf.add_ox_listener(window.tk_cb(self.ox_update))
+ 
+        debug("lots of work ahead here")
+
+    def ox_update(self, conf):
+        
+        self.mlb.pack_forget()
+
+        headers = []
+
+        for i in range(conf.nvalues + 1):
+            for ox in conf.open_experiments:
+                if i <= ox.nvalues:
+                    headers.append("%s %d\n(%s)" % (ox.get_desc(i), ox.id, ox.get_units(i)))
+
+        self.mlb = MultiListbox(self, headers)
+
+        row = 0
+        while True:
+            data = []
+            for i in range(conf.nvalues + 1):
+                for ox in conf.open_experiments:
+                    if i <= ox.nvalues and row < len(ox.values[i]):
+                        data.append(ox.values[i][row])
+                    else:
+                        data.append(None)
+            if not filter(lambda x: x != None, data):
+                break
+            self.mlb.insert(END, data)
+            row +=1
+    
+        self.mlb.pack(expand=YES, fill=BOTH)

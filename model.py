@@ -34,7 +34,7 @@ class PVConf:
         debug("debug is on")
 
         self.units = {}                 # the units of all data series - keys = index of a data series in the "values" matrix
-                                        # len(units) is equal to the maximum number of data series of all currently open experiments
+                                        # len(units) is equal to the maximum number of data series of all currently open experiments + 1
 
         self.open_experiments = []      # list of OpenExperiment objects - the experiments currently opened
         self.ox_listeners = []
@@ -54,7 +54,7 @@ class PVConf:
 
     def add_open_experiment(self, ox):
 
-        for i in range(ox.nvalues):
+        for i in range(ox.nvalues + 1):
             if i not in self.units:               # this experiments has more values than any other currently open experiment
                 self.units[i] = ox.get_units(i)      # and therefore sets the standard now
             elif self.units[i] != ox.get_units(i):
@@ -91,7 +91,7 @@ class PVConf:
     # we should use properties more often, they're cool
     #
     def _get_nvalues(self):
-        return len(self.units)
+        return len(self.units) - 1
 
     nvalues = property(fget=_get_nvalues)
 
@@ -200,11 +200,12 @@ class OpenExperiment:
         """return vn_desc"""
         if n == 0:
             return "Zeit"
-        key = 'v' + str(n) + '_desc'
-        return self.metadata[key]
+        return self.metadata['v' + str(n) + '_desc']
 
     def get_units(self, n):
-        return self.metadata['v' + str(n+1) + '_unit']
+        if n == 0:
+            return "s"
+        return self.metadata['v' + str(n) + '_unit']
 
     # simplified access to self.file.nvalues without copying it
     #

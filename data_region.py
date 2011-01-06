@@ -50,4 +50,4 @@ class DataRegion(Frame):
             self.show_plot()
         elif conf.viewmode == ViewMode.table:
             self.show_table()
-            raise Exception("Table view mode is not yet working very well....")
+#            raise Exception("Table view mode is not yet working very well....")

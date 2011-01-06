@@ -68,8 +68,8 @@ class MultiListbox(Frame):
     	for e in elements:
     	    i = 0
     	    for l in self.lists:
-    		l.insert(index, e[i])
-    		i = i + 1
+                l.insert(index, e[i])
+                i = i + 1
 
     def size(self):
         return self.lists[0].size()

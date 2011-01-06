@@ -160,7 +160,6 @@ class XYPlot(Canvas):
         yield self.draw_line(((xmin, 0), (xmax, 0)), width=1, fill=color)
         yield self.draw_line(((0, ymin), (0, ymax)), width=1, fill=color)
 
-
     def redraw_axes(self, color="black", grid_color="gray"):
         map(self.delete, self.axlines)
         self.axlines = tuple(self._draw_axes(color, grid_color))
@@ -203,7 +202,6 @@ class PlotControls(Frame):
             scale = 0.001
             self.scalers[i].delete(0, len(self.scalers[i].get()))
             self.scalers[i].insert(0, scale)
-
         self.iscale = True
         self.window.conf.set_scale(i, scale)
         self.iscale = False
@@ -234,23 +232,20 @@ class PlotControls(Frame):
             self.xchooser.pack_forget()
 
         # create y-axis controls
-        for i in range(conf.nvalues):
-            sb = Spinbox(self, from_=0, to=99999, width=5, command=partial(self.sb_handler, i+1))
+        for i in range(1, conf.nvalues + 1):
+            sb = Spinbox(self, from_=0, to=99999, width=5, command=partial(self.sb_handler, i))
             sb.pack(side=LEFT)
-            self.scalers[i+1] = sb
-            sb.bind("<Button-4>", partial(self.sw_handler, i+1))
-            sb.bind("<Button-5>", partial(self.sw_handler, i+1))
-            sb.bind("<KeyRelease>", partial(self.sb_handler, i+1))
+            self.scalers[i] = sb
+            sb.bind("<Button-4>", partial(self.sw_handler, i))
+            sb.bind("<Button-5>", partial(self.sw_handler, i))
+            sb.bind("<KeyRelease>", partial(self.sb_handler, i))
 
             ul = Label(self, text=conf.units[i]+"/div")
             ul.pack(side=LEFT)
-            self.labels[i+1] = ul
+            self.labels[i] = ul
 
         # create x-axis controls
-        if conf.x_values == 0:      # time on x-axis
-            xunits = "s"
-        else:
-            xunits = conf.units[conf.x_values-1]    # because time is always "s", conf.units key "0" refers to the v1_unit metadata variable
+        xunits = conf.units[conf.x_values]
 
         self.labels[0] = Label(self, text=xunits+"/div")
         self.labels[0].pack(side=RIGHT)
@@ -302,6 +297,21 @@ class ScrollRegion(Frame):
         child_widget.bind("<Button-5>", self.ywheel_handler)
 #        child_widget.bind("<Button-6>", self.xwheel_handler)    # FIXME: fix tkinter ?
 #        child_widget.bind("<Button-7>", self.xwheel_handler)
+        child_widget.bind("<Button-1>", self.b1_handler)
+        child_widget.bind("<Button1-Motion>", self.b1m_handler)
+        child_widget.bind("<ButtonRelease-1>", self.b1r_handler)
+
+    def b1_handler(self, e):
+        self.config(cursor="fleur")
+        self.mark = e
+        self.child_widget.scan_mark(e.x, e.y)
+        
+    def b1m_handler(self, e):
+        self.child_widget.scan_dragto(self.mark.x + (e.x-self.mark.x)/10,
+                                      self.mark.y + (e.y-self.mark.y)/10)
+
+    def b1r_handler(self, e):
+        self.config(cursor="arrow")
 
     def ywheel_handler(self, e):
         self.child_widget.yview_scroll({4: -1, 5: 1 }[e.num], 'units') # button 4 => up; button 5 => down
