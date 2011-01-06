@@ -9,16 +9,6 @@ from penview import *
 class XYPlot(Canvas):
     "a custom canvas to display xy-plots"
 
-    class Origin:
-        """
-        holds the location of the coordinate origin for plotting data,
-        relative to the coordinate origin of the canvas
-        """
-        def __init__(self, x, y):
-            self.x = x
-            self.y = y
-        set = __init__
-
     def __init__(self, parent, window, width, height):
         Canvas.__init__(self, parent, width=width, height=height, bg="white")
 
@@ -27,12 +17,11 @@ class XYPlot(Canvas):
 
         self.upd = 1                                # units per division
         self.ppd = 100                              # pixel per division
-        self.origin = XYPlot.Origin(0, 0)
 
         self.upds = {}
         self.lines = {}                             # this is a dict of dicts to which the keys are an ExperimentView and a values index
 
-        self.axlines = []
+        self.axlines = ()
 
         window.conf.add_ox_listener(window.tk_cb(self.ox_update))
         window.conf.add_scale_listener(window.tk_cb(self.scale_update))
@@ -53,20 +42,16 @@ class XYPlot(Canvas):
         del self.lines[view][index]
 
     def ox_update(self, conf):
-        # reset scale to a sane default (all data visible)
-        self.upds = {}
 
-        conf.reset_scales(self)
-
-        self.origin.set(*(-min for min, max in conf.bounding_box(self)))
-
-        self.redraw_axes()
-
-        self.upds = conf.values_upd.copy()
+        scales_reset = False                        # reset the scales only once; False -> not yet done
 
         for ox in conf.open_experiments:           
             view = ox.views[self.window]
             if view not in self.lines:              # find added experiments, add our view_listener and call it once to display them
+                if not scales_reset:
+                    scales_reset = True
+                    conf.reset_scales(self)         # reset scales to a sane default (all data visible)
+                self.upds = conf.values_upd.copy()
                 self.lines[view] = {}               # a dictionary containing all lines we have plotted
                 self.view_update(view)
                 view.add_listener(self.window.tk_cb(self.view_update))
@@ -85,10 +70,10 @@ class XYPlot(Canvas):
                 del self.lines[view]
 
     def x_update(self, conf):   
-        self.clear()            # if we plot against different x_values, we have to start over
+        self.clear()                                    # if we plot against different x_values, we have to start over
         for ox in conf.open_experiments:           
             view = ox.views[self.window]
-            self.lines[view] = {}               # self.lines holds a dictionary containing all lines we have plotted
+            self.lines[view] = {}                       # self.lines holds a dictionary containing all lines we have plotted
             self.view_update(view)
 
     def scale_update(self, conf):
@@ -101,16 +86,22 @@ class XYPlot(Canvas):
                         view = ox.views[self.window]
                         self.lines[view] = {}
                         self.view_update(view)
-                    return                              # next - otherwise an y-scale has changed
+                    break                               # next - otherwise an y-scale has changed
                 for view in self.lines:                 # FIXME: seems slow
                     if i in view.y_values:              # redraw only those that are visible
                         self.remove_line(view, i)
                         self.add_line(view, i)
 
-        self.width, self.height = self.winfo_width(), self.winfo_height()
-        bbox = conf.bounding_box(self)
-        debug("bbox: %s", bbox)
-        self.config(scrollregion=(bbox[0][0], bbox[1][0], bbox[0][1], bbox[1][1]))
+        self.bbox = conf.bounding_box(self)
+        xmin, ymin, xmax, ymax = self.bbox
+        # if the bounding box is higher or wider then 1000 times ppd, protect ourselves from performance shame
+        # the tk widget is not very well suited to quickly draw a picture on the screen, at least not on a canvas,
+        # because each call has to be translated to the corresponding tcl script string...
+        # if self.bbox
+        if xmax-xmin < 1000 * self.ppd and ymax-ymin < 1000 * self.ppd:
+            self.redraw_axes()
+        # translate the conventional to the canvas cordinate system
+        self.config(scrollregion=(xmin, self.height - ymax, xmax, self.height - ymin))
 
     def view_update(self, view):
         for index in range(view.ox.nvalues + 1):            # loop over all values (indexes)
@@ -138,6 +129,7 @@ class XYPlot(Canvas):
         :parameters:
             points    list of point coordinates in the form: ((x1, y1), (x2, y2))
         """
+        # translate the conventional to the canvas cordinate system
         # using a generator expression avoids many copy operations
         return self.create_line(list((x, self.height - y) for x, y in points), **kwargs)
 
@@ -146,33 +138,32 @@ class XYPlot(Canvas):
         plot the points in ylist against the those in xlist
         scale the coordinate axes by y_upd and x_upd respectively
         """
-        xscale = lambda x: x / float(x_upd) * self.ppd + self.origin.x
-        yscale = lambda y: y / float(y_upd) * self.ppd + self.origin.y
+        xscale = lambda x: x / float(x_upd) * self.ppd
+        yscale = lambda y: y / float(y_upd) * self.ppd
 
-        # using izip and generator expressions avoids many copy operations
+        # using izip and generator expressions avoids unnecessarily copying the data
         return self.draw_line(izip((xscale(x) for x in xlist), (yscale(y) for y in ylist)), **kwargs)
 
-    def _draw_axes(self, color):
-        O = self.origin
-        # positive axes
-        yield self.draw_line(((O.x, O.y), (self.width, O.y)), width=1, fill=color)
-        yield self.draw_line(((O.x, O.y), (O.x, self.height)), width=1, fill=color)
-        for x in range(O.x, self.width, self.ppd):
-            yield self.draw_line(((x, O.y - 3), (x, O.y + 3)))
-        for y in range(O.y, self.height, self.ppd):
-            yield self.draw_line(((O.x - 3, y), (O.x + 3, y)))
-        # negative axes
-        yield self.draw_line(((O.x, O.y), (0, O.y)), width=1, fill=color)
-        yield self.draw_line(((O.x, O.y), (O.x, 0)), width=1, fill=color)
-        for x in range(O.x, 0, -self.ppd):
-            yield self.draw_line(((x, O.y - 3), (x, O.y + 3)))
-        for y in range(O.y, 0, -self.ppd):
-            yield self.draw_line(((O.x - 3, y), (O.x + 3, y)))
+    def _draw_axes(self, color, grid_color):
+        xmin, ymin, xmax, ymax = (self.ppd * (v // self.ppd) for v in self.bbox)
+        xmax += self.ppd
+        ymax += self.ppd
 
-    def redraw_axes(self, color="black"):
+        for x in range(xmin + self.ppd, xmax, self.ppd):
+            yield self.draw_line(((x, ymin), (x, ymax)), width=1, fill=grid_color)
+            yield self.draw_line(((x, -3), (x, 3)), width=1, fill=color)
+
+        for y in range(ymin + self.ppd, ymax, self.ppd):
+            yield self.draw_line(((xmin, y), (xmax, y)), width=1, fill=grid_color)
+            yield self.draw_line(((-3, y), (3, y)), width=1, fill=color)
+
+        yield self.draw_line(((xmin, 0), (xmax, 0)), width=1, fill=color)
+        yield self.draw_line(((0, ymin), (0, ymax)), width=1, fill=color)
+
+
+    def redraw_axes(self, color="black", grid_color="gray"):
         map(self.delete, self.axlines)
-        self.axlines = []
-        map(self.axlines.append, self._draw_axes(color))
+        self.axlines = tuple(self._draw_axes(color, grid_color))
 
 class PlotControls(Frame):
     def __init__(self, parent, window):
@@ -199,25 +190,39 @@ class PlotControls(Frame):
     def scale_update(self, conf):
         if self.iscale:
             return
-        self.iscale = True
         for i in conf.values_upd:
-            self.scalers[i].v.set(conf.values_upd[i])
+            self.scalers[i].delete(0, len(self.scalers[i].get()))
+            self.scalers[i].insert(0, conf.values_upd[i])
+
+    def sb_handler(self, i, *ign):
+        try:
+            scale = float(self.scalers[i].get())
+        except:
+            return
+        if scale == 0:
+            scale = 0.001
+            self.scalers[i].delete(0, len(self.scalers[i].get()))
+            self.scalers[i].insert(0, scale)
+
+        self.iscale = True
+        self.window.conf.set_scale(i, scale)
         self.iscale = False
 
-    def controls_handler(self, v, i, *ign):
-        if self.iscale:
-            return
-        self.iscale = True
-        try:
-            scale = v.get()              # can raise a "ValueError: Empty String for float"
-            if scale == 0:
-                raise ValueError("Scale cannot be zero")
-        except ValueError:
+    def sw_handler(self, i, event):
+        scale = self.window.conf.values_upd[i]
+        inc = self.scalers[i].config("increment")[4]
+        scale += {4: inc, 5: -inc}[event.num]                   # button 4 => up; button 5 => down
+        scale = int(scale)
+        if scale == 0:
             scale = 0.001
-            v.set(scale)
-        finally:
-            self.window.conf.set_scale(i, scale)
+        self.scalers[i].delete(0, len(self.scalers[i].get()))
+        self.scalers[i].insert(0, scale)
+        self.iscale = True
+        self.window.conf.set_scale(i, scale)
         self.iscale = False
+
+    def xv_handler(self, *ignored):
+        print "x"
 
     def update_controls(self, conf):
         # controls_region setup - keep pack()ing order !
@@ -230,13 +235,12 @@ class PlotControls(Frame):
 
         # create y-axis controls
         for i in range(conf.nvalues):
-            v = DoubleVar()
-            sb = Spinbox(self, from_=0, to=99999, width=5, textvariable=v)
-            # keep the order here - trace() v AFTER using it for Spinbox()
-            v.trace("w", partial(self.controls_handler, v, i+1))
-            sb.v = v
+            sb = Spinbox(self, from_=0, to=99999, width=5, command=partial(self.sb_handler, i+1))
             sb.pack(side=LEFT)
             self.scalers[i+1] = sb
+            sb.bind("<Button-4>", partial(self.sw_handler, i+1))
+            sb.bind("<Button-5>", partial(self.sw_handler, i+1))
+            sb.bind("<KeyRelease>", partial(self.sb_handler, i+1))
 
             ul = Label(self, text=conf.units[i]+"/div")
             ul.pack(side=LEFT)
@@ -251,16 +255,17 @@ class PlotControls(Frame):
         self.labels[0] = Label(self, text=xunits+"/div")
         self.labels[0].pack(side=RIGHT)
 
-        v = DoubleVar()
-        self.scalers[0] = Spinbox(self, from_=0, to=99999, width=5, textvariable=v)
+        sb = Spinbox(self, from_=0, to=99999, width=5, command=partial(self.sb_handler, 0))
         # keep the order here - trace() v AFTER using it for Spinbox()
-        v.trace("w", partial(self.controls_handler, v, 0))
-        self.scalers[0].v = v
-        self.scalers[0].pack(side=RIGHT)
+        sb.pack(side=RIGHT)
+        self.scalers[0] = sb
+        sb.bind("<Button-4>", partial(self.sw_handler, 0))
+        sb.bind("<Button-5>", partial(self.sw_handler, 0))
+        sb.bind("<KeyRelease>", partial(self.sb_handler, 0))
 
         v = StringVar()
         v.set("Zeit")
-        v.trace("w", partial(self.controls_handler, v))
+        v.trace("w", partial(self.xv_handler, v))
         x_values_list = ["Zeit"]
   
         for i in range(min([ox.nvalues for ox in conf.open_experiments])):

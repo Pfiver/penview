@@ -4,6 +4,7 @@ from random import randint
 from itertools import count
 
 from penview import *
+from graph_view import XYPlot
 
 # The application could be extended, such that an OpenExperiment could be
 # displayed in more then one application window simultaneously, with different scales and colors.
@@ -71,11 +72,9 @@ class PVConf:
 
         experiments = self.open_experiments
 
-        cols = len(self.units) + 1
-
         self.min_values = []
         self.max_values = []
-        for i in range(cols):
+        for i in range(self.nvalues + 1):
             imin = None
             imax = None
             for j in range(len(experiments)):
@@ -129,34 +128,35 @@ class PVConf:
         for update in self.scale_listeners:
             update(self)
 
-    def default_scales(self, plot):
+    # FIXME !!!
+    def default_scales(self, plot):            # FIXME !!!
         "calculate scales such that all values fit into the given canvas size"
 
-        cols = len(self.units) + 1
+        ppd, width, height = plot.ppd, plot.winfo_width(), plot.winfo_height()
 
-        ppd, width, height = plot.ppd, plot.width, plot.height
+        maxranges = [self.max_values[i] - self.min_values[i] for i in range(self.nvalues + 1)]
 
-        maxranges = [self.max_values[i] - self.min_values[i] for i in range(cols)]
         xmaxrange = maxranges[0]
         ymaxrange = max(maxranges[1:])
 
         yield xmaxrange * ppd / float(width)
-        for i in range(1, cols):
+        for i in range(1, self.nvalues + 1):
             yield ymaxrange * ppd / float(height)
 
     def bounding_box(self, plot):
         "calculate the required canvas size to make all values fit into it with the current scales"
 
-        cols = len(self.units) + 1
+        xmin = self.min_values[0]
+        xmax = self.max_values[0]
+        ymin = min(self.min_values[1:])
+        ymax = max(self.max_values[1:])
 
-        ppd, width, height = plot.ppd, plot.width, plot.height
+        xmin = xmin / self.values_upd[0]
+        xmax = xmax / self.values_upd[0]
+        ymin = max(ymin / self.values_upd[i] for i in range(1, self.nvalues + 1))
+        ymax = max(ymax / self.values_upd[i] for i in range(1, self.nvalues + 1))
 
-        maxranges = [(self.max_values[i] - self.min_values[i]) / self.values_upd[i] for i in range(cols)]
-        xmaxrange = maxranges[0]
-        ymaxrange = max(maxranges[1:])
-
-        return ((int(self.min_values[0] / xmaxrange), int(self.max_values[0] / xmaxrange)),
-                (int(min(self.min_values[1:]) / ymaxrange), int(max(self.max_values[1:]) / ymaxrange)))
+        return [int(v * plot.ppd) for v in (xmin, ymin, xmax, ymax)]
 
 class OpenExperiment:
     """

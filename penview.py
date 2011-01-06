@@ -45,7 +45,7 @@ app_version = "1.0-rc3"
 debug_flag = False
 
 #  if debug_flag is True or penview is run with a "-debug" argument,
-#  debug() is redefined later on
+#  then debug() is redefined later on
 def debug(*args): pass
 
 # "public static void main"
@@ -69,7 +69,7 @@ if __name__ == "__main__":
         import os
         def debug(*args):
             if len(args) and type(args[0]) != str:
-                args = (" - ".join(str(arg) for arg in args),)
+                args = (" | ".join(str(arg) for arg in args),)
             frame = sys._getframe(1); func = frame.f_code.co_name
             if 'self' in frame.f_locals: func = frame.f_locals['self'].__class__.__name__ + "." + func
             print "(%s:%d) in %s(): %s" % (os.path.basename(frame.f_code.co_filename), frame.f_lineno, func, args[0] % args[1:])
@@ -86,7 +86,6 @@ if __name__ == "__main__":
     #  which in turn makes it necessary to keep a reference to that main thread in this variable
     #  the variable will be available in locals() of any module doing an "from penview import *" AFTER the following assignment
     #  (therefore keep the assignment ABOVE "from window import PVWindow" because PVWindow won't see it otherwise)
-    #
     import threading
     penview.tk_thread = threading.current_thread()
 
