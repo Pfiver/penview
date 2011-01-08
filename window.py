@@ -131,7 +131,7 @@ class PVWindow:
         e = self.tk_do_ret[method].exception                # safe the exceptions produced by the closure (if any)
         ret = self.tk_do_ret[method].value                  # and the return value
         del self.tk_do_ret[method]                          # and delete the event
-        if e: raise e                                       # if an exception occured, raise here it the calling thread - otherwise go ahead
+        if e: raise type(e), e, e.tb                        # if an exception occured, raise here it the calling thread - otherwise go ahead
         return ret                                          # return the return value
 
     def tk_do_handler(self, event):
@@ -142,6 +142,8 @@ class PVWindow:
         try:
             self.tk_do_ret[method].value = method()         # execute the method and safe the return value
         except Exception, e:
+            import sys
+            e.tb = sys.exc_info()[2]
             self.tk_do_ret[method].exception = e
         finally:
             self.tk_do_ret[method].set()                    # record the fact that the method has returned
