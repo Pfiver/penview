@@ -43,7 +43,7 @@ class MultiListbox(Frame):
     	    apply(l.yview, args)
 
     def _yscroll(self, sb, top, bottom):
-        for l in self.lists:          # FIXME: the event generating listbox is also scrolled again.... seems to work so far
+        for l in self.lists:          # FIXME: the event generating listbox is also scrolled again.... seems to work so far though
             l.yview('moveto', top)
         sb.set(top, bottom)
 

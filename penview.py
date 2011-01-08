@@ -105,8 +105,8 @@ if __name__ == "__main__":
     # start the controller thread which, amongst other things, opens new files in the background
     controller.start()
 
-    # and run the PVWindow (thread) which will end up in Tk.mainloop()
-    window.run()
+    # and call PVWindow.main() which will end up in Tk.mainloop()
+    window.main()
 
     # FIXME: this block is a victim of the super-touchy OS/X Python to Tkinter bridge
     # for easy debugging during the development phase, automatically open some experiments

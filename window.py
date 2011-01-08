@@ -16,11 +16,11 @@ class PVWindow:
         self.tk_do_q = Queue()  # a queue of things we have to do (function closures)
         self.tk_do_ret = {}     # a dictionary of Event objects to indicate something is done,
                                 # accompanied by return values and possible exceptions
-        self.init = Event()     # clear until run() has initialized all widgets
+        self.alive = Event()     # clear until run() has initialized all widgets and after tk.mainloop() returned
         self.idle = Event()     # set unless somebody calls wait_idle()
         self.idle.set()
 
-    def run(self):
+    def main(self):
         # the root widget
         self.tk = Tk()
 
@@ -99,18 +99,20 @@ class PVWindow:
         self.tk.bind("<<PVEvent>>", self.tk_do_handler)
 
         # register the fact that everything is set up now
-        self.init.set()
+        self.alive.set()
 
         # call Tk.mainloop()
         self.tk.mainloop()
 
+        self.alive.clear()
+
     def stop(self):
-#        if self.is_alive():             # does tk window still exist ?
-            self.tk_do(self.tk.quit)    # do a context switch if necessary
+        if self.alive.is_set():             # FIXME: queue the request if self exists but is not yet alive
+            self.tk_do(self.tk.quit)        # do a context switch if necessary
 
     def wait_idle(self):
         "wait until the Tk.mainloop() thread is idle i.e. no more events are pending"
-        self.init.wait()                 # possibly wait for run() to instantiate Tk and call its mainloop() first
+        self.alive.wait()                 # possibly wait for run() to instantiate Tk and call its mainloop() first
         self.after_idle(self.idle.set)   # arrange for the "idle" Event to be set once tk.mainloop() is idle
         self.idle.wait()                 # wait for it
         self.idle.clear()                # the ui is usually considered busy

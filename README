@@ -18,8 +18,8 @@ An Operating System with python (>= 2.6)
 How To Use the Program
 ----------------------
 
-Execute the file penview.py to startup the PenView.
-Or run on a terminal: ~/penview:# python ./penview.py
+Feed penview.py to the python interpreter to start PenView.
+     ~~~~~~~~~~
 
 File Hierarchy
 --------------
@@ -29,24 +29,24 @@ penview/
 +-- data_access.py       # Model: Abstraction for SQLite-Access
 +-- data_import.py       # Model: CSV-File Import Module
 +-- data_region.py       # View for the right hand side of the UI
-+-- dev/                 # Directory for mini-spikes
-+-- dialog.py            # Wizard Magic! (handles Import of CSV and Opening of Experiment Files) 
++-- dev/                 # files used for development
++-- dialog.py            # file picker dialogs
 +-- doc/                 # Documentation Directory
 +-- graph_view.py        # View for the Plot region
 +-- lib/                 # external and unchanged modules from other Authors
-|   +-- __init__.py      # Python Magic! (converts a directory into a package)
+|   +-- __init__.py      # Python Magic - any directory containing a file with this name is a "package"
 |   +-- OOoLib.py        # Excel to CSV Conversion Script Library (needs installed OpenOffice to run)
 |   +-- ttk.py           # ttk Extends tkinter with a UI Tab function
 |   +-- tile0.8.3/       # tile is a tcl/tk extension library needed for ttk.py on the mac (Darwin) platform
-+-- model.py             # Model: Data Structure Module
++-- model.py             # Model: data structure module
 +-- penview.py*          # Main Program (Starting Point)
-+-- README               # this README
++-- README               # this file
 +-- recipe_52266.py      # MultiListbox Tkinter widget
 +-- recipe_52266.py.diff # our changes to the widget
 +-- table_view.py        # View for the Table region
 +-- tab_region.py        # View for the Tab region / left hand side of the UI
 +-- tests/               # Test Code and Example Data
-+-- utils/               # Utility Scripts (not meant to be platform independent
++-- utils/               # Utility Scripts (not all platform independent)
 +-- window.py            # Main View (Container for Views)
 
 Coding Conventions
@@ -62,7 +62,3 @@ Coding Conventions
   - second additional third party library modules
   - third penview, which is imported in all penview modules
   - fourth individual penview modules
-
-
-
-...don't forget you can put links [links](http://www.google.com) in here as well

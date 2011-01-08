@@ -1,15 +1,31 @@
-As a reference: our customisations to the code snippet as found on the internet,
+For reference: our customizations to this code snippet found on the internet,
 not including changes in amount of whitespace only (diff -w option)
 i.e. our work on this code
 - is original version
 + is our version
 
+how to reproduce this diff? -- install git, then, in a bash shell, do the following:
+$ git clone git://github.com/P2000/penview.git
+$ cd penview
+$ set -- $(git log --grep="oOriginal version from http://code.activestate.com/recipes/52266/" --oneline)
+$ set -- $(git ls-tree $1 -- lib/recipe_52266.py)
+$ git diff -w $3 recipe_52266.py
 
-diff --git a/lib/recipe_52266.py b/lib/recipe_52266.py
-index 3f8cf10..3754fee 100644
---- a/lib/recipe_52266.py
-+++ b/lib/recipe_52266.py
-@@ -1,13 +1,15 @@
+ sidenote 0: lib/recipe_52266.py was moved to recipe_52266.py in commit 6c579f04
+
+ sidenote 1: The original file version exists in commit 374d09dc, with the following message:
+             "This is the oOriginal version from http://code.activestate.com/recipes/52266/ [on 21. Dec 2010] --- just as a reference"
+             Line 3 finds this commit, line 4 finds lib/recipe_52266.py in it, and in line 5 $3 should be
+             "3f8cf1040e35e85b485c3880dec4027fada9fa9c", the sha1-sum of the git object holding the original content of lib/recipe_52266.py
+
+ sidenote 2: "oOriginal" is a typo. It will last for all times, since you can't ("legally")
+             change commit message in git: http://www.gelato.unsw.edu.au/archives/git/0702/38650.html
+
+diff --git a/recipe_52266.py b/recipe_52266.py
+index 3f8cf10..c070470 100644
+--- a/recipe_52266.py
++++ b/recipe_52266.py
+@@ -1,14 +1,16 @@
 +# from http://code.activestate.com/recipes/52266/
 +
  from Tkinter import *
@@ -23,10 +39,12 @@ index 3f8cf10..3754fee 100644
  	    frame = Frame(self); frame.pack(side=LEFT, expand=YES, fill=BOTH)
  	    Label(frame, text=l, borderwidth=1, relief=RAISED).pack(fill=X)
 -	    lb = Listbox(frame, width=w, borderwidth=0, selectborderwidth=0,
+-			 relief=FLAT, exportselection=FALSE)
 +            lb = Listbox(frame, borderwidth=0, selectborderwidth=0,
- 			 relief=FLAT, exportselection=FALSE)
++                 relief=FLAT, exportselection=FALSE, width=0)
  	    lb.pack(expand=YES, fill=BOTH)
  	    self.lists.append(lb)
+ 	    lb.bind('<B1-Motion>', lambda e, s=self: s._select(e.y))
 @@ -17,10 +19,10 @@ class MultiListbox(Frame):
  	    lb.bind('<B2-Motion>', lambda e, s=self: s._b2motion(e.x, e.y))
  	    lb.bind('<Button-2>', lambda e, s=self: s._button2(e.x, e.y))
@@ -45,7 +63,7 @@ index 3f8cf10..3754fee 100644
  	    apply(l.yview, args)
  
 +    def _yscroll(self, sb, top, bottom):
-+        for l in self.lists:          # FIXME: the event generating listbox is also scrolled again.... seems to work so far
++        for l in self.lists:          # FIXME: the event generating listbox is also scrolled again.... seems to work so far though
 +            l.yview('moveto', top)
 +        sb.set(top, bottom)
 +
