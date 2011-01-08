@@ -94,6 +94,10 @@ class PVConf:
         return len(self.units) - 1
 
     nvalues = property(fget=_get_nvalues)
+    
+    def ox_views(self, window):
+        """return all experiment views for this window"""  
+        return [ox.views[window] for ox in self.open_experiments if window in ox.views]
 
     def set_x_values(self, index):
         self.x_values = index
@@ -175,6 +179,7 @@ class OpenExperiment:
         self.file = ex_file
         self.views = { window: ExperimentView(self, window) }   # it could one day be possible to display an OpenExperiment
                                                                 # simultaneously in different windows, in different colors, ...
+                                                                # FIXME: only one view per window is possible right now
 
         self.values = zip(*ex_file.load_values())
         self.metadata = ex_file.load_metadata()

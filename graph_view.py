@@ -34,7 +34,7 @@ class XYPlot(Canvas):
         conf = self.window.conf
         self.lines[view][index] = \
             self.data_line(view.ox.values[conf.x_values], view.ox.values[index],
-                           x_upd=conf.values_upd[conf.x_values], y_upd=conf.values_upd[index], fill=view.colors[index])
+                           x_upd=self.upds[conf.x_values], y_upd=self.upds[index], fill=view.colors[index])
 
     def remove_line(self, view, index):
         # delete the line that has been plotted for the values at index and loose track of it
@@ -43,17 +43,18 @@ class XYPlot(Canvas):
 
     def ox_update(self, conf):
 
-        scales_reset = False                        # reset the scales only once; False -> not yet done
+        scales_reset = False                                    # reset the scales only once; False -> not yet done
 
-        for ox in conf.open_experiments:           
-            view = ox.views[self.window]
-            if view not in self.lines:              # find added experiments, add our view_listener and call it once to display them
+        for view in conf.ox_views(self.window):
+            if view not in self.lines:                          # find added experiments, add our view_listener and call it once to display them
                 if not scales_reset:
                     scales_reset = True
-                    conf.reset_scales(self)         # reset scales to a sane default (all data visible)
-                self.upds = conf.values_upd.copy()
-                self.lines[view] = {}               # a dictionary containing all lines we have plotted
-                self.view_update(view)
+                    conf.reset_scales(self)
+                    self.upds = conf.values_upd.copy()
+                if view not in self.lines:                      # if the x-scale has changed, it might have been already added just above
+                                                                # via reset_scales(), which is calling our scale_update() listener
+                    self.lines[view] = {}                       # a dictionary containing all lines we have plotted
+                    self.view_update(view)
                 view.add_listener(self.window.tk_cb(self.view_update))
 
         # from http://effbot.org/zone/python-list.htm:
@@ -70,32 +71,30 @@ class XYPlot(Canvas):
                 del self.lines[view]
 
     def x_update(self, conf):   
-        self.clear()                                    # if we plot against different x_values, we have to start over
-        for ox in conf.open_experiments:           
-            view = ox.views[self.window]
-            self.lines[view] = {}                       # self.lines holds a dictionary containing all lines we have plotted
+        self.clear()                                            # if we plot against different x_values, we have to start over
+        for view in conf.ox_views(self.window):
+            self.lines[view] = {}                               # self.lines holds a dictionary containing all lines we have plotted
             self.view_update(view)
 
     def scale_update(self, conf):
         for i in self.upds:
             if self.upds[i] != conf.values_upd[i]:
                 self.upds[i] = conf.values_upd[i]
-                if i == conf.x_values:                  # if the x-scale has changed, we have to redraw every single line
+                if i == conf.x_values:                          # if the x-scale has changed, we have to redraw every single line
                     self.clear()
-                    for ox in conf.open_experiments:           
-                        view = ox.views[self.window]
-                        self.lines[view] = {}
+                    for view in conf.ox_views(self.window):     # if this function is called from conf.reset_scales() it might
+                        self.lines[view] = {}                   # _add_ the lines for this view to the self.lines dict here; see ox_update
                         self.view_update(view)
-                    break                               # next - otherwise an y-scale has changed
-                for view in self.lines:                 # FIXME: seems slow
-                    if i in view.y_values:              # redraw only those that are visible
+                    break                                       # next - otherwise an y-scale has changed
+                for view in self.lines:                         # FIXME: seems slow
+                    if i in view.y_values:                      # redraw only those that are visible
                         self.remove_line(view, i)
                         self.add_line(view, i)
 
         self.bbox = conf.bounding_box(self)
         xmin, ymin, xmax, ymax = self.bbox
         # if the bounding box is higher or wider then 1000 times ppd, protect ourselves from performance shame
-        # the tk widget is not very well suited to quickly draw a picture on the screen, at least not on a canvas,
+        # the tk widget is not very well suited to quickly draw arbitrary pixels on the (off-)screen, at least not on a canvas,
         # because each call has to be translated to the corresponding tcl script string...
         # if self.bbox
         if xmax-xmin < 1000 * self.ppd and ymax-ymin < 1000 * self.ppd:
@@ -104,16 +103,17 @@ class XYPlot(Canvas):
         self.config(scrollregion=(xmin, self.height - ymax, xmax, self.height - ymin))
 
     def view_update(self, view):
-        for index in range(view.ox.nvalues + 1):            # loop over all values (indexes)
-            if index == self.window.conf.x_values:          # if the values are used as the x_axis
-                continue                                    # next - otherwise, these are y-values
-            if index not in view.y_values:                  # if the values should not be displayed
-                if index in self.lines[view]:               # but are currently visible
-                    self.remove_line(view, index)           # hide them
-                continue                                    # next - otherwise these values ARE supposed to be visible
-            if index not in self.lines[view]:               # if the values are currently not visible
-                self.add_line(view, index)                  # display them
-                continue                                    # next - otherwise these values ARE supposed to be and WERE already visible
+        for index in range(view.ox.nvalues + 1):                # loop over all values (indexes)
+            if index == self.window.conf.x_values:              # if the values are used as the x_axis
+                continue                                        # next - otherwise, these are y-values
+            if index not in view.y_values:                      # if the values should not be displayed
+                if index in self.lines[view]:                   # but are currently visible
+                    self.remove_line(view, index)               # hide them
+                continue                                        # next - otherwise these values ARE supposed to be visible
+            if index not in self.lines[view]:                   # if the values are currently not visible
+                self.add_line(view, index)                      # display them
+                continue                                        # next - otherwise these values ARE supposed to be and WERE already visible
+
             if self.itemcget(self.lines[view][index], "fill") != view.colors[index]:    # if the color has changed
                 self.itemconfig(self.lines[view][index], fill=view.colors[index])       # change the color
 
