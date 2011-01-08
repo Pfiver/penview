@@ -6,11 +6,28 @@ from threading import Event
 from functools import partial
 from tkColorChooser import askcolor
 
+# aaaw
+#
+# Mac OS/X hack to make tkk.Notebook work - check the SRS for d
+#
+# Burnt about 8 man-hours. We wanted to make this work by any means.
+# After we found the (presumeably) right libtile binary (OS/X .dylib, "universal" - e.g. intel and ppc) inside this .dmg here:
+# http://downloads.activestate.com/ActiveTcl/releases/8.4.19.4/ActiveTcl8.4.19.4.292682-macosx-universal-threaded.dmg,
+# the tcl interpreter would initially still not be happy, even though the binary was in the TILE_LIBRARY
+# path. At that point we were about to give up. It took some mailing-lists browsing again until I finally
+# realized that the interpreter was probably looking for and would load a .tcl script first, which would
+# then (amongst other things) in turn load the binary library. And that turned out to be true. After copying
+# the .tcl scripts from the .dmg into the TILE_LIBRARY path as well, the interpreter was finally happy.
+# /We/ were still not /that/ happy, since we found out that OS/X ignored the Button(bgcolor=) attribute.
+# But we found a fix for that in less than 2 hours (see below in add_tab()) 
+#
 import platform
 if platform.system() == 'Darwin':
     import os
     os.environ['TILE_LIBRARY'] = os.path.join(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'lib'), 'tile0.8.3')
 from lib.ttk import Notebook
+#
+# aaaw off
 
 from model import *
 
@@ -50,6 +67,7 @@ class TabRegion(Frame):
         window.after_idle(self.mapped.set)
 
     def ox_update(self, conf):
+        "PVConf.ox_listener callback function"
         # clear the mapped Event (used by config_handler())
         # as we are going to add and resize some elements now
         self.mapped.clear()
@@ -76,12 +94,15 @@ class TabRegion(Frame):
         # TODO: now the size of the XYPlot might have changed - (how) is this recognized ?
 
     def view_update(self, view):
+        "ExperimentView.listener callback function"
         tab = self.tabs[view.ox]
         for i in range(view.ox.nvalues + 1):
-#            tab.valueboxes[i]....
+            # tab.valueboxes[i]....
+            # ...probably don't need to be updated as long as the visibility can't be changed anywhere else except by this class 
             tab.colorbuttons[i].image.config(foreground=view.colors[i])
 
     def viewmode_update(self, conf):
+        "PVConf.viewmode_listener callback function"
         if conf.viewmode == ViewMode.graph:
             self.graph_button.config(relief=SUNKEN)
             self.table_button.config(relief=RAISED)
@@ -90,15 +111,18 @@ class TabRegion(Frame):
             self.graph_button.config(relief=RAISED)
 
     def choose_color(self, view, i):
+        "color chooser buttons 'action=' event handler"
         view.set_color(i, askcolor()[1])
 
     def choose_values(self, view, i, v, *ign):
+        "valueboxes checkboxes 'action=' event handler"
         if v.get():
             view.add_y_values(i)
         else:
             view.remove_y_values(i)
 
     def add_tab(self, ox):
+        "tab setup"
         tab = Frame(self.notebook_region)
         tab.valueboxes = {}
         tab.colorbuttons = {}
@@ -140,7 +164,6 @@ class TabRegion(Frame):
 
         # get notified on resize
         tab.bind("<Configure>", self.config_handler)
-#        tab.bind("<Map>", self.map_handler)
         tab.grid_columnconfigure(0, weight=1)
         tab.pack(side=TOP)
 
@@ -150,16 +173,13 @@ class TabRegion(Frame):
         self.notebook_region.select(tab)
 
     def config_handler(self, event):
-        # FIXME: see comment in ox_update()
+        "tab region resize event handler"
         if not self.mapped.is_set():        # react only to user input events and not those
             return                          # which occur during the gui elements lay-ont (window mapping) phase already
 
+        # wrap the info labels
         for tab in self.tabs.values():
             tab.label.configure(wraplength=event.width)
-
-#    # waiting for <Map> events instead of using tk.after_idle() doesn't solve the problem described in ox_update() either
-#    def map_handler(self, event):
-#        print event
 
     @staticmethod
     def get_details_text(ox):

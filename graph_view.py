@@ -10,7 +10,9 @@ class XYPlot(Canvas):
     "a custom canvas to display xy-plots"
 
     def __init__(self, parent, window, width, height):
-        Canvas.__init__(self, parent, width=width, height=height, bg="#eef")
+        
+        self.canvas_color = "#eef"
+        Canvas.__init__(self, parent, width=width, height=height, bg=self.canvas_color)
 
         self.window = window
         self.width, self.height = width, height
@@ -27,22 +29,24 @@ class XYPlot(Canvas):
         window.conf.add_scale_listener(window.tk_cb(self.scale_update))
 
     def add_line(self, view, index):
-        # plot a line for the values at index, against view.x_values and keep track of it
-        #  color is determined by the view
-        #  values_upd is determined by the conf
-        #  values are taken from the experiment associated with the view
+        """
+        plot a line for the values at index, against view.x_values and keep track of it
+         color is determined by the view
+         values_upd is determined by the conf
+         values are taken from the experiment associated with the view
+        """
         conf = self.window.conf
         self.lines[view][index] = \
             self.data_line(view.ox.values[conf.x_values], view.ox.values[index],
-                           x_upd=self.upds[conf.x_values], y_upd=self.upds[index], fill=view.colors[index])
+                           x_upd=conf.values_upd[conf.x_values], y_upd=conf.values_upd[index], fill=view.colors[index])
 
     def remove_line(self, view, index):
-        # delete the line that has been plotted for the values at index and loose track of it
+        "delete the line that has been plotted for the values at index and loose track of it"
         self.delete(self.lines[view][index])
         del self.lines[view][index]
 
     def ox_update(self, conf):
-
+        "PVConf.ox_listener callback function"
         scales_reset = False                                    # reset the scales only once; False -> not yet done
 
         for view in conf.ox_views(self.window):
@@ -70,13 +74,15 @@ class XYPlot(Canvas):
                     self.delete(self.lines[view][index])
                 del self.lines[view]
 
-    def x_update(self, conf):   
+    def x_update(self, conf):
+        "PVConf.x_listener callback (stub)"
         self.clear()                                            # if we plot against different x_values, we have to start over
         for view in conf.ox_views(self.window):
             self.lines[view] = {}                               # self.lines holds a dictionary containing all lines we have plotted
             self.view_update(view)
 
     def scale_update(self, conf):
+        "PVConf.scale_listener callback"
         for i in self.upds:
             if self.upds[i] != conf.values_upd[i]:
                 self.upds[i] = conf.values_upd[i]
@@ -103,6 +109,7 @@ class XYPlot(Canvas):
         self.config(scrollregion=(xmin, self.height - ymax, xmax, self.height - ymin))
 
     def view_update(self, view):
+        "ExperimentView.listener callback"
         for index in range(view.ox.nvalues + 1):                # loop over all values (indexes)
             if index == self.window.conf.x_values:              # if the values are used as the x_axis
                 continue                                        # next - otherwise, these are y-values
@@ -118,6 +125,7 @@ class XYPlot(Canvas):
                 self.itemconfig(self.lines[view][index], fill=view.colors[index])       # change the color
 
     def clear(self):
+        "remove all lines from the canvas and empty the self.lines dictionary"
         for view in self.lines.keys():
             for index in self.lines[view]:
                 self.delete(self.lines[view][index])
@@ -145,6 +153,10 @@ class XYPlot(Canvas):
         return self.draw_line(izip((xscale(x) for x in xlist), (yscale(y) for y in ylist)), **kwargs)
 
     def _draw_axes(self, color, grid_color):
+        """"
+        a generator which draws all lines related to the axes and yields their references
+            draws the axes so they fill the current self.bbox
+        """
         xmin, ymin, xmax, ymax = (self.ppd * (v // self.ppd) for v in self.bbox)
         xmax += self.ppd
         ymax += self.ppd
@@ -161,10 +173,13 @@ class XYPlot(Canvas):
         yield self.draw_line(((0, ymin), (0, ymax)), width=1, fill=color)
 
     def redraw_axes(self, color="black", grid_color="gray"):
+        "remove and redraw all lines related to the axes on the canvas"
         map(self.delete, self.axlines)
         self.axlines = tuple(self._draw_axes(color, grid_color))
 
 class PlotControls(Frame):
+    "The frame which holds all the scale adjust spinboxes as well as the x-axe chooser below the plot region"
+    
     def __init__(self, parent, window):
         Frame.__init__(self, parent)
 
@@ -183,30 +198,37 @@ class PlotControls(Frame):
         window.conf.add_scale_listener(window.tk_cb(self.scale_update))
 
     def ox_update(self, conf):
+        "PVConf.ox_listener callback function"
         if len(conf.open_experiments):
             self.update_controls(conf)
 
     def scale_update(self, conf):
+        "PVConf.scale_listener callback function"
         if self.iscale:
             return
         for i in conf.values_upd:
             self.scalers[i].delete(0, len(self.scalers[i].get()))
             self.scalers[i].insert(0, conf.values_upd[i])
 
-    def sb_handler(self, i, *ign):
+    def sb_handler(self, i, *event):
+        "scalers spinboxes 'action=' and '<KeyRelease>' event handler"
         try:
             scale = float(self.scalers[i].get())
         except:
             return
         if scale == 0:
             scale = 0.001
-            self.scalers[i].delete(0, len(self.scalers[i].get()))
-            self.scalers[i].insert(0, scale)
+            # don't interfere if somebody is typing in a value like "0.5"
+            # (type "3" is KeyRelease, see http://infohost.nmt.edu/tcc/help/pubs/tkinter/events.html#event-types)
+            if not (len(event) > 0 and event[0].type == "3"):
+                self.scalers[i].delete(0, len(self.scalers[i].get()))
+                self.scalers[i].insert(0, scale)
         self.iscale = True
         self.window.conf.set_scale(i, scale)
         self.iscale = False
 
     def sw_handler(self, i, event):
+        "scalers spinboxes scrollwheel event handler"
         scale = self.window.conf.values_upd[i]
         inc = self.scalers[i].config("increment")[4]
         scale += {4: inc, 5: -inc}[event.num]                   # button 4 => up; button 5 => down
@@ -220,10 +242,13 @@ class PlotControls(Frame):
         self.iscale = False
 
     def xv_handler(self, *ignored):
+        "PVConf.x_listener callback (stub)"
         print "x"
 
     def update_controls(self, conf):
-        # controls_region setup - keep pack()ing order !
+        "controls_region setup"
+
+        # don't change the pack()ing order in this function
 
         # dispose old controls
         for l in self.labels.values(): l.pack_forget()           # FIXME: we should reuse those widgets - shouldn't we ?
@@ -280,6 +305,8 @@ class PlotControls(Frame):
         self.window.tk.update_idletasks()
 
 class ScrollRegion(Frame):
+    "A Frame which can wrap another (child) widget and scroll it"
+
     def __init__(self, parent):
         Frame.__init__(self, parent)
         self.grid_columnconfigure(0, weight=1)

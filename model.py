@@ -69,35 +69,23 @@ class PVConf:
         for update in self.ox_listeners: update(self)
 
     def _update_extremes(self):
-
-        experiments = self.open_experiments
+        "find the extremes (minima and maxima) in all currently open experiments values"
 
         self.min_values = []
         self.max_values = []
+
         for i in range(self.nvalues + 1):
-            imin = None
-            imax = None
-            for j in range(len(experiments)):
-                if i < len(experiments[j].values):
-                    jmin = min(experiments[j].values[i])
-                    jmax = max(experiments[j].values[i])
-                    if not imin or jmin < imin:
-                        imin = jmin
-                    if not imax or jmax > imax:
-                        imax = jmax
+            imin = imax = None
+            for ox in self.open_experiments:
+                if i < ox.nvalues + 1:
+                    ixmin = min(ox.values[i])
+                    ixmax = max(ox.values[i])
+                    if not imin or ixmin < imin:
+                        imin = ixmin
+                    if not imax or ixmax > imax:
+                        imax = ixmax
             self.min_values.insert(i, imin)
             self.max_values.insert(i, imax)
-
-    # we should use properties more often, they're cool
-    #
-    def _get_nvalues(self):
-        return len(self.units) - 1
-
-    nvalues = property(fget=_get_nvalues)
-    
-    def ox_views(self, window):
-        """return all experiment views for this window"""  
-        return [ox.views[window] for ox in self.open_experiments if window in ox.views]
 
     def set_x_values(self, index):
         self.x_values = index
@@ -126,17 +114,34 @@ class PVConf:
     def add_viewmode_listener(self, update):	# table <> plot switch helper
         self.viewmode_listeners.append(update)
 
+    # we should use properties more often, they're cool
+    #
+    def _get_nvalues(self):
+        return len(self.units) - 1
+
+    nvalues = property(fget=_get_nvalues)
+    
+    def ox_views(self, window):
+        """return all experiment views for this window"""  
+        return [ox.views[window] for ox in self.open_experiments if window in ox.views]
+
     def reset_scales(self, plot):
+        "reset the scales to a sane default and notify all listeners afterwards"
         for i, scale in enumerate(self.default_scales(plot)):
             self.values_upd[i] = scale
         for update in self.scale_listeners:
             update(self)
 
-    # FIXME !!!
-    def default_scales(self, plot):            # FIXME !!!
+    def default_scales(self, plot):
         "calculate scales such that all values fit into the given canvas size"
+        
+        # FIXME:
+        #  so far we use "method 1" all the time only
+        #  we should do this properly before handing in our work
+        #  otherwise somebody might one day realize that we bluffed a bit in our presentation... ;-)
 
-        # whatever the reason might be why we're forced to use "- 4" here...
+        # whatever the reason might be, why we're forced to use "- 4" here, I'd love to know it, but for now... 
+
         ppd, width, height = plot.ppd, plot.winfo_width() - 4, plot.winfo_height() - 4
 
         maxranges = [self.max_values[i] - self.min_values[i] for i in range(self.nvalues + 1)]
@@ -230,13 +235,22 @@ class ExperimentView:
 
         self.listeners = []
         self.y_values = set(range(1, ox.nvalues + 1))           # list of indices of values visible on y-axis
-        self.colors = self.random_colors(ox.nvalues + 1, 128)
+
+        existing_colors = [[ v>>8 for v in window.tk.winfo_rgb(window.data_region.xy_plot.canvas_color) ]]
+        for view in window.conf.ox_views(window):
+            existing_colors += [[ v>>8 for v in window.tk.winfo_rgb(color) ] for color in view.colors ]
+
+        self.colors = self.random_colors(ox.nvalues + 1, 128, existing_colors)
 
     @staticmethod
-    def random_colors(ncolors, min_distance):
+    def random_colors(ncolors, min_distance, existing=[]):
+        """
+        find a return a number (ncolors) of random colors
+        having a minimum 'vectorial distance' of min_distance to each other as well as existing_colors
+        """
 
         colors = []
-        ntries = 3 * ncolors
+        ntries = 3 * (ncolors + len(existing))
 
         get_one = lambda: \
             (randint(0, 255), randint(0, 255), randint(0, 255))
@@ -248,13 +262,13 @@ class ExperimentView:
         for i in range(ncolors):
             # loop until...
             while True:
-                # try 3 * ncolors times
+                # try 3 * (ncolors + len(existing)) times
                 for j in range(ntries):
                     new = get_one()
                     # check if the distance from every other color exceeds the minimum distance
-                    for existing in colors:
+                    for old in colors + existing:
                         # if not, try again
-                        if distance(new, existing) < min_distance:
+                        if distance(new, old) < min_distance:
                             # set new = None, so in case this is the last of ntries tries at that min_distance
                             # the outer loop can detect the failure
                             new = None
@@ -265,8 +279,8 @@ class ExperimentView:
                 # this function never fails, so if a suitable color is
                 # still not found, decrease min_distance (permanently, for the current function call)
                 # eventually, this could decrease to zero, in which case distance() CAN'T be smaller any more
-                debug("no suitable random color found after %d tries - decreasing min_distance" % ntries)
                 min_distance /= 2
+                debug("no suitable random color found after %d tries - decreased min_distance to %d" % (ntries, min_distance))
             colors.append(new)
 
         return ["#%02x%02x%02x" % c for c in colors]

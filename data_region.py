@@ -18,8 +18,10 @@ class DataRegion(Frame):
         self.plot_region = ScrollRegion(self)
 
         self.xy_plot = XYPlot(self.plot_region, window, 800, 600)
+        
+        ## just pack the XYPlot (into the scroll region) here and notify the scroll region of its child
+        ## all other elements are packed in show_plot() and show_table()
         self.xy_plot.pack(fill=BOTH, expand=1)
-
         self.plot_region.scroll_child(self.xy_plot)
 
         # set up the table view
@@ -30,12 +32,6 @@ class DataRegion(Frame):
         #
         window.conf.add_viewmode_listener(window.tk_cb(self.viewmode_update))
 
-    def show_table(self):
-        self.plot_region.pack_forget()          # FIXME: on the first call the widgets are actually not yet packed
-        self.controls_region.pack_forget()
-
-        self.table_region.pack(fill=BOTH, expand=YES)
-
     def show_plot(self):
         self.table_region.pack_forget()          # FIXME: on the first call the widget is actually not yet packed
 
@@ -44,6 +40,12 @@ class DataRegion(Frame):
         #
         self.controls_region.pack(side=BOTTOM, fill=X, expand=0)
         self.plot_region.pack(fill=BOTH, expand=1)
+
+    def show_table(self):
+        self.plot_region.pack_forget()          # FIXME: on the first call the widgets are actually not yet packed
+        self.controls_region.pack_forget()
+
+        self.table_region.pack(fill=BOTH, expand=YES)
 
     def viewmode_update(self, conf):
         if conf.viewmode == ViewMode.graph:

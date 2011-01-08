@@ -24,8 +24,8 @@ class PVWindow:
         # the root widget
         self.tk = Tk()
 
-        self.tk.minsize(800, 600)
         self.tk.title(app_name)
+        self.tk.minsize(800, 600)
         self.tk.protocol("WM_DELETE_WINDOW", lambda: self.do(PVAction.quit_app))
 
         # top-level widget
