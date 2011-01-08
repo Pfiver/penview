@@ -40,8 +40,8 @@ class PVTable(Frame):
                     if i <= ox.nvalues and row < len(ox.values[i]):
                         data.append(ox.values[i][row])
                     else:
-                        data.append(None)
-            if not filter(lambda x: x != None, data):
+                        data.append("")
+            if not filter(lambda x: x != "", data):
                 break
             self.mlb.insert(END, data)
             row +=1
