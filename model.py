@@ -208,7 +208,7 @@ class OpenExperiment:
                                                                 # FIXME: only one view per window is possible right now
 
         vals = ex_file.load_values()                            # the experment data, organized in a "column-array"
-        if vals[0][0] == '':                                    # if there are no time values
+        if not vals[0][0]:                                      # if there are no time values (the array is filled with "None" in that case)
             self.time = False                                   # record that fact and
             self.values = [range(len(vals))]                    # fill in a continuous range of ints instead
             self.values += zip(*(r[1:] for r in vals))          # so the data can still be plotted against those

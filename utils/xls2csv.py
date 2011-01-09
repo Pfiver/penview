@@ -69,8 +69,6 @@ if __name__ == "__main__":
     start_ooo()
     from OOoLib import *
 
-    for file in files:
-	print "converting %s" % file
-	xls2csv(file)
+    map(xls2csv, files)
 
     StarDesktop.terminate()
