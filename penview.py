@@ -40,7 +40,7 @@ app_name = "PenView"
 app_version = "1.0-rc3"
 
 # debug infrastructure
-#  FIXME: next time use "logging" module
+#  FIXME: next time use the "logging" module
 #
 debug_flag = False
 

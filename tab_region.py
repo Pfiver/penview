@@ -65,6 +65,16 @@ class TabRegion(Frame):
         #  TODO: this statement also has to be watched closely
         #  same situation as with PVWindow.run(), "self.conf.set_viewmode(self.conf.viewmode)"
         window.after_idle(self.mapped.set)
+                                              
+    cb_w = cb_h = 10                                # color-chooser button width & height
+
+    # http://en.wikipedia.org/wiki/X_BitMap:
+    #  ... a single bit represents each pixel (black or white) ...
+    #  ... If the image width does not match a multiple of 8,
+    #  the display mechanism ignores and discards the extra bits in the last byte of each row. ...
+    cb_x = 0 if cb_w // 8 == cb_w / 8.0 else 8
+    bitmap_data = "#define im_width %d\n#define im_height %d\n" % (cb_w, cb_h)
+    bitmap_data += "static char im_bits[] = {\n" + ",".join("255" for i in range((cb_w+cb_x)/8*cb_h)) + "\n};"
 
     def ox_update(self, conf):
         "PVConf.ox_listener callback function"
@@ -128,9 +138,9 @@ class TabRegion(Frame):
         tab.colorbuttons = {}
 
         # Display Experiment Name
-        exp_name = Label(tab, text=ox.get_exp_name(), font=13, justify=LEFT)
-        exp_name.grid(row=0, columnspan=2, sticky=W)
-        tab.exp_name = exp_name
+        label = Label(tab, text=ox.get_exp_name(), font=13, justify=LEFT, wraplength=300)
+        label.grid(row=0, columnspan=2, sticky=W)
+        tab.name_label = label
 
         for i in range(ox.nvalues + 1):
             view = ox.views[self.window]
@@ -139,7 +149,7 @@ class TabRegion(Frame):
             # Display Selection Checkboxes
             v = BooleanVar(value=i in [self.window.conf.x_values] + list(view.y_values))
             v.trace("w", partial(self.choose_values, view, i, v))
-            box = Checkbutton(tab, text=ox.get_desc(i), variable=v, state=state)
+            box = Checkbutton(tab, text="%s (%s)" % (ox.get_desc(i), ox.get_units(i)), variable=v, state=state)
             box.grid(row=i+1, column=0, sticky=W)
             tab.valueboxes[i] = box
 
@@ -148,19 +158,16 @@ class TabRegion(Frame):
             #  -> for mac's aqua surface, we need a real pixmap because the button ignores all background="color" options
             # allways keep a reference to some the BitmapImage because if you don't,
             # the BitmapImage object will be reaped by the garbage collector and the button doesn't work
-            w = h = 10
-            BITMAP = "#define im_width %d\n#define im_height %d\n" % (w, h)
-            BITMAP += "static char im_bits[] = {\n" + ",".join("255" for i in range(w*h/8+8)) + "\n};\n"
-            bi = BitmapImage(data=BITMAP, foreground=view.colors[i])
-            button = Button(tab, image=bi, width=10, height=10, command=partial(self.choose_color, view, i), state=state)
+            bi = BitmapImage(data=self.bitmap_data, foreground=view.colors[i])
+            button = Button(tab, image=bi, command=partial(self.choose_color, view, i), state=state)
             button.grid(row=i+1, column=1, padx=4, pady=4)
             tab.colorbuttons[i] = button
             button.image = bi
 
         # Additional Info Label
-        label = Label(tab, text=self.get_details_text(ox), justify=LEFT)
+        label = Label(tab, text=self.get_details_text(ox), justify=LEFT, wraplength=300)
         label.grid(columnspan=2, sticky=W)
-        tab.label = label
+        tab.info_label = label
 
         # get notified on resize
         tab.bind("<Configure>", self.config_handler)
@@ -179,7 +186,8 @@ class TabRegion(Frame):
 
         # wrap the info labels
         for tab in self.tabs.values():
-            tab.label.configure(wraplength=event.width)
+            tab.name_label.configure(wraplength=event.width)
+            tab.info_label.configure(wraplength=event.width)
 
     @staticmethod
     def get_details_text(ox):

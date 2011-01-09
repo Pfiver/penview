@@ -21,12 +21,10 @@ class Dialog:
 
     xi = count()
     examples = (
-                'tests/sample-data/Eigenfrequenz (Chaos2).sqlite',            # 
-
-                'tests/sample-data/Chaotische Schwingung (Chaos4).sqlite',            # two "compatible" experiments
-                'tests/sample-data/Doppelte nicht- Chaotische Schwingung (Chaos3.6).sqlite',	# with one measurment series
-
-                'tests/sample-data/Gedämpfte Schwingung mit Magnet 1mm.sqlite',			# one without time values
+#                'tests/sample-data/Eigenfrequenz (Chaos2).sqlite',                              # a small series in rad 
+#                'tests/sample-data/Chaotische Schwingung (Chaos4).sqlite',                      # a bigger series in rad
+#                'tests/sample-data/Doppelte nicht- Chaotische Schwingung (Chaos3.6).sqlite',    # and an even bigger one, also rad
+#                'tests/sample-data/Gedämpfte Schwingung mit Magnet 1mm.sqlite',			     # 2 series, no time values
     )
 
     @classmethod

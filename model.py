@@ -15,7 +15,6 @@ from graph_view import XYPlot
 #  each ExperimentView has ONE associated PVWindow
 
 class PVConf:
-
     """
     this is the central configuration data structure
 
@@ -42,15 +41,17 @@ class PVConf:
         self.x_values = 0               # index of the values currently used for the x-axis
         self.x_listeners = []
 
-        self.values_upd = {}            # dict of scaling factors for all values
-        self.scale_listeners = []
+        self.values_upd = {}            # dict of scaling factors for all data series in "units per division"
+        self.scale_listeners = []       # list of registered scale_listeners
 
         self.viewmode = ViewMode.graph  # current viewmode: graph or table
         self.viewmode_listeners = []
 
         self.recent_experiments = []    # list of RecentExperiment objects - maximum size 5, fifo semantics
 
-        self.min_values, self.max_values = [], [] 
+        self.min_values = {}            # dict of minimum/maximum values of all data series,
+        self.max_values = {}            #  THAT ARE VISIBLE in the window associated with this conf
+                                        #  e.g. the _currently relevant_ extremes
 
     def add_open_experiment(self, ox):
 
@@ -63,29 +64,34 @@ class PVConf:
                                 "The units are not matching those of the other already opened experiment%s." % s)
 
         self.open_experiments.append(ox)
-
-        self._update_extremes()
-
         for update in self.ox_listeners: update(self)
 
-    def _update_extremes(self):
-        "find the extremes (minima and maxima) in all currently open experiments values"
+    def _update_extremes(self, window):
+        """
+        find the extremes (minima and maxima) in all currently open experiments values, visible in the specified window
+        e.g. the _currently relevant_ extremes
+        """
 
-        self.min_values = []
-        self.max_values = []
+        self.min_values = {}                                                # reset the min/max dicts
+        self.max_values = {}
 
-        for i in range(self.nvalues + 1):
-            imin = imax = None
-            for ox in self.open_experiments:
-                if i < ox.nvalues + 1:
-                    ixmin = min(ox.values[i])
-                    ixmax = max(ox.values[i])
-                    if not imin or ixmin < imin:
-                        imin = ixmin
-                    if not imax or ixmax > imax:
-                        imax = ixmax
-            self.min_values.insert(i, imin)
-            self.max_values.insert(i, imax)
+        def xupdate(i, min_, max_):                                         # helper function to update the self.min/max_values 
+            if i not in self.min_values or min_ < self.min_values[i]:
+                self.min_values[i] = min_
+            if i not in self.max_values or max_ > self.max_values[i]:
+                self.max_values[i] = max_
+
+        for view in self.ox_views(window):                                  # for each ExperimentView associated with this window
+            if not view.y_values:                                           # if there are no visible values
+                continue                                                    # next - otherwise 
+
+            maxlen = max(len(view.ox.values[i]) for i in view.y_values)     # maximum nr of elements of currently visible y-values
+            min_ = min(view.ox.values[self.x_values][:maxlen])              # find the min/maximum x-value, USED by a currently visible y-value
+            max_ = max(view.ox.values[self.x_values][:maxlen])
+            xupdate(self.x_values, min_, max_)                              # update the extremes 
+
+            for i in view.y_values:                                         # for all visible y- values
+                xupdate(i, view.ox.min_values[i], view.ox.max_values[i])    # update the extremes using the precomputed min/max_values
 
     def set_x_values(self, index):
         self.x_values = index
@@ -133,39 +139,54 @@ class PVConf:
             update(self)
 
     def default_scales(self, plot):
-        "calculate scales such that all values fit into the given canvas size"
-        
+        """
+        calculate scales such that all values fit into the given canvas size
+        e.g. more or less the opposite of what bounding_box() does
+        """
+
+        # FIXME:
+        #  in case the exactly same set of values are still plotted, this call is superfluous
+        #  what should be done, really, would be to add a ExperimentView.listener for each experiment in this con
+        #  and then make this call from that listener....
+        self._update_extremes(plot.window)
+
+        # the set of all y-values currently plotted for any experiment  
+        y_values = reduce(lambda a,b:a|b, (view.y_values for view in self.ox_views(plot.window)))
+
+        # the maximum value ranges in x- and y- direction
+        xmaxrange = self.max_values[self.x_values] - self.min_values[self.x_values]
+        ymaxrange = max(self.max_values[i] - self.min_values[i] for i in y_values)
+
         # FIXME:
         #  so far we use "method 1" all the time only
         #  we should do this properly before handing in our work
         #  otherwise somebody might one day realize that we bluffed a bit in our presentation... ;-)
 
-        # whatever the reason might be, why we're forced to use "- 4" here, I'd love to know it, but for now... 
+        # FIXME:
+        #  whatever the reason might be, that "- 4" is needed here: I'd love to know it, but for now...
 
-        ppd, width, height = plot.ppd, plot.winfo_width() - 4, plot.winfo_height() - 4
-
-        maxranges = [self.max_values[i] - self.min_values[i] for i in range(self.nvalues + 1)]
-
-        xmaxrange = maxranges[0]
-        ymaxrange = max(maxranges[1:])
-
-        yield xmaxrange * ppd / float(width)
+        yield xmaxrange * plot.ppd / float(plot.winfo_width() - 4)
         for i in range(1, self.nvalues + 1):
-            yield ymaxrange * ppd / float(height)
+            yield ymaxrange * plot.ppd / float(plot.winfo_height() - 4)
 
     def bounding_box(self, plot):
-        "calculate the required canvas size to make all values fit into it with the current scales"
+        """
+        calculate the required canvas size to make all values fit into it with the current scales
+        e.g. more or less the opposite of what default_scales() does
+        """
 
-        xmin = self.min_values[0]
-        xmax = self.max_values[0]
-        ymin = min(self.min_values[1:])
-        ymax = max(self.max_values[1:])
+        # the set of all y-values currently plotted for any experiment
+        y_values = reduce(lambda a,b:a|b, (view.y_values for view in self.ox_views(plot.window)))
+        
+        # the left and right border of the bounding box in "divisions"
+        xmin = self.min_values[self.x_values] / self.values_upd[self.x_values]
+        xmax = self.max_values[self.x_values] / self.values_upd[self.x_values]
 
-        xmin = xmin / self.values_upd[0]
-        xmax = xmax / self.values_upd[0]
-        ymin = max(ymin / self.values_upd[i] for i in range(1, self.nvalues + 1))
-        ymax = max(ymax / self.values_upd[i] for i in range(1, self.nvalues + 1))
+        # the lower and upper border of the bounding box in "divisions"
+        ymin = min(self.min_values[i] / self.values_upd[i] for i in y_values)
+        ymax = max(self.max_values[i] / self.values_upd[i] for i in y_values)
 
+        # the bounding box in "pixels"
         return [int(v * plot.ppd) for v in (xmin, ymin, xmax, ymax)]
 
 class OpenExperiment:
@@ -186,36 +207,50 @@ class OpenExperiment:
                                                                 # simultaneously in different windows, in different colors, ...
                                                                 # FIXME: only one view per window is possible right now
 
-        self.values = zip(*ex_file.load_values())
+        vals = ex_file.load_values()                            # the experment data, organized in a "column-array"
+        if vals[0][0] == '':                                    # if there are no time values
+            self.time = False                                   # record that fact and
+            self.values = [range(len(vals))]                    # fill in a continuous range of ints instead
+            self.values += zip(*(r[1:] for r in vals))          # so the data can still be plotted against those
+        else:
+            self.time = True                                    # if the time values are there, it's simple
+            self.values = zip(*vals)                            # just transpose the loaded values array
+
         self.metadata = ex_file.load_metadata()
+        
+        self.min_values = map(min, self.values)                 # static lists of extremes of each data series
+        self.max_values = map(max, self.values)
 
     def get_additional_info(self):
+        "return any additional info"
         additional_info = self.metadata['additional_info']
         return additional_info
 
     def get_actor_name(self):
-        """return actor_name from metadata-table"""
+        "return actor_name from metadata-table"
         actor_name = self.metadata['actor_name']
         return actor_name
 
     def get_date(self):
-        """return date unformatted from metadata-table"""
+        "return date unformatted from metadata-table"
         date = self.metadata['date']
         return date
     
     def get_exp_name(self):
+        "return the experiment name"
         exp_name = self.metadata['exp_name']
         return exp_name
 
     def get_desc(self, n):
-        """return vn_desc"""
+        "return vn_desc"
         if n == 0:
-            return "Zeit"
+            return "Zeit" if self.time else "Messung"
         return self.metadata['v' + str(n) + '_desc']
 
     def get_units(self, n):
+        "return vn_unit"
         if n == 0:
-            return "s"
+            return "s" if self.time else "n"
         return self.metadata['v' + str(n) + '_unit']
 
     # simplified access to self.file.nvalues without copying it

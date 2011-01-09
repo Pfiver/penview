@@ -15,15 +15,21 @@ class XYPlot(Canvas):
         Canvas.__init__(self, parent, width=width, height=height, bg=self.canvas_color)
 
         self.window = window
-        self.width, self.height = width, height
+        self.width, self.height = width, height     # The original with and height - this is a static variable
+                                                    # It is used by ScrollRegion to initially set the "scrollregion=" of this Canvas
+                                                    # The original _height is _also used later on for all coordinate system translations
 
-        self.upd = 1                                # units per division
-        self.ppd = 100                              # pixel per division
+                                                    # When resizing the window, the original XYPlot Canvas is never destroyed.
+                                                    # It is automatically resized by the pack()er (expand=YES, fill=BOTH) and
+                                                    # the original (0,0) coordinates always stay where they are.
+                                                    # This is also where the axes are allways plotted.
 
-        self.upds = {}
+        self.ppd = 100                              # pixels per division
+
+        self.upds = {}                              # the units per divisions we originally used to plot all self.lines
         self.lines = {}                             # this is a dict of dicts to which the keys are an ExperimentView and a values index
 
-        self.axlines = ()
+        self.axlines = ()                           # a tuple lst of all axis related lines currently visible on the canvas 
 
         window.conf.add_ox_listener(window.tk_cb(self.ox_update))
         window.conf.add_scale_listener(window.tk_cb(self.scale_update))
@@ -252,7 +258,7 @@ class PlotControls(Frame):
 
         # dispose old controls
         for l in self.labels.values(): l.pack_forget()           # FIXME: we should reuse those widgets - shouldn't we ?
-        for s in self.scalers.values(): s.pack_forget()          #        but currently I have no time to code the housekeeping logic
+        for s in self.scalers.values(): s.pack_forget()          # ...but it might not be worth the effort to code the housekeeping logic
         if self.xchooser:
             self.xchooser.pack_forget()
 
@@ -265,14 +271,14 @@ class PlotControls(Frame):
             sb.bind("<Button-5>", partial(self.sw_handler, i))
             sb.bind("<KeyRelease>", partial(self.sb_handler, i))
 
-            ul = Label(self, text=conf.units[i]+"/div")
+            ul = Label(self, text=conf.units[i]+" / div ")
             ul.pack(side=LEFT)
             self.labels[i] = ul
 
         # create x-axis controls
         xunits = conf.units[conf.x_values]
 
-        self.labels[0] = Label(self, text=xunits+"/div")
+        self.labels[0] = Label(self, text=xunits+" / div ")
         self.labels[0].pack(side=RIGHT)
 
         sb = Spinbox(self, from_=0, to=99999, width=5, command=partial(self.sb_handler, 0))
