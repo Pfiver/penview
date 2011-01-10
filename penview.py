@@ -40,7 +40,7 @@ app_name = "PenView"
 try:
     app_version = open(".version").read()
 except IOError:
-    app_version = "unknown version (.version file missing)"
+    app_version = "unknown (.version file missing)"
 
 # debug infrastructure
 #  FIXME: next time use the "logging" module

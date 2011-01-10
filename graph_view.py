@@ -212,10 +212,10 @@ class PlotControls(Frame):
     def ox_update(self, conf):
         "PVConf.ox_listener callback function"
         if len(conf.open_experiments):
-            self.update_controls(conf)
+            self._update_controls(conf)
 
         for view in self.window.conf.ox_views(self.window):
-            view.add_listener(self.window.tk_cb(self.update_view))
+            view.add_listener(self.window.tk_cb(self.view_update))
 
 
     def scale_update(self, conf):
@@ -225,6 +225,10 @@ class PlotControls(Frame):
         for i in conf.values_upd:
             self.scalers[i].delete(0, len(self.scalers[i].get()))
             self.scalers[i].insert(0, conf.values_upd[i])
+
+    def view_update(self, view):
+        "ExperimentView.listener callback function"
+        self._update_controls(self.window.conf)
 
     def sb_handler(self, i, *event):
         "scalers spinboxes 'action=' and '<KeyRelease>' event handler"
@@ -260,15 +264,13 @@ class PlotControls(Frame):
         self.iscale = False
 
     def xv_handler(self, v, *ignored):
-        "PVConf.x_listener callback (stub)"
+        "xchooser OptionMenu event handler (StringVar trace function)"
         self.window.conf.set_x_values(self.xchooser.vals[v.get()])
         self.window.do(PVAction.reset_scale)
 
-    def update_view(self, view):
-        self.update_controls(self.window.conf)
-
-    def update_controls(self, conf):
-        "controls_region setup"
+    # private helper function
+    def _update_controls(self, conf):
+        "set up the controls_region"
 
         # don't change the pack()ing order in this function
 
