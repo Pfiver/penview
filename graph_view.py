@@ -312,16 +312,18 @@ class PlotControls(Frame):
         ## x-axis values chooser
         ### dictionary of possible values and their corresponding ox.values index
         vals = {}
+        rvals = {}
         for i in range(min(ox.nvalues for ox in conf.open_experiments) + 1):  # loop i=0 (Time) to minimum nvalues of all open experiments + 1 
             desc = ""
             for vdesc in [ox.get_desc(i) for ox in conf.open_experiments]:
                 if not desc.startswith(vdesc):
                     desc += " (%s)" % vdesc
             vals[vdesc] = i
+            rvals[i] = vdesc                                    # the reverse dictionary to look up the default setting string
 
         ### set up an OptionMenu with a StringVar traced variable
         v = StringVar()                                         # create a StringVar and set its default value
-        v.set(vals.keys()[0])                                   # FIRST set()
+        v.set(rvals[conf.x_values])                             # FIRST set()
         v.trace("w", partial(self.xv_handler, v))               # THEN  trace() - keep the order here!
         self.xchooser = OptionMenu(self, v, *vals.keys())
         self.xchooser.pack(side=RIGHT)

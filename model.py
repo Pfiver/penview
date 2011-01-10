@@ -99,7 +99,7 @@ class PVConf:
         for view in chain(*(ox.views.values() for ox in self.open_experiments)):
             if index in view.y_values:
                 view.remove_y_values(index)
-        view.add_y_values(old_x_values)
+            view.add_y_values(old_x_values)
         for update in self.x_listeners:
             update(self)
 
