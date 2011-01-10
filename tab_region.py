@@ -106,9 +106,12 @@ class TabRegion(Frame):
     def view_update(self, view):
         "ExperimentView.listener callback function"
         tab = self.tabs[view.ox]
+
         for i in range(view.ox.nvalues + 1):
-            # tab.valueboxes[i]....
-            # ...probably don't need to be updated as long as the visibility can't be changed anywhere else except by this class 
+            if i != self.window.conf.x_values:
+                tab.valueboxes[i].config(state=NORMAL)
+            else:
+                tab.valueboxes[i].config(state=DISABLED)
             tab.colorbuttons[i].image.config(foreground=view.colors[i])
 
     def viewmode_update(self, conf):
@@ -148,6 +151,7 @@ class TabRegion(Frame):
 
             # Display Selection Checkboxes
             v = BooleanVar(value=i in [self.window.conf.x_values] + list(view.y_values))
+            v.set(i in set((self.window.conf.x_values,)) | ox.views[self.window].y_values)
             v.trace("w", partial(self.choose_values, view, i, v))
             box = Checkbutton(tab, text="%s (%s)" % (ox.get_desc(i), ox.get_units(i)), variable=v, state=state)
             box.grid(row=i+1, column=0, sticky=W)

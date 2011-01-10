@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 from random import randint
-from itertools import count
+from itertools import chain, count
 
 from penview import *
 from graph_view import XYPlot
@@ -94,7 +94,12 @@ class PVConf:
                 xupdate(i, view.ox.min_values[i], view.ox.max_values[i])    # update the extremes using the precomputed min/max_values
 
     def set_x_values(self, index):
+        old_x_values = self.x_values 
         self.x_values = index
+        for view in chain(*(ox.views.values() for ox in self.open_experiments)):
+            if index in view.y_values:
+                view.remove_y_values(index)
+        view.add_y_values(old_x_values)
         for update in self.x_listeners:
             update(self)
 
@@ -208,7 +213,7 @@ class OpenExperiment:
                                                                 # FIXME: only one view per window is possible right now
 
         vals = ex_file.load_values()                            # the experment data, organized in a "column-array"
-        if not vals[0][0]:                                      # if there are no time values (the array is filled with "None" in that case)
+        if vals[0][0] == None:                                  # if there are no time values
             self.time = False                                   # record that fact and
             self.values = [range(len(vals))]                    # fill in a continuous range of ints instead
             self.values += zip(*(r[1:] for r in vals))          # so the data can still be plotted against those

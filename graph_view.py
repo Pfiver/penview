@@ -32,6 +32,7 @@ class XYPlot(Canvas):
         self.axlines = ()                           # a tuple lst of all axis related lines currently visible on the canvas 
 
         window.conf.add_ox_listener(window.tk_cb(self.ox_update))
+        window.conf.add_x_listener(window.tk_cb(self.x_update))
         window.conf.add_scale_listener(window.tk_cb(self.scale_update))
 
     def add_line(self, view, index):
@@ -247,9 +248,9 @@ class PlotControls(Frame):
         self.window.conf.set_scale(i, scale)
         self.iscale = False
 
-    def xv_handler(self, *ignored):
+    def xv_handler(self, v, *ignored):
         "PVConf.x_listener callback (stub)"
-        print "x"
+        self.window.conf.set_x_values(self.xchooser.vals[v.get()])
 
     def update_controls(self, conf):
         "controls_region setup"
@@ -264,6 +265,7 @@ class PlotControls(Frame):
 
         # create y-axis controls
         for i in range(1, conf.nvalues + 1):
+            ## y-axis scaler
             sb = Spinbox(self, from_=0, to=99999, width=5, command=partial(self.sb_handler, i))
             sb.pack(side=LEFT)
             self.scalers[i] = sb
@@ -271,39 +273,41 @@ class PlotControls(Frame):
             sb.bind("<Button-5>", partial(self.sw_handler, i))
             sb.bind("<KeyRelease>", partial(self.sb_handler, i))
 
+            ## y-axis units label
             ul = Label(self, text=conf.units[i]+" / div ")
             ul.pack(side=LEFT)
             self.labels[i] = ul
 
-        # create x-axis controls
-        xunits = conf.units[conf.x_values]
-
-        self.labels[0] = Label(self, text=xunits+" / div ")
+        # create x-axis controls (starting from the right)
+        ## x-axis units label
+        self.labels[0] = Label(self, text=conf.units[conf.x_values]+" / div ")
         self.labels[0].pack(side=RIGHT)
 
+        ## x-axis scaler
         sb = Spinbox(self, from_=0, to=99999, width=5, command=partial(self.sb_handler, 0))
-        # keep the order here - trace() v AFTER using it for Spinbox()
         sb.pack(side=RIGHT)
         self.scalers[0] = sb
         sb.bind("<Button-4>", partial(self.sw_handler, 0))
         sb.bind("<Button-5>", partial(self.sw_handler, 0))
         sb.bind("<KeyRelease>", partial(self.sb_handler, 0))
 
-        v = StringVar()
-        v.set("Zeit")
-        v.trace("w", partial(self.xv_handler, v))
-        x_values_list = ["Zeit"]
-  
-        for i in range(min([ox.nvalues for ox in conf.open_experiments])):
+        ## x-axis values chooser
+        ### dictionary of possible values and their corresponding ox.values index
+        vals = {}
+        for i in range(min(ox.nvalues for ox in conf.open_experiments) + 1):  # loop i=0 (Time) to minimum nvalues of all open experiments + 1 
             desc = ""
-            for vdesc in [ox.get_desc(i + 1) for ox in conf.open_experiments]:
+            for vdesc in [ox.get_desc(i) for ox in conf.open_experiments]:
                 if not desc.startswith(vdesc):
                     desc += " (%s)" % vdesc
-            x_values_list.append(vdesc)
+            vals[vdesc] = i
 
-        self.xchooser = OptionMenu(self, v, *x_values_list)
-        self.xchooser.v = v
+        ### set up an OptionMenu with a StringVar traced variable
+        v = StringVar()                                         # create a StringVar and set its default value
+        v.set(vals.keys()[0])                                   # FIRST set()
+        v.trace("w", partial(self.xv_handler, v))               # THEN  trace() - keep the order here!
+        self.xchooser = OptionMenu(self, v, *vals.keys())
         self.xchooser.pack(side=RIGHT)
+        self.xchooser.vals = vals                               # keep a reference to the dict created above
 
         # helps !
         #  to make make the xyplot canvas initially be resized properly
