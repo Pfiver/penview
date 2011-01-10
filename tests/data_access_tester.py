@@ -2,14 +2,15 @@
 # encoding: utf-8
 
 #import unittest
-import os
+import os, sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 from data_access import ExperimentFile
 
 class test:
     ## TODO: an unittest anpassen
-    ExperimentFile.debug = 1
-    debug = 1
+    debug = 0
     badtestcount = 0
     goodtestcount = 0
     baderrorcount = 0
@@ -20,7 +21,7 @@ class test:
     dbdestination = dbpath + dbname    
     dbdestination = ':memory:'
        
-    def __init__(self):
+    def run(self):
         self.goodtest()
         self.badtest()
         
@@ -112,14 +113,16 @@ class test:
     
 test1 = test()
 
-if test1.baderrorcount == test1.badtestcount:
-    print "baderror(): OK"
-else:
-    print "baderror(): Panic!"
-    if test1.debug: print "errbuffer: \n" + test1.errbuffer
-    print "bad errorcount == " + str(test1.baderrorcount)
 if test1.gooderrorcount == 0:
-    print "gooderror(): OK"
+    print "goodtest(): OK"
 else:
-    print "gooderror(): Not OK"
-    if test1.debug: print "errbuffer: \n" + test1.errbuffer
+    print "goodtest(): Not OK"
+    if test1.debug:
+        print "errbuffer: \n" + test1.errbuffer
+
+if test1.baderrorcount == test1.badtestcount:
+    print "badtest(): OK"
+else:
+    print "badtest(): Not OK"
+    if test1.debug:
+        print "errbuffer: \n" + test1.errbuffer

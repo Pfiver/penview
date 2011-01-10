@@ -27,25 +27,25 @@ How to compare the measurements of the two experimenting groups ?
 
 3.  navigate to the "Messdaten" folder contained in the project root directory
 
-3.  navigate to the SQLite subfolder
+4.  navigate to the "SQLite" subfolder
 
-4.  choose either the "Marc Patrick" or "Mario Moriz" subfolder
+5.  choose either the "Marc Patrick" or "Mario Moriz" subfolder
 
-5.  choose one of the files called
+6.  choose one of the files called
     "Halbautomatische Resonanzfrequenzmessung ???.sqlite" or "Manuelle Resonanzfrequenzmessung ???.sqlite"
 
-6.  repeat steps 2. and 3.
+7.  repeat steps 2. to 4.
 
-7.  choose the other folder then that which you chose before
+8.  choose the other folder then that which you chose before
 
-8.  choose one of the files that matches the same pattern like the one you have chosen in step 5
+9.  choose one of the files that matches the same pattern like the one you have chosen in step 5
 
-9.  in the bottom right corner, choose "Anregungsfrequenz"
+10. in the bottom right corner, choose "Anregungsfrequenz"
 
-10. in each of the tabs that are open now, un-tick "Messung"
+11. in each of the tabs that are open now, un-tick "Messung"
 
-11. choose "Reset scales" from the "View" menu
+12. choose "Reset scales" from the "View" menu
 
-12. using the spinboxes, adjust the y-scales in the bottom left and the x-scale in the bottm right corner to your liking
+13. using the spinboxes, adjust the y-scales in the bottom left and the x-scale in the bottm right corner to your liking
 
-13. pan the the display pane by dragging it with the left mouse button
+14. pan the the display pane by dragging it with the left mouse button
