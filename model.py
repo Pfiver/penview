@@ -160,7 +160,8 @@ class PVConf:
 
         # the maximum value ranges in x- and y- direction
         xmaxrange = self.max_values[self.x_values] - self.min_values[self.x_values]
-        ymaxrange = max(self.max_values[i] - self.min_values[i] for i in y_values)
+        ymaxrange = max(self.max_values[i]  for i in y_values) - min(self.min_values[i] for i in y_values)
+#        ymaxrange = max(self.max_values[i] - self.min_values[i] for i in y_values) # is wrong (fails if the ranges don't overlap each other):
 
         # FIXME:
         #  so far we use "method 1" all the time only
