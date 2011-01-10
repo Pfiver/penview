@@ -1,0 +1,7 @@
+Description of files in this directory:
+
+.
+|-- __init__.py      # Python Magic - any directory containing a file with this name is a "package"
+|-- OOoLib.py        # Excel to CSV Conversion Script Library (needs installed OpenOffice to run)
+|-- ttk.py           # ttk Extends tkinter with a UI Tab function
+`-- tile0.8.3/       # tile is a tcl/tk extension library needed for ttk.py on the mac (Darwin) platform

@@ -1,0 +1,18 @@
+Prerequisites
+-------------
+
+A PC with python (>= 2.6) installed
+
+Tested on the following Operating Systems
+- Ubuntu Lucid (10.04)
+- Windows XP Home (SP 3)
+- Mac OS/X Snow Leopard (10.6)
+
+
+How To Use the Program
+----------------------
+
+Feed penview.py to the python interpreter to start PenView.
+     ~~~~~~~~~~
+
+
