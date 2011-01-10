@@ -138,7 +138,7 @@ class PVConf:
 
     def reset_scales(self, plot):
         "reset the scales to a sane default and notify all listeners afterwards"
-        for i, scale in enumerate(self.default_scales(plot)):
+        for i, scale in self.default_scales(plot).iteritems():
             self.values_upd[i] = scale
         for update in self.scale_listeners:
             update(self)
@@ -170,9 +170,10 @@ class PVConf:
         # FIXME:
         #  whatever the reason might be, that "- 4" is needed here: I'd love to know it, but for now...
 
-        yield xmaxrange * plot.ppd / float(plot.winfo_width() - 4)
-        for i in range(1, self.nvalues + 1):
-            yield ymaxrange * plot.ppd / float(plot.winfo_height() - 4)
+        scales = {}
+        scales[self.x_values] = xmaxrange * plot.ppd / float(plot.winfo_width() - 4)
+        for i in y_values: scales[i] = ymaxrange * plot.ppd / float(plot.winfo_height() - 4)
+        return scales
 
     def bounding_box(self, plot):
         """

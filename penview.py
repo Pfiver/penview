@@ -37,7 +37,10 @@ class ViewMode:
 # name and version of this application
 #
 app_name = "PenView"
-app_version = "1.0-rc3"
+try:
+    app_version = open(".version").read()
+except IOError:
+    app_version = "unknown version (.version file missing)"
 
 # debug infrastructure
 #  FIXME: next time use the "logging" module

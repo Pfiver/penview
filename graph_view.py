@@ -64,8 +64,13 @@ class XYPlot(Canvas):
                     self.upds = conf.values_upd.copy()
                 if view not in self.lines:                      # if the x-scale has changed, it might have been already added just above
                                                                 # via reset_scales(), which is calling our scale_update() listener
-                    self.lines[view] = {}                       # a dictionary containing all lines we have plotted
-                    self.view_update(view)
+                                                                # a dictionary containing all lines we have plotted
+                                                                # FIXME: DO WE need to call reset_sclaes HERE (above) just to have some upds for the
+                                                                # new experiments inserted in conf.values_upd ??? I feel it sould be done some
+                                                                # where else, maybe in the model or controller, and preferably by queuing
+                                                                # a PVAction.reset_conf instead of making a drect call.... but its Monday 10.1. 14:55 
+                    self.lines[view] = {}
+                    self.view_update(view)                      
                 view.add_listener(self.window.tk_cb(self.view_update))
 
         # from http://effbot.org/zone/python-list.htm:
@@ -209,6 +214,10 @@ class PlotControls(Frame):
         if len(conf.open_experiments):
             self.update_controls(conf)
 
+        for view in self.window.conf.ox_views(self.window):
+            view.add_listener(self.window.tk_cb(self.update_view))
+
+
     def scale_update(self, conf):
         "PVConf.scale_listener callback function"
         if self.iscale:
@@ -238,9 +247,11 @@ class PlotControls(Frame):
         "scalers spinboxes scrollwheel event handler"
         scale = self.window.conf.values_upd[i]
         inc = self.scalers[i].config("increment")[4]
-        scale += {4: inc, 5: -inc}[event.num]                   # button 4 => up; button 5 => down
-        scale = int(scale)
-        if scale == 0:
+        adj = {4: inc, 5: -inc}[event.num]                  # button 4 => up; button 5 => down
+        if scale < 1:                                       # FIXME: there is a lot of room for improvement here
+            adj /= 50                                       # the adjustment adj should be computed much more dynamically  
+        scale += adj
+        if scale <= 0:
             scale = 0.001
         self.scalers[i].delete(0, len(self.scalers[i].get()))
         self.scalers[i].insert(0, scale)
@@ -251,6 +262,10 @@ class PlotControls(Frame):
     def xv_handler(self, v, *ignored):
         "PVConf.x_listener callback (stub)"
         self.window.conf.set_x_values(self.xchooser.vals[v.get()])
+        self.window.do(PVAction.reset_scale)
+
+    def update_view(self, view):
+        self.update_controls(self.window.conf)
 
     def update_controls(self, conf):
         "controls_region setup"
@@ -264,7 +279,10 @@ class PlotControls(Frame):
             self.xchooser.pack_forget()
 
         # create y-axis controls
-        for i in range(1, conf.nvalues + 1):
+        for i in range(conf.nvalues + 1):
+            if i == conf.x_values:                         # these are the x-axis values
+                continue                                        # next
+
             ## y-axis scaler
             sb = Spinbox(self, from_=0, to=99999, width=5, command=partial(self.sb_handler, i))
             sb.pack(side=LEFT)
@@ -280,16 +298,16 @@ class PlotControls(Frame):
 
         # create x-axis controls (starting from the right)
         ## x-axis units label
-        self.labels[0] = Label(self, text=conf.units[conf.x_values]+" / div ")
-        self.labels[0].pack(side=RIGHT)
+        self.labels[conf.x_values] = Label(self, text=conf.units[conf.x_values]+" / div ")
+        self.labels[conf.x_values].pack(side=RIGHT)
 
         ## x-axis scaler
         sb = Spinbox(self, from_=0, to=99999, width=5, command=partial(self.sb_handler, 0))
         sb.pack(side=RIGHT)
-        self.scalers[0] = sb
-        sb.bind("<Button-4>", partial(self.sw_handler, 0))
-        sb.bind("<Button-5>", partial(self.sw_handler, 0))
-        sb.bind("<KeyRelease>", partial(self.sb_handler, 0))
+        self.scalers[conf.x_values] = sb
+        sb.bind("<Button-4>", partial(self.sw_handler, conf.x_values))
+        sb.bind("<Button-5>", partial(self.sw_handler, conf.x_values))
+        sb.bind("<KeyRelease>", partial(self.sb_handler, conf.x_values))
 
         ## x-axis values chooser
         ### dictionary of possible values and their corresponding ox.values index
