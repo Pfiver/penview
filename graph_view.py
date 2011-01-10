@@ -289,8 +289,8 @@ class PlotControls(Frame):
             sb = Spinbox(self, from_=0, to=99999, width=5, command=partial(self.sb_handler, i))
             sb.pack(side=LEFT)
             self.scalers[i] = sb
-            sb.bind("<Button-4>", partial(self.sw_handler, i))
-            sb.bind("<Button-5>", partial(self.sw_handler, i))
+            sb.bind("<Button-4>", partial(self.sw_handler, i))      # concerning windows and mac scrollwheel handling,
+            sb.bind("<Button-5>", partial(self.sw_handler, i))      # see the commment in the ScrollRegion class at the bottom of this file
             sb.bind("<KeyRelease>", partial(self.sb_handler, i))
 
             ## y-axis units label
@@ -360,10 +360,11 @@ class ScrollRegion(Frame):
         child_widget.bind("<Button-4>", self.ywheel_handler)
         child_widget.bind("<Button-5>", self.ywheel_handler)
 #        child_widget.bind("<Button-6>", self.xwheel_handler)    # FIXME: fix tkinter ?
-#        child_widget.bind("<Button-7>", self.xwheel_handler)
-        child_widget.bind("<Button-1>", self.b1_handler)
-        child_widget.bind("<Button1-Motion>", self.b1m_handler)
-        child_widget.bind("<ButtonRelease-1>", self.b1r_handler)
+#        child_widget.bind("<Button-7>", self.xwheel_handler)    #  hmmm... I'm astonished that windows and mac handle mose scrollwheel events quiet
+        child_widget.bind("<Button-1>", self.b1_handler)         # differently from linux. *me* of course thinks linux does it best, assigning additional buttons
+        child_widget.bind("<Button1-Motion>", self.b1m_handler)  # To implement the scrollwheel handling on windows and mac would take too much time
+        child_widget.bind("<ButtonRelease-1>", self.b1r_handler) # If you want to do it, have a look at the .delta event attribute, described here:
+                                                                 # http://infohost.nmt.edu/tcc/help/pubs/tkinter/events.html#event-handlers
 
     def b1_handler(self, e):
         self.config(cursor="fleur")

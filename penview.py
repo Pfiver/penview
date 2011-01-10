@@ -6,14 +6,14 @@
 #    Patrick Pfeifer <patrick.pfeifer@students.fhnw.ch>
 #
 # December 2010 / January 2011
-#    
-# Copyleft GNU GPL version 3 or any later version:
-#    see COPYRIGHT
-#    see http://www.gnu.org/licenses/gpl.html
 #
-# the product homepage is at http://p2000.github.com/penview/
-# the latest version can be git-cloned from https://github.com/P2000/penview
-# an epyDoc generated api documentation is available at http://p2000.github.com/penview/epydoc/
+# Copyleft GNU GPL version 3 or any later version: read the file COPYRIGHT
+#  the latest version is available here: http://www.gnu.org/licenses/gpl.html
+#
+# the product homepage is http://p2000.github.com/penview
+# the source code is on github.com at https://github.com/P2000/penview
+# the latest version can be git-cloned from git://github.com/P2000/penview.git
+# an epyDoc generated api documentation is available at http://p2000.github.com/penview/epydoc
 #
 
 # actions the controller knows how to handle
@@ -60,9 +60,12 @@ def debug(*args): pass
 if __name__ == "__main__":
 
     # import this file as a module once, so we can adjust some global variables
-    #  every module is imported only once into each python interpreter instance and lands in the sys.modules dictionary
-    #  after importing a module once you can set variables on it and other modules imported from the current module that import
-    #  the module again, will see the changed values
+    #  Every module is imported only _once_ only by one
+    #  python interpreter instance and kept in the sys.modules dictionary.
+    #  After importing a module you can set variables on it. Then other modules,
+    #  imported by the current module, that import the module _again, will see the changed values.
+    #  - "from module import symbol" and then assigning to symbol doesn't work !
+    #  - check dev/global_vars for an in-depth investigation of the import mechanics
     import penview
 
     # debug infrastructure - part 2
@@ -78,19 +81,16 @@ if __name__ == "__main__":
             frame = sys._getframe(1); func = frame.f_code.co_name
             if 'self' in frame.f_locals: func = frame.f_locals['self'].__class__.__name__ + "." + func
             print "(%s:%d) in %s(): %s" % (os.path.basename(frame.f_code.co_filename), frame.f_lineno, func, args[0] % args[1:])
-
-        # this is delicate as well: you have to "import penview" FIRST and THEN set penview.debug{,_flag}
-        #  - "from penview import debug" doesn't work
-        #  - check dev/global_vars for full investigation
+        # allways remember to FIRST "import penview" and THEN set penview.debug{,_flag} - as discussed above
         penview.debug = debug
         penview.debug_flag = debug_flag = True
 
     # Mac OS/X has a really touchy Python to Tkinter bridge
     #  it insists in Tk() (and Tk.mainloop()) being called from the "main" thread
-    #  this forced us to use our formerly mostly idle main thread as the PVWindow thread
+    #  this forced us to use our formerly mostly idle main thread as the PVWindow thread,
     #  which in turn makes it necessary to keep a reference to that main thread in this variable
     #  the variable will be available in locals() of any module doing an "from penview import *" AFTER the following assignment
-    #  (therefore keep the assignment ABOVE "from window import PVWindow" because PVWindow won't see it otherwise)
+    # same story here: keep the assignment ABOVE "from window import PVWindow" because PVWindow won't see it otherwise - as discussed above
     import threading
     penview.tk_thread = threading.current_thread()
 
