@@ -122,7 +122,7 @@ class PVConf:
     def add_scale_listener(self, update):
         self.scale_listeners.append(update)
 
-    def add_viewmode_listener(self, update):	# table <> plot switch helper
+    def add_viewmode_listener(self, update):    # table <> plot switch helper
         self.viewmode_listeners.append(update)
 
     # we should use properties more often, they're cool
@@ -164,9 +164,10 @@ class PVConf:
 #        ymaxrange = max(self.max_values[i] - self.min_values[i] for i in y_values) # is wrong (fails if the ranges don't overlap each other):
 
         # FIXME:
-        #  so far we use "method 1" all the time only
-        #  we should do this properly before handing in our work
-        #  otherwise somebody might one day realize that we bluffed a bit in our presentation... ;-)
+        #  So far we use "method 1" all the time only
+        #  I request the reader to forgive us that we bluffed a bit in our presentation... ;-)
+        #  It would definitely not require that much work any more now to implement "method 2" as well and then combine the two, as claimed
+        #  As it's not a show-stopper, however, we set other priorities and time is running out now ... ~~~ PP / Mo, 10.1. 17:17
 
         # FIXME:
         #  whatever the reason might be, that "- 4" is needed here: I'd love to know it, but for now...
@@ -272,7 +273,7 @@ class ExperimentView:
     """
     def __init__(self, ox, window):
 
-	self.ox = ox
+        self.ox = ox
         self.window = window
 
         self.listeners = []

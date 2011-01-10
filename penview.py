@@ -2,18 +2,18 @@
 # encoding: utf-8
 #
 # Authors:
-#    Tobias Thüring
-#    Patrick Pfeifer
+#    Tobias Thüring <tobias.thuering@students.fhnw.ch>
+#    Patrick Pfeifer <patrick.pfeifer@students.fhnw.ch>
 #
-# December 2010
+# December 2010 / January 2011
 #    
 # Copyleft GNU GPL version 3 or any later version:
-#    http://www.gnu.org/licenses/gpl.html
+#    see COPYRIGHT
+#    see http://www.gnu.org/licenses/gpl.html
 #
-# the latest version of this code can be found on github:
-#    https://github.com/P2000/penview
-# (EpyDoc generated) documentation is available on wuala:
-#    http://content.wuala.com/contents/patrick2000/Shared/school/11_Projekt/Pendulum/Dokumentation/DB%20V3.pdf?dl=1
+# the product homepage is at http://p2000.github.com/penview/
+# the latest version can be git-cloned from https://github.com/P2000/penview
+# an epyDoc generated api documentation is available at http://p2000.github.com/penview/epydoc/
 #
 
 # actions the controller knows how to handle
@@ -95,9 +95,9 @@ if __name__ == "__main__":
     penview.tk_thread = threading.current_thread()
 
     # import the main modules
-    from model import PVConf				# FIXME: we need to check if python-tk is installed, as on a standard ubuntu maverick
-    from window import PVWindow				# system it is seemingly NOT installed by default
-    from controller import PVController		#  ... in case it is not and we're on a debian system, suggest "sudo apt-get install python-tk"
+    from model import PVConf                   # FIXME: we might want to check if python-tk is installed,
+    from window import PVWindow                #  as on a standard ubuntu maverick system it is seemingly NOT installed by default
+    from controller import PVController        #  ... in case it is not and we're on a debian system, suggest the user to "sudo apt-get install python-tk"
  
     # say hi
     print "Welcome to %s!" % app_name

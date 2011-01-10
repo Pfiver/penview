@@ -9,24 +9,43 @@ Tested on the following Operating Systems
 - Mac OS/X Snow Leopard (10.6)
 
 
-How To Use the Program
+How to run the program
 ----------------------
 
 Feed penview.py to the python interpreter to start PenView.
      ~~~~~~~~~~
 
-
-Welche Daten lassen sich am besten vergleichen ?
-------------------------------------------------
-
-Am besten .... bla ....
+e.g. "$ python penview.py", if you're on a posix system
 
 
+How to compare the measurements of the two experimenting groups ?
+-----------------------------------------------------------------
 
-[15:38] <P2000> im howto würd i eifach erwähne dass si experimänt sölle nä, wo ...
+1.  start PenView, as described above
 
-[15:41] <P2000> näme hän, wie "Halbautomatische Resonanzfrequenzmessung xxx.sqlite" oder "Manuelle Resonanzfrequenzmessung xxx.sqlite" ...
+2.  choose "Open..." from the "File" menu
 
-und dass si im "Messdaten/SQLite/xxx" ordner z finde sin ...
+3.  navigate to the "Messdaten" folder contained in the project root directory
 
-und dass me die cha vergliche ...
+3.  navigate to the SQLite subfolder
+
+4.  choose either the "Marc Patrick" or "Mario Moriz" subfolder
+
+5.  choose one of the files called
+    "Halbautomatische Resonanzfrequenzmessung ???.sqlite" or "Manuelle Resonanzfrequenzmessung ???.sqlite"
+
+6.  repeat steps 2. and 3.
+
+7.  choose the other folder then that which you chose before
+
+8.  choose one of the files that matches the same pattern like the one you have chosen in step 5
+
+9.  in the bottom right corner, choose "Anregungsfrequenz"
+
+10. in each of the tabs that are open now, un-tick "Messung"
+
+11. choose "Reset scales" from the "View" menu
+
+12. using the spinboxes, adjust the y-scales in the bottom left and the x-scale in the bottm right corner to your liking
+
+13. pan the the display pane by dragging it with the left mouse button
