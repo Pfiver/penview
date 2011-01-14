@@ -169,12 +169,9 @@ class PVConf:
         #  It would definitely not require that much work any more now to implement "method 2" as well and then combine the two, as claimed
         #  As it's not a show-stopper, however, we set other priorities and time is running out now ... ~~~ PP / Mo, 10.1. 17:17
 
-        # FIXME:
-        #  whatever the reason might be, that "- 4" is needed here: I'd love to know it, but for now...
-
         scales = {}
-        scales[self.x_values] = xmaxrange * plot.ppd / float(plot.winfo_width() - 4)
-        for i in y_values: scales[i] = ymaxrange * plot.ppd / float(plot.winfo_height() - 4)
+        scales[self.x_values] = xmaxrange * plot.ppd / float(plot.winfo_width())
+        for i in y_values: scales[i] = ymaxrange * plot.ppd / float(plot.winfo_height())
         return scales
 
     def bounding_box(self, plot):

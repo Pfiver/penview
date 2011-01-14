@@ -12,7 +12,19 @@ class XYPlot(Canvas):
     def __init__(self, parent, window, width, height):
         
         self.canvas_color = "#eef"
-        Canvas.__init__(self, parent, width=width, height=height, bg=self.canvas_color)
+
+        # ouff
+        #
+        # One most annoying spacing issue arises from the fact that highlightthickness doesn't default to 0
+        # for canvas widgets (and maybe others). The problem is that the widgets winfo_width() / winfo_height():
+        # will allways be 2*highlightthickness larger then the widget. This has implications especially when changing
+        # the 'scrollregion' - e.g. if you whish to set it exactly to the size if the widget, you'd probably have to subtract
+        # 2*highlightthickness first. The easier solution is to set highlightthickness to 0.
+        # Thanks to "papageno", for sharing this: http://www.tek-tips.com/viewthread.cfm?qid=1161244&page=26
+        #
+        Canvas.__init__(self, parent, width=width, height=height, bg=self.canvas_color, highlightthickness=0)
+        #
+        # on
 
         self.window = window
         self.width, self.height = width, height     # The original with and height - this is a static variable
@@ -300,7 +312,8 @@ class PlotControls(Frame):
 
         # create x-axis controls (starting from the right)
         ## x-axis units label
-        self.labels[conf.x_values] = Label(self, text=conf.units[conf.x_values]+" / div ")
+	##  keep the spaces at the end of the label - os/x aqua ui draws that ugly resizeer triangle there (bottom right of the window)
+        self.labels[conf.x_values] = Label(self, text=conf.units[conf.x_values]+" / div      ")	
         self.labels[conf.x_values].pack(side=RIGHT)
 
         ## x-axis scaler
