@@ -72,7 +72,6 @@ class XYPlot(Canvas):
                 for i, s in conf.values_upd.iteritems():        # if we haven't plotted this kind of values before, record the scale to use
                     if i not in self.upds:
                         self.upds[i] = s
-                self._update_bbox()
                 self.lines[view] = {}
                 self.view_update(view)
                 view.add_listener(self.window.tk_cb(self.view_update))
@@ -104,23 +103,22 @@ class XYPlot(Canvas):
                 self.upds[i] = conf.values_upd[i]
                 if i == conf.x_values:                          # if the x-scale has changed, we have to redraw every single line
                     self.clear()
-                    for view in conf.ox_views():                # if this function is called from conf.reset_scales() it might
-                        self.lines[view] = {}                   # _add_ the lines for this view to the self.lines dict here; see ox_update
+                    for view in conf.ox_views():
+                        self.lines[view] = {}
                         self.view_update(view)
-                    break                                       # next - otherwise an y-scale has changed
+                    continue                                    # next - otherwise an y-scale has changed
                 for view in self.lines:                         # FIXME: seems slow
                     if i in view.y_values:                      # redraw only those that are visible
                         self.remove_line(view, i)
                         self.add_line(view, i)
-
-        self._update_bbox()
+                        self._update_bbox()
 
     def _update_bbox(self):
         self.bbox = xmin, ymin, xmax, ymax = self.window.conf.bounding_box(self)
         # if the bounding box is higher or wider then 1000 times ppd, protect ourselves from performance shame
         # the tk widget is not very well suited to quickly draw arbitrary pixels on the (off-)screen, at least not on a canvas,
         # because each call has to be translated to the corresponding tcl script string...
-        if xmax-xmin < 1000 * self.ppd and ymax-ymin < 1000 * self.ppd:
+        if xmax - xmin < 1000 * self.ppd and ymax - ymin < 1000 * self.ppd:
             self.redraw_axes()
         # translate the conventional to the canvas cordinate system
         self.config(scrollregion=(xmin, self.height - ymax, xmax, self.height - ymin))
@@ -140,6 +138,8 @@ class XYPlot(Canvas):
 
             if self.itemcget(self.lines[view][index], "fill") != view.colors[index]:    # if the color has changed
                 self.itemconfig(self.lines[view][index], fill=view.colors[index])       # change the color
+
+        self._update_bbox()
 
     def clear(self):
         "remove all lines from the canvas and empty the self.lines dictionary"
@@ -194,6 +194,12 @@ class XYPlot(Canvas):
         map(self.delete, self.axlines)
         self.axlines = tuple(self._draw_axes(color, grid_color))
 
+_Spinbox = Spinbox
+class Spinbox(_Spinbox):
+    def set(self, value):
+        self.delete(0, len(self.get()))
+        self.insert(0, value)
+
 class PlotControls(Frame):
     "The frame which holds all the scale adjust spinboxes as well as the x-axe chooser below the plot region"
     
@@ -212,6 +218,7 @@ class PlotControls(Frame):
                                 # but this everything CAN be wrapped and we don't have to worry
 
         window.conf.add_ox_listener(window.tk_cb(self.ox_update))
+        window.conf.add_x_listener(window.tk_cb(self.x_update))
         window.conf.add_scale_listener(window.tk_cb(self.scale_update))
 
     def ox_update(self, conf):
@@ -222,6 +229,9 @@ class PlotControls(Frame):
         for view in self.window.conf.ox_views():
             view.add_listener(self.window.tk_cb(self.view_update))
 
+    def x_update(self, conf):
+        "PVConf.x_listener callback function"
+        self._update_controls(conf)
 
     def scale_update(self, conf):
         "PVConf.scale_listener callback function"
@@ -236,7 +246,7 @@ class PlotControls(Frame):
         self._update_controls(self.window.conf)
 
     def sb_handler(self, i, *event):
-        "scalers spinboxes 'action=' and '<KeyRelease>' event handler"
+        "scalers spinboxes 'command=' and '<KeyRelease>' event handler"
         try:
             scale = float(self.scalers[i].get())
         except:
@@ -246,8 +256,7 @@ class PlotControls(Frame):
             # don't interfere if somebody is typing in a value like "0.5"
             # (type "3" is KeyRelease, see http://infohost.nmt.edu/tcc/help/pubs/tkinter/events.html#event-types)
             if not (len(event) > 0 and event[0].type == "3"):
-                self.scalers[i].delete(0, len(self.scalers[i].get()))
-                self.scalers[i].insert(0, scale)
+                self.scalers[i].set(scale)
         self.iscale = True
         self.window.conf.set_scale(i, scale)
         self.iscale = False
@@ -262,8 +271,7 @@ class PlotControls(Frame):
         scale += adj
         if scale <= 0:
             scale = 0.001
-        self.scalers[i].delete(0, len(self.scalers[i].get()))
-        self.scalers[i].insert(0, scale)
+        self.scalers[i].set(scale)
         self.iscale = True
         self.window.conf.set_scale(i, scale)
         self.iscale = False
@@ -291,7 +299,8 @@ class PlotControls(Frame):
                 continue                                        # next
 
             ## y-axis scaler
-            sb = Spinbox(self, value=conf.values_upd[i], from_=0, to=99999, width=5, command=partial(self.sb_handler, i))
+            sb = Spinbox(self, from_=0, to=99999, width=5, command=partial(self.sb_handler, i))
+            sb.set(conf.values_upd[i])
             sb.pack(side=LEFT)
             self.scalers[i] = sb
             sb.bind("<Button-4>", partial(self.sw_handler, i))      # concerning windows and mac scrollwheel handling,
@@ -310,7 +319,8 @@ class PlotControls(Frame):
         self.labels[conf.x_values].pack(side=RIGHT)
 
         ## x-axis scaler
-        sb = Spinbox(self, values=conf.values_upd[conf.x_values], from_=0, to=99999, width=5, command=partial(self.sb_handler, 0))
+        sb = Spinbox(self, from_=0, to=99999, width=5, command=partial(self.sb_handler, conf.x_values))
+        sb.set(conf.values_upd[conf.x_values])
         sb.pack(side=RIGHT)
         self.scalers[conf.x_values] = sb
         sb.bind("<Button-4>", partial(self.sw_handler, conf.x_values))
@@ -341,6 +351,8 @@ class PlotControls(Frame):
         #  to make make the xyplot canvas initially be resized properly
         #  -> reset_values_upd() setting proper scales -> xyplot bounding box matching canvas size/scroll region  
         self.window.tk.update_idletasks()
+        self.window.main_region.pack()
+        self.window.main_region.add(self.window.data_region)
 
 class ScrollRegion(Frame):
     "A Frame which can wrap another (child) widget and scroll it"

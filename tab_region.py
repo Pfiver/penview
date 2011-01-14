@@ -57,6 +57,8 @@ class TabRegion(Frame):
         self.table_button.pack(side=LEFT, fill=X, expand=YES)
         window.conf.add_viewmode_listener(window.tk_cb(self.viewmode_update))
 
+        window.conf.add_x_listener(self.x_update)
+
         # pack()
         self.notebook_region.pack(fill=BOTH, expand=1)
         self.switch_region.pack(fill=X, side=BOTTOM)
@@ -103,10 +105,12 @@ class TabRegion(Frame):
 
         # TODO: now the size of the XYPlot might have changed - (how) is this recognized ?
 
+    def x_update(self, conf):
+        map(self.view_update, conf.ox_views())
+
     def view_update(self, view):
         "ExperimentView.listener callback function"
         tab = self.tabs[view.ox]
-
         for i in range(view.ox.nvalues + 1):
             if i != self.window.conf.x_values:
                 tab.valueboxes[i].config(state=NORMAL)
@@ -115,6 +119,7 @@ class TabRegion(Frame):
                 tab.valueboxes[i].config(state=DISABLED)
                 tab.colorbuttons[i].config(state=DISABLED)
             tab.colorbuttons[i].image.config(foreground=view.colors[i])
+            tab.valueboxes[i].variable.set(i in [self.window.conf.x_values] + list(view.y_values))
 
     def viewmode_update(self, conf):
         "PVConf.viewmode_listener callback function"
@@ -129,9 +134,9 @@ class TabRegion(Frame):
         "color chooser buttons 'action=' event handler"
         view.set_color(i, askcolor()[1])
 
-    def choose_values(self, view, i, v, *ign):
+    def choose_values(self, view, i):
         "valueboxes checkboxes 'action=' event handler"
-        if v.get():
+        if self.tabs[view.ox].valueboxes[i].variable.get():
             view.add_y_values(i)
         else:
             view.remove_y_values(i)
@@ -153,11 +158,10 @@ class TabRegion(Frame):
 
             # Display Selection Checkboxes
             v = BooleanVar(value=i in [self.window.conf.x_values] + list(view.y_values))
-            v.set(i in set((self.window.conf.x_values,)) | ox.views[self.window].y_values)
-            v.trace("w", partial(self.choose_values, view, i, v))
-            box = Checkbutton(tab, text="%s (%s)" % (ox.get_desc(i), ox.get_units(i)), variable=v, state=state)
+            box = Checkbutton(tab, text="%s (%s)" % (ox.get_desc(i), ox.get_units(i)), variable=v, state=state, command=partial(self.choose_values, view, i))
             box.grid(row=i+1, column=0, sticky=W)
             tab.valueboxes[i] = box
+            box.variable = v
 
             # Color Cooser Buttons
             #  -> creating a Button with image=... lets one specify with and height in pixels

@@ -66,6 +66,8 @@ class PVConf:
                                 "The units are not matching those of the other already opened experiment%s." % s)
 
         self.open_experiments.append(ox)
+        self.view_update(ox.views[self.window])
+        ox.views[self.window].add_listener(self.view_update)
 
         for i, s in self.default_scales().iteritems():  # make sure we have a default scale for all value indices in all currently open experimets
             if i not in self.values_upd:
@@ -73,40 +75,54 @@ class PVConf:
 
         for update in self.ox_listeners: update(self)
 
-    def _update_extremes(self):
-        """
-        find the extremes (minima and maxima) in all currently open experiments values, visible in the specified window
-        e.g. the _currently relevant_ extremes
-        """
+    def view_update(self, view):
+        self._x_xupdate()
+        self._y_xupdate(view)
 
-        self.min_values = {}                                                # reset the min/max dicts
-        self.max_values = {}
+    def _x_xupdate(self):
 
-        def xupdate(i, min_, max_):                                         # helper function to update the self.min/max_values 
-            if i not in self.min_values or min_ < self.min_values[i]:
-                self.min_values[i] = min_
-            if i not in self.max_values or max_ > self.max_values[i]:
-                self.max_values[i] = max_
+        try:
+            del self.min_values[self.x_values]
+            del self.max_values[self.x_values]
+        except: pass
 
-        for view in self.ox_views():                                        # for each ExperimentView associated with this window
-            if not view.y_values:                                           # if there are no visible values
-                continue                                                    # next - otherwise 
-
-            maxlen = max(len(view.ox.values[i]) for i in view.y_values)     # maximum nr of elements of currently visible y-values
-            min_ = min(view.ox.values[self.x_values][:maxlen])              # find the min/maximum x-value, USED by a currently visible y-value
+        for view in self.ox_views():                                                    # for each ExperimentView associated with this confs window
+            if not view.y_values:                                                       # if there are no visible values
+                continue                                                                # next - otherwise 
+            maxlen = max(len(view.ox.values[self.x_values]) for i in view.y_values)     # maximum nr of elements of currently visible y-values
+            min_ = min(view.ox.values[self.x_values][:maxlen])                          # find the min/maximum x-value, USED by a currently visible y-value
             max_ = max(view.ox.values[self.x_values][:maxlen])
-            xupdate(self.x_values, min_, max_)                              # update the extremes 
+            self._xupdate(self.x_values, min_, max_)                                    # update the x-values extremes 
 
-            for i in view.y_values:                                         # for all visible y- values
-                xupdate(i, view.ox.min_values[i], view.ox.max_values[i])    # update the extremes using the precomputed min/max_values
+    def _y_xupdate(self, view):
+
+        for i in range(view.ox.nvalues + 1):
+            if i != self.x_values:                                                      # i == self.x_values is handled above in _x_xupdate()
+                try:
+                    del self.min_values[i]
+                    del self.max_values[i]
+                except: pass
+
+        for view in self.ox_views():                                                    # for each ExperimentView associated with this window
+            for i in view.y_values:                                                     # for all VISIBLE y-values
+                self._xupdate(i, view.ox.min_values[i], view.ox.max_values[i])          # update the extremes using the precomputed min/max_values
+
+    def _xupdate(self, i, min_, max_):
+        "helper function to update self.min/max_values"
+
+        if i not in self.min_values or min_ < self.min_values[i]:
+            self.min_values[i] = min_
+        if i not in self.max_values or max_ > self.max_values[i]:
+            self.max_values[i] = max_
 
     def set_x_values(self, index):
         old_x_values = self.x_values 
-        self.x_values = index                           # self.x_values needs to be up to date when calling view.add/remove_y_values
+        self.x_values = index                                                           # self.x_values needs to be up to date when calling view.add/remove_y_values
         for view in self.ox_views():
             if index in view.y_values:
-                view.remove_y_values(index)
-                view.add_y_values(old_x_values)
+                view.y_values.remove(index)
+                view.y_values.add(old_x_values)
+        self._x_xupdate()
         for update in self.x_listeners:
             update(self)
 
@@ -155,18 +171,15 @@ class PVConf:
         e.g. more or less the opposite of what bounding_box() does
         """
 
-        # FIXME:
-        #  in case the exactly same set of values are still plotted, this call is superfluous
-        #  what should be done, really, would be to add a ExperimentView.listener for each experiment in this con
-        #  and then make this call from that listener....
-        self._update_extremes()
-
         # the set of all y-values currently plotted for any experiment  
         y_values = reduce(lambda a,b:a|b, (view.y_values for view in self.ox_views()))
 
+        if not y_values:
+            return dict((i, 1) for i in range(self.nvalues + 1))
+
         # the maximum value ranges in x- and y- direction
         xmaxrange = self.max_values[self.x_values] - self.min_values[self.x_values]
-        ymaxrange = max(self.max_values[i]  for i in y_values) - min(self.min_values[i] for i in y_values)
+        ymaxrange = max(self.max_values[i] for i in y_values) - min(self.min_values[i] for i in y_values)
 #        ymaxrange = max(self.max_values[i] - self.min_values[i] for i in y_values) # is wrong (fails if the ranges don't overlap each other):
 
         # FIXME:
@@ -179,7 +192,7 @@ class PVConf:
 
         scales = { self.x_values: xmaxrange * plot.ppd / float(plot.winfo_width()) }
 
-        for i in y_values: scales[i] = ymaxrange * plot.ppd / float(plot.winfo_height())
+        for i in set(range(self.nvalues + 1)) ^ set((self.x_values,)): scales[i] = ymaxrange * plot.ppd / float(plot.winfo_height())
 
         return scales
 
@@ -191,7 +204,10 @@ class PVConf:
 
         # the set of all y-values currently plotted for any experiment
         y_values = reduce(lambda a,b:a|b, (view.y_values for view in self.ox_views()))
-        
+
+        if not y_values:
+            return (0, 0, plot.winfo_width(), plot.winfo_height())
+
         # the left and right border of the bounding box in "divisions"
         xmin = self.min_values[self.x_values] / self.values_upd[self.x_values]
         xmax = self.max_values[self.x_values] / self.values_upd[self.x_values]
@@ -284,7 +300,7 @@ class ExperimentView:
         self.window = window
 
         self.listeners = []
-        self.y_values = set(range(1, ox.nvalues + 1))           # list of indices of values visible on y-axis
+        self.y_values = set(range(0, ox.nvalues + 1)) ^ set((window.conf.x_values,))           # list of indices of values visible on y-axis
 
         existing_colors = [[ v>>8 for v in window.tk.winfo_rgb(window.data_region.xy_plot.canvas_color) ]]
         for view in window.conf.ox_views():
