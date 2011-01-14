@@ -51,13 +51,13 @@ class XYPlot(Canvas):
         """
         plot a line for the values at index, against view.x_values and keep track of it
          color is determined by the view
-         values_upd is determined by the conf
+         scale is taken from self.upds
          values are taken from the experiment associated with the view
         """
         conf = self.window.conf
         self.lines[view][index] = \
             self.data_line(view.ox.values[conf.x_values], view.ox.values[index],
-                           x_upd=conf.values_upd[conf.x_values], y_upd=conf.values_upd[index], fill=view.colors[index])
+                           x_upd=self.upds[conf.x_values], y_upd=self.upds[index], fill=view.colors[index])
 
     def remove_line(self, view, index):
         "delete the line that has been plotted for the values at index and loose track of it"
@@ -66,23 +66,15 @@ class XYPlot(Canvas):
 
     def ox_update(self, conf):
         "PVConf.ox_listener callback function"
-        scales_reset = False                                    # reset the scales only once; False -> not yet done
 
-        for view in conf.ox_views(self.window):
-            if view not in self.lines:                          # find added experiments, add our view_listener and call it once to display them
-                if not scales_reset:
-                    scales_reset = True
-                    conf.reset_scales(self)
-                    self.upds = conf.values_upd.copy()
-                if view not in self.lines:                      # if the x-scale has changed, it might have been already added just above
-                                                                # via reset_scales(), which is calling our scale_update() listener
-                                                                # a dictionary containing all lines we have plotted
-                                                                # FIXME: DO WE need to call reset_sclaes HERE (above) just to have some upds for the
-                                                                # new experiments inserted in conf.values_upd ??? I feel it sould be done some
-                                                                # where else, maybe in the model or controller, and preferably by queuing
-                                                                # a PVAction.reset_conf instead of making a drect call.... but its Monday 10.1. 14:55 
-                    self.lines[view] = {}
-                    self.view_update(view)                      
+        for view in conf.ox_views():
+            if view not in self.lines:                          # find added experiments, add our view_listener and call it once to plot the values
+                for i, s in conf.values_upd.iteritems():        # if we haven't plotted this kind of values before, record the scale to use
+                    if i not in self.upds:
+                        self.upds[i] = s
+                self._update_bbox()
+                self.lines[view] = {}
+                self.view_update(view)
                 view.add_listener(self.window.tk_cb(self.view_update))
 
         # from http://effbot.org/zone/python-list.htm:
@@ -101,7 +93,7 @@ class XYPlot(Canvas):
     def x_update(self, conf):
         "PVConf.x_listener callback (stub)"
         self.clear()                                            # if we plot against different x_values, we have to start over
-        for view in conf.ox_views(self.window):
+        for view in conf.ox_views():
             self.lines[view] = {}                               # self.lines holds a dictionary containing all lines we have plotted
             self.view_update(view)
 
@@ -112,7 +104,7 @@ class XYPlot(Canvas):
                 self.upds[i] = conf.values_upd[i]
                 if i == conf.x_values:                          # if the x-scale has changed, we have to redraw every single line
                     self.clear()
-                    for view in conf.ox_views(self.window):     # if this function is called from conf.reset_scales() it might
+                    for view in conf.ox_views():                # if this function is called from conf.reset_scales() it might
                         self.lines[view] = {}                   # _add_ the lines for this view to the self.lines dict here; see ox_update
                         self.view_update(view)
                     break                                       # next - otherwise an y-scale has changed
@@ -121,12 +113,13 @@ class XYPlot(Canvas):
                         self.remove_line(view, i)
                         self.add_line(view, i)
 
-        self.bbox = conf.bounding_box(self)
-        xmin, ymin, xmax, ymax = self.bbox
+        self._update_bbox()
+
+    def _update_bbox(self):
+        self.bbox = xmin, ymin, xmax, ymax = self.window.conf.bounding_box(self)
         # if the bounding box is higher or wider then 1000 times ppd, protect ourselves from performance shame
         # the tk widget is not very well suited to quickly draw arbitrary pixels on the (off-)screen, at least not on a canvas,
         # because each call has to be translated to the corresponding tcl script string...
-        # if self.bbox
         if xmax-xmin < 1000 * self.ppd and ymax-ymin < 1000 * self.ppd:
             self.redraw_axes()
         # translate the conventional to the canvas cordinate system
@@ -226,7 +219,7 @@ class PlotControls(Frame):
         if len(conf.open_experiments):
             self._update_controls(conf)
 
-        for view in self.window.conf.ox_views(self.window):
+        for view in self.window.conf.ox_views():
             view.add_listener(self.window.tk_cb(self.view_update))
 
 
@@ -298,7 +291,7 @@ class PlotControls(Frame):
                 continue                                        # next
 
             ## y-axis scaler
-            sb = Spinbox(self, from_=0, to=99999, width=5, command=partial(self.sb_handler, i))
+            sb = Spinbox(self, value=conf.values_upd[i], from_=0, to=99999, width=5, command=partial(self.sb_handler, i))
             sb.pack(side=LEFT)
             self.scalers[i] = sb
             sb.bind("<Button-4>", partial(self.sw_handler, i))      # concerning windows and mac scrollwheel handling,
@@ -312,12 +305,12 @@ class PlotControls(Frame):
 
         # create x-axis controls (starting from the right)
         ## x-axis units label
-	##  keep the spaces at the end of the label - os/x aqua ui draws that ugly resizeer triangle there (bottom right of the window)
-        self.labels[conf.x_values] = Label(self, text=conf.units[conf.x_values]+" / div      ")	
+        ##  keep the spaces at the end of the label - os/x aqua ui draws that ugly resizeer triangle there (bottom right of the window)
+        self.labels[conf.x_values] = Label(self, text=conf.units[conf.x_values]+" / div    ")
         self.labels[conf.x_values].pack(side=RIGHT)
 
         ## x-axis scaler
-        sb = Spinbox(self, from_=0, to=99999, width=5, command=partial(self.sb_handler, 0))
+        sb = Spinbox(self, values=conf.values_upd[conf.x_values], from_=0, to=99999, width=5, command=partial(self.sb_handler, 0))
         sb.pack(side=RIGHT)
         self.scalers[conf.x_values] = sb
         sb.bind("<Button-4>", partial(self.sw_handler, conf.x_values))

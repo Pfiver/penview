@@ -29,8 +29,10 @@ class PVConf:
     the update functions supplied should take exactly one argument, the conf object
     """
 
-    def __init__(self):
+    def __init__(self, window):
         debug("debug is on")
+
+        self.window = window
 
         self.units = {}                 # the units of all data series - keys = index of a data series in the "values" matrix
                                         # len(units) is equal to the maximum number of data series of all currently open experiments + 1
@@ -64,9 +66,14 @@ class PVConf:
                                 "The units are not matching those of the other already opened experiment%s." % s)
 
         self.open_experiments.append(ox)
+
+        for i, s in self.default_scales().iteritems():  # make sure we have a default scale for all value indices in all currently open experimets
+            if i not in self.values_upd:
+                self.values_upd[i] = s
+
         for update in self.ox_listeners: update(self)
 
-    def _update_extremes(self, window):
+    def _update_extremes(self):
         """
         find the extremes (minima and maxima) in all currently open experiments values, visible in the specified window
         e.g. the _currently relevant_ extremes
@@ -81,7 +88,7 @@ class PVConf:
             if i not in self.max_values or max_ > self.max_values[i]:
                 self.max_values[i] = max_
 
-        for view in self.ox_views(window):                                  # for each ExperimentView associated with this window
+        for view in self.ox_views():                                        # for each ExperimentView associated with this window
             if not view.y_values:                                           # if there are no visible values
                 continue                                                    # next - otherwise 
 
@@ -95,11 +102,11 @@ class PVConf:
 
     def set_x_values(self, index):
         old_x_values = self.x_values 
-        self.x_values = index
-        for view in chain(*(ox.views.values() for ox in self.open_experiments)):
+        self.x_values = index                           # self.x_values needs to be up to date when calling view.add/remove_y_values
+        for view in self.ox_views():
             if index in view.y_values:
                 view.remove_y_values(index)
-            view.add_y_values(old_x_values)
+                view.add_y_values(old_x_values)
         for update in self.x_listeners:
             update(self)
 
@@ -132,18 +139,17 @@ class PVConf:
 
     nvalues = property(fget=_get_nvalues)
     
-    def ox_views(self, window):
-        """return all experiment views for this window"""  
-        return [ox.views[window] for ox in self.open_experiments if window in ox.views]
+    def ox_views(self):
+        """return all experiment views for this conf's window"""  
+        return [ox.views[self.window] for ox in self.open_experiments]
 
-    def reset_scales(self, plot):
+    def reset_scales(self):
         "reset the scales to a sane default and notify all listeners afterwards"
-        for i, scale in self.default_scales(plot).iteritems():
-            self.values_upd[i] = scale
+        self.values_upd = self.default_scales()
         for update in self.scale_listeners:
             update(self)
 
-    def default_scales(self, plot):
+    def default_scales(self):
         """
         calculate scales such that all values fit into the given canvas size
         e.g. more or less the opposite of what bounding_box() does
@@ -153,10 +159,10 @@ class PVConf:
         #  in case the exactly same set of values are still plotted, this call is superfluous
         #  what should be done, really, would be to add a ExperimentView.listener for each experiment in this con
         #  and then make this call from that listener....
-        self._update_extremes(plot.window)
+        self._update_extremes()
 
         # the set of all y-values currently plotted for any experiment  
-        y_values = reduce(lambda a,b:a|b, (view.y_values for view in self.ox_views(plot.window)))
+        y_values = reduce(lambda a,b:a|b, (view.y_values for view in self.ox_views()))
 
         # the maximum value ranges in x- and y- direction
         xmaxrange = self.max_values[self.x_values] - self.min_values[self.x_values]
@@ -169,9 +175,12 @@ class PVConf:
         #  It would definitely not require that much work any more now to implement "method 2" as well and then combine the two, as claimed
         #  As it's not a show-stopper, however, we set other priorities and time is running out now ... ~~~ PP / Mo, 10.1. 17:17
 
-        scales = {}
-        scales[self.x_values] = xmaxrange * plot.ppd / float(plot.winfo_width())
+        plot = self.window.data_region.xy_plot
+
+        scales = { self.x_values: xmaxrange * plot.ppd / float(plot.winfo_width()) }
+
         for i in y_values: scales[i] = ymaxrange * plot.ppd / float(plot.winfo_height())
+
         return scales
 
     def bounding_box(self, plot):
@@ -181,7 +190,7 @@ class PVConf:
         """
 
         # the set of all y-values currently plotted for any experiment
-        y_values = reduce(lambda a,b:a|b, (view.y_values for view in self.ox_views(plot.window)))
+        y_values = reduce(lambda a,b:a|b, (view.y_values for view in self.ox_views()))
         
         # the left and right border of the bounding box in "divisions"
         xmin = self.min_values[self.x_values] / self.values_upd[self.x_values]
@@ -211,6 +220,7 @@ class OpenExperiment:
         self.views = { window: ExperimentView(self, window) }   # it could one day be possible to display an OpenExperiment
                                                                 # simultaneously in different windows, in different colors, ...
                                                                 # FIXME: only one view per window is possible right now
+                                                                # FIXME: maybe this reference(s) would better be stored on the conf (window)
 
         vals = ex_file.load_values()                            # the experment data, organized in a "column-array"
         if vals[0][0] == None:                                  # if there are no time values
@@ -277,7 +287,7 @@ class ExperimentView:
         self.y_values = set(range(1, ox.nvalues + 1))           # list of indices of values visible on y-axis
 
         existing_colors = [[ v>>8 for v in window.tk.winfo_rgb(window.data_region.xy_plot.canvas_color) ]]
-        for view in window.conf.ox_views(window):
+        for view in window.conf.ox_views():
             existing_colors += [[ v>>8 for v in window.tk.winfo_rgb(color) ] for color in view.colors ]
 
         self.colors = self.random_colors(ox.nvalues + 1, 128, existing_colors)

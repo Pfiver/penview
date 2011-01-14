@@ -110,8 +110,10 @@ class TabRegion(Frame):
         for i in range(view.ox.nvalues + 1):
             if i != self.window.conf.x_values:
                 tab.valueboxes[i].config(state=NORMAL)
+                tab.colorbuttons[i].config(state=NORMAL)
             else:
                 tab.valueboxes[i].config(state=DISABLED)
+                tab.colorbuttons[i].config(state=DISABLED)
             tab.colorbuttons[i].image.config(foreground=view.colors[i])
 
     def viewmode_update(self, conf):

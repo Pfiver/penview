@@ -95,17 +95,15 @@ if __name__ == "__main__":
     penview.tk_thread = threading.current_thread()
 
     # import the main modules
-    from model import PVConf                   # FIXME: we might want to check if python-tk is installed,
-    from window import PVWindow                #  as on a standard ubuntu maverick system it is seemingly NOT installed by default
-    from controller import PVController        #  ... in case it is not and we're on a debian system, suggest the user to "sudo apt-get install python-tk"
- 
+    from window import PVWindow                 # FIXME: we might want to check if python-tk is installed,
+    from controller import PVController         #  as on a standard ubuntu maverick system it is seemingly NOT installed by default
+                                                #  ... in case it is not and we're on a debian system, suggest the user to "sudo apt-get install python-tk"
     # say hi
     print "Welcome to %s!" % app_name
 
-    # instantiate the different parts of the application
-    conf = PVConf()                    # Model
-    window = PVWindow(conf)               # View
-    controller = PVController(conf, window)  # Controller
+    # instantiate the applications main classes
+    window = PVWindow()                         # View
+    controller = PVController(window)           # Controller
 
     # start the controller thread which, amongst other things, opens new files in the background
     controller.start()
@@ -121,7 +119,7 @@ if __name__ == "__main__":
 #        controller.q(PVAction.open_exp)
 #        controller.q(PVAction.open_exp)
 
-    # wait for the controller finish
+    # wait for the controller (that was hopefully notified) to finish
     controller.join()
     
     # say bye

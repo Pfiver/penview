@@ -14,9 +14,10 @@ class PVController(Thread):
 
     # constructor & api methods
     #
-    def __init__(self, conf, window):
+    def __init__(self, window):
         Thread.__init__(self)
-        self.conf = conf
+
+        self.conf = window.conf
         self.window = window
 
         self.loop = True
@@ -112,4 +113,4 @@ class PVController(Thread):
         self.conf.add_open_experiment(OpenExperiment(ex_file, self.window))
         
     def do_reset_scale(self):
-        self.conf.reset_scales(self.window.data_region.xy_plot)
+        self.conf.reset_scales()

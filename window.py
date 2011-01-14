@@ -6,12 +6,13 @@ from functools import partial
 from threading import Event, current_thread
 
 from penview import *
+from model import PVConf
 from tab_region import TabRegion
 from data_region import DataRegion
 
 class PVWindow:
-    def __init__(self, conf):
-        self.conf = conf
+    def __init__(self):
+        self.conf = PVConf(self)
         self.controller = None
         self.tk_do_q = Queue()  # a queue of things we have to do (function closures)
         self.tk_do_ret = {}     # a dictionary of Event objects to indicate something is done,
