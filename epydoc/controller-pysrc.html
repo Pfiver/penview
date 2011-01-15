@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>controller</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://p2000.github.com/penview/">PenView</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        Module&nbsp;controller
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="controller-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="controller-module.html">Module controller</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno">  1</tt>  <tt class="py-line"><tt class="py-comment"># encoding: utf-8</tt> </tt>
+<a name="L2"></a><tt class="py-lineno">  2</tt>  <tt class="py-line"> </tt>
+<a name="L3"></a><tt class="py-lineno">  3</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">os</tt> </tt>
+<a name="L4"></a><tt class="py-lineno">  4</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-name">Queue</tt> <tt class="py-keyword">import</tt> <tt class="py-name">Queue</tt> </tt>
+<a name="L5"></a><tt class="py-lineno">  5</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-name">threading</tt> <tt class="py-keyword">import</tt> <tt class="py-name">Thread</tt> </tt>
+<a name="L6"></a><tt class="py-lineno">  6</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-name">traceback</tt> <tt class="py-keyword">import</tt> <tt class="py-name">print_exc</tt> </tt>
+<a name="L7"></a><tt class="py-lineno">  7</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-name">tkMessageBox</tt> <tt class="py-keyword">import</tt> <tt class="py-name">showinfo</tt><tt class="py-op">,</tt> <tt class="py-name">showerror</tt> </tt>
+<a name="L8"></a><tt class="py-lineno">  8</tt>  <tt class="py-line"> </tt>
+<a name="L9"></a><tt class="py-lineno">  9</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-0" class="py-name" targets="Module penview=penview-module.html"><a title="penview" class="py-name" href="#" onclick="return doclink('link-0', 'penview', 'link-0');">penview</a></tt> <tt class="py-keyword">import</tt> <tt class="py-op">*</tt> </tt>
+<a name="L10"></a><tt class="py-lineno"> 10</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-1" class="py-name" targets="Module model=model-module.html"><a title="model" class="py-name" href="#" onclick="return doclink('link-1', 'model', 'link-1');">model</a></tt> <tt class="py-keyword">import</tt> <tt class="py-op">*</tt> </tt>
+<a name="L11"></a><tt class="py-lineno"> 11</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-2" class="py-name" targets="Module dialog=dialog-module.html"><a title="dialog" class="py-name" href="#" onclick="return doclink('link-2', 'dialog', 'link-2');">dialog</a></tt> <tt class="py-keyword">import</tt> <tt class="py-op">*</tt> </tt>
+<a name="L12"></a><tt class="py-lineno"> 12</tt>  <tt class="py-line"> </tt>
+<a name="PVController"></a><div id="PVController-def"><a name="L13"></a><tt class="py-lineno"> 13</tt> <a class="py-toggle" href="#" id="PVController-toggle" onclick="return toggle('PVController');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="controller.PVController-class.html">PVController</a><tt class="py-op">(</tt><tt class="py-base-class">Thread</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="PVController-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="PVController-expanded"><a name="L14"></a><tt class="py-lineno"> 14</tt>  <tt class="py-line"> </tt>
+<a name="L15"></a><tt class="py-lineno"> 15</tt>  <tt class="py-line">    <tt class="py-comment"># constructor &amp; api methods</tt> </tt>
+<a name="L16"></a><tt class="py-lineno"> 16</tt>  <tt class="py-line">    <tt class="py-comment">#</tt> </tt>
+<a name="PVController.__init__"></a><div id="PVController.__init__-def"><a name="L17"></a><tt class="py-lineno"> 17</tt> <a class="py-toggle" href="#" id="PVController.__init__-toggle" onclick="return toggle('PVController.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="controller.PVController-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">window</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="PVController.__init__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="PVController.__init__-expanded"><a name="L18"></a><tt class="py-lineno"> 18</tt>  <tt class="py-line">        <tt class="py-name">Thread</tt><tt class="py-op">.</tt><tt id="link-3" class="py-name" targets="Method controller.PVController.__init__()=controller.PVController-class.html#__init__,Method data_access.ExperimentFile.__init__()=data_access.ExperimentFile-class.html#__init__,Method data_import.CSVImporter.__init__()=data_import.CSVImporter-class.html#__init__,Method data_region.DataRegion.__init__()=data_region.DataRegion-class.html#__init__,Method graph_view.PlotControls.__init__()=graph_view.PlotControls-class.html#__init__,Method graph_view.ScrollRegion.__init__()=graph_view.ScrollRegion-class.html#__init__,Method graph_view.XYPlot.__init__()=graph_view.XYPlot-class.html#__init__,Method model.ExperimentView.__init__()=model.ExperimentView-class.html#__init__,Method model.OpenExperiment.__init__()=model.OpenExperiment-class.html#__init__,Method model.PVConf.__init__()=model.PVConf-class.html#__init__,Method model.RecentExperiment.__init__()=model.RecentExperiment-class.html#__init__,Method recipe_52266.MultiListbox.__init__()=recipe_52266.MultiListbox-class.html#__init__,Method tab_region.TabRegion.__init__()=tab_region.TabRegion-class.html#__init__,Method table_view.PVTable.__init__()=table_view.PVTable-class.html#__init__,Method window.PVWindow.__init__()=window.PVWindow-class.html#__init__"><a title="controller.PVController.__init__
+data_access.ExperimentFile.__init__
+data_import.CSVImporter.__init__
+data_region.DataRegion.__init__
+graph_view.PlotControls.__init__
+graph_view.ScrollRegion.__init__
+graph_view.XYPlot.__init__
+model.ExperimentView.__init__
+model.OpenExperiment.__init__
+model.PVConf.__init__
+model.RecentExperiment.__init__
+recipe_52266.MultiListbox.__init__
+tab_region.TabRegion.__init__
+table_view.PVTable.__init__
+window.PVWindow.__init__" class="py-name" href="#" onclick="return doclink('link-3', '__init__', 'link-3');">__init__</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">)</tt> </tt>
+<a name="L19"></a><tt class="py-lineno"> 19</tt>  <tt class="py-line"> </tt>
+<a name="L20"></a><tt class="py-lineno"> 20</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">conf</tt> <tt class="py-op">=</tt> <tt id="link-4" class="py-name" targets="Module window=window-module.html"><a title="window" class="py-name" href="#" onclick="return doclink('link-4', 'window', 'link-4');">window</a></tt><tt class="py-op">.</tt><tt class="py-name">conf</tt> </tt>
+<a name="L21"></a><tt class="py-lineno"> 21</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-5" class="py-name"><a title="window" class="py-name" href="#" onclick="return doclink('link-5', 'window', 'link-4');">window</a></tt> <tt class="py-op">=</tt> <tt id="link-6" class="py-name"><a title="window" class="py-name" href="#" onclick="return doclink('link-6', 'window', 'link-4');">window</a></tt> </tt>
+<a name="L22"></a><tt class="py-lineno"> 22</tt>  <tt class="py-line"> </tt>
+<a name="L23"></a><tt class="py-lineno"> 23</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">loop</tt> <tt class="py-op">=</tt> <tt class="py-name">True</tt> </tt>
+<a name="L24"></a><tt class="py-lineno"> 24</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">action_q</tt> <tt class="py-op">=</tt> <tt class="py-name">Queue</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L25"></a><tt class="py-lineno"> 25</tt>  <tt class="py-line"> </tt>
+<a name="L26"></a><tt class="py-lineno"> 26</tt>  <tt class="py-line">        <tt id="link-7" class="py-name"><a title="window" class="py-name" href="#" onclick="return doclink('link-7', 'window', 'link-4');">window</a></tt><tt class="py-op">.</tt><tt id="link-8" class="py-name" targets="Method window.PVWindow.set_controller()=window.PVWindow-class.html#set_controller"><a title="window.PVWindow.set_controller" class="py-name" href="#" onclick="return doclink('link-8', 'set_controller', 'link-8');">set_controller</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L27"></a><tt class="py-lineno"> 27</tt>  <tt class="py-line"> </tt>
+<a name="PVController.q"></a><div id="PVController.q-def"><a name="L28"></a><tt class="py-lineno"> 28</tt> <a class="py-toggle" href="#" id="PVController.q-toggle" onclick="return toggle('PVController.q');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="controller.PVController-class.html#q">q</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">action</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="PVController.q-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="PVController.q-expanded"><a name="L29"></a><tt class="py-lineno"> 29</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">action_q</tt><tt class="py-op">.</tt><tt class="py-name">put</tt><tt class="py-op">(</tt><tt class="py-name">action</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L30"></a><tt class="py-lineno"> 30</tt>  <tt class="py-line"> </tt>
+<a name="PVController.wait_idle"></a><div id="PVController.wait_idle-def"><a name="L31"></a><tt class="py-lineno"> 31</tt> <a class="py-toggle" href="#" id="PVController.wait_idle-toggle" onclick="return toggle('PVController.wait_idle');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="controller.PVController-class.html#wait_idle">wait_idle</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="PVController.wait_idle-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="PVController.wait_idle-expanded"><a name="L32"></a><tt class="py-lineno"> 32</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-9" class="py-name"><a title="window" class="py-name" href="#" onclick="return doclink('link-9', 'window', 'link-4');">window</a></tt><tt class="py-op">.</tt><tt id="link-10" class="py-name" targets="Method controller.PVController.wait_idle()=controller.PVController-class.html#wait_idle,Method window.PVWindow.wait_idle()=window.PVWindow-class.html#wait_idle"><a title="controller.PVController.wait_idle
+window.PVWindow.wait_idle" class="py-name" href="#" onclick="return doclink('link-10', 'wait_idle', 'link-10');">wait_idle</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L33"></a><tt class="py-lineno"> 33</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">action_q</tt><tt class="py-op">.</tt><tt class="py-name">join</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L34"></a><tt class="py-lineno"> 34</tt>  <tt class="py-line"> </tt>
+<a name="PVController.stop"></a><div id="PVController.stop-def"><a name="L35"></a><tt class="py-lineno"> 35</tt> <a class="py-toggle" href="#" id="PVController.stop-toggle" onclick="return toggle('PVController.stop');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="controller.PVController-class.html#stop">stop</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="PVController.stop-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="PVController.stop-expanded"><a name="L36"></a><tt class="py-lineno"> 36</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">loop</tt> <tt class="py-op">=</tt> <tt class="py-name">False</tt> </tt>
+</div><a name="L37"></a><tt class="py-lineno"> 37</tt>  <tt class="py-line"> </tt>
+<a name="L38"></a><tt class="py-lineno"> 38</tt>  <tt class="py-line">    <tt class="py-comment"># target function called by Thread.start()</tt> </tt>
+<a name="L39"></a><tt class="py-lineno"> 39</tt>  <tt class="py-line">    <tt class="py-comment">#</tt> </tt>
+<a name="PVController.run"></a><div id="PVController.run-def"><a name="L40"></a><tt class="py-lineno"> 40</tt> <a class="py-toggle" href="#" id="PVController.run-toggle" onclick="return toggle('PVController.run');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="controller.PVController-class.html#run">run</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="PVController.run-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="PVController.run-expanded"><a name="L41"></a><tt class="py-lineno"> 41</tt>  <tt class="py-line">        <tt class="py-keyword">while</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">loop</tt><tt class="py-op">:</tt> </tt>
+<a name="L42"></a><tt class="py-lineno"> 42</tt>  <tt class="py-line">            <tt class="py-name">task</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">action_q</tt><tt class="py-op">.</tt><tt id="link-11" class="py-name" targets="Method recipe_52266.MultiListbox.get()=recipe_52266.MultiListbox-class.html#get"><a title="recipe_52266.MultiListbox.get" class="py-name" href="#" onclick="return doclink('link-11', 'get', 'link-11');">get</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L43"></a><tt class="py-lineno"> 43</tt>  <tt class="py-line">            <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L44"></a><tt class="py-lineno"> 44</tt>  <tt class="py-line">                <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-12" class="py-name" targets="Method controller.PVController.get_handler()=controller.PVController-class.html#get_handler"><a title="controller.PVController.get_handler" class="py-name" href="#" onclick="return doclink('link-12', 'get_handler', 'link-12');">get_handler</a></tt><tt class="py-op">(</tt><tt class="py-name">task</tt><tt class="py-op">)</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L45"></a><tt class="py-lineno"> 45</tt>  <tt class="py-line">            <tt class="py-keyword">except</tt> <tt class="py-name">Exception</tt><tt class="py-op">,</tt> <tt class="py-name">e</tt><tt class="py-op">:</tt> </tt>
+<a name="L46"></a><tt class="py-lineno"> 46</tt>  <tt class="py-line">                <tt class="py-keyword">if</tt> <tt id="link-13" class="py-name" targets="Variable controller.debug_flag=controller-module.html#debug_flag,Variable data_access.debug_flag=data_access-module.html#debug_flag,Variable data_import.debug_flag=data_import-module.html#debug_flag,Variable data_region.debug_flag=data_region-module.html#debug_flag,Variable dialog.debug_flag=dialog-module.html#debug_flag,Variable graph_view.debug_flag=graph_view-module.html#debug_flag,Variable model.debug_flag=model-module.html#debug_flag,Variable penview.debug_flag=penview-module.html#debug_flag,Variable tab_region.debug_flag=tab_region-module.html#debug_flag,Variable table_view.debug_flag=table_view-module.html#debug_flag,Variable window.debug_flag=window-module.html#debug_flag"><a title="controller.debug_flag
+data_access.debug_flag
+data_import.debug_flag
+data_region.debug_flag
+dialog.debug_flag
+graph_view.debug_flag
+model.debug_flag
+penview.debug_flag
+tab_region.debug_flag
+table_view.debug_flag
+window.debug_flag" class="py-name" href="#" onclick="return doclink('link-13', 'debug_flag', 'link-13');">debug_flag</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L47"></a><tt class="py-lineno"> 47</tt>  <tt class="py-line">                    <tt class="py-name">print_exc</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L48"></a><tt class="py-lineno"> 48</tt>  <tt class="py-line">                <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L49"></a><tt class="py-lineno"> 49</tt>  <tt class="py-line">                    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-14" class="py-name"><a title="window" class="py-name" href="#" onclick="return doclink('link-14', 'window', 'link-4');">window</a></tt><tt class="py-op">.</tt><tt id="link-15" class="py-name" targets="Method window.PVWindow.tk_do()=window.PVWindow-class.html#tk_do"><a title="window.PVWindow.tk_do" class="py-name" href="#" onclick="return doclink('link-15', 'tk_do', 'link-15');">tk_do</a></tt><tt class="py-op">(</tt><tt class="py-name">showerror</tt><tt class="py-op">,</tt> <tt id="link-16" class="py-name" targets="Variable controller.app_name=controller-module.html#app_name,Variable data_import.app_name=data_import-module.html#app_name,Variable data_region.app_name=data_region-module.html#app_name,Variable dialog.app_name=dialog-module.html#app_name,Variable graph_view.app_name=graph_view-module.html#app_name,Variable model.app_name=model-module.html#app_name,Variable penview.app_name=penview-module.html#app_name,Variable tab_region.app_name=tab_region-module.html#app_name,Variable table_view.app_name=table_view-module.html#app_name,Variable window.app_name=window-module.html#app_name"><a title="controller.app_name
+data_import.app_name
+data_region.app_name
+dialog.app_name
+graph_view.app_name
+model.app_name
+penview.app_name
+tab_region.app_name
+table_view.app_name
+window.app_name" class="py-name" href="#" onclick="return doclink('link-16', 'app_name', 'link-16');">app_name</a></tt><tt class="py-op">,</tt> <tt class="py-name">str</tt><tt class="py-op">(</tt><tt class="py-name">e</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L50"></a><tt class="py-lineno"> 50</tt>  <tt class="py-line">            <tt class="py-keyword">finally</tt><tt class="py-op">:</tt> </tt>
+<a name="L51"></a><tt class="py-lineno"> 51</tt>  <tt class="py-line">                <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">action_q</tt><tt class="py-op">.</tt><tt class="py-name">task_done</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L52"></a><tt class="py-lineno"> 52</tt>  <tt class="py-line"> </tt>
+<a name="L53"></a><tt class="py-lineno"> 53</tt>  <tt class="py-line">    <tt class="py-comment"># helper function</tt> </tt>
+<a name="L54"></a><tt class="py-lineno"> 54</tt>  <tt class="py-line">    <tt class="py-comment">#</tt> </tt>
+<a name="PVController.get_handler"></a><div id="PVController.get_handler-def"><a name="L55"></a><tt class="py-lineno"> 55</tt> <a class="py-toggle" href="#" id="PVController.get_handler-toggle" onclick="return toggle('PVController.get_handler');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="controller.PVController-class.html#get_handler">get_handler</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">action</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="PVController.get_handler-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="PVController.get_handler-expanded"><a name="L56"></a><tt class="py-lineno"> 56</tt>  <tt class="py-line">        <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L57"></a><tt class="py-lineno"> 57</tt>  <tt class="py-line">            <tt class="py-keyword">return</tt> <tt class="py-name">getattr</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">,</tt> <tt class="py-string">"do_"</tt> <tt class="py-op">+</tt> <tt id="link-17" class="py-name" targets="Class penview.PVAction=penview.PVAction-class.html"><a title="penview.PVAction" class="py-name" href="#" onclick="return doclink('link-17', 'PVAction', 'link-17');">PVAction</a></tt><tt class="py-op">.</tt><tt id="link-18" class="py-name" targets="Class Method penview.PVAction.name()=penview.PVAction-class.html#name"><a title="penview.PVAction.name" class="py-name" href="#" onclick="return doclink('link-18', 'name', 'link-18');">name</a></tt><tt class="py-op">(</tt><tt class="py-name">action</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L58"></a><tt class="py-lineno"> 58</tt>  <tt class="py-line">        <tt class="py-keyword">except</tt> <tt class="py-name">AttributeError</tt><tt class="py-op">:</tt> </tt>
+<a name="L59"></a><tt class="py-lineno"> 59</tt>  <tt class="py-line">            <tt class="py-keyword">raise</tt> <tt class="py-name">Exception</tt><tt class="py-op">(</tt><tt class="py-string">"'%s' is not implemented yet"</tt> <tt class="py-op">%</tt> <tt id="link-19" class="py-name"><a title="penview.PVAction" class="py-name" href="#" onclick="return doclink('link-19', 'PVAction', 'link-17');">PVAction</a></tt><tt class="py-op">.</tt><tt id="link-20" class="py-name"><a title="penview.PVAction.name" class="py-name" href="#" onclick="return doclink('link-20', 'name', 'link-18');">name</a></tt><tt class="py-op">(</tt><tt class="py-name">action</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L60"></a><tt class="py-lineno"> 60</tt>  <tt class="py-line"> </tt>
+<a name="L61"></a><tt class="py-lineno"> 61</tt>  <tt class="py-line">    <tt class="py-comment"># event handlers for most defined actions</tt> </tt>
+<a name="L62"></a><tt class="py-lineno"> 62</tt>  <tt class="py-line">    <tt class="py-comment">#</tt> </tt>
+<a name="PVController.do_quit_app"></a><div id="PVController.do_quit_app-def"><a name="L63"></a><tt class="py-lineno"> 63</tt> <a class="py-toggle" href="#" id="PVController.do_quit_app-toggle" onclick="return toggle('PVController.do_quit_app');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="controller.PVController-class.html#do_quit_app">do_quit_app</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="PVController.do_quit_app-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="PVController.do_quit_app-expanded"><a name="L64"></a><tt class="py-lineno"> 64</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-21" class="py-name"><a title="window" class="py-name" href="#" onclick="return doclink('link-21', 'window', 'link-4');">window</a></tt><tt class="py-op">.</tt><tt id="link-22" class="py-name" targets="Method controller.PVController.stop()=controller.PVController-class.html#stop,Method window.PVWindow.stop()=window.PVWindow-class.html#stop"><a title="controller.PVController.stop
+window.PVWindow.stop" class="py-name" href="#" onclick="return doclink('link-22', 'stop', 'link-22');">stop</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L65"></a><tt class="py-lineno"> 65</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-23" class="py-name"><a title="controller.PVController.stop
+window.PVWindow.stop" class="py-name" href="#" onclick="return doclink('link-23', 'stop', 'link-22');">stop</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L66"></a><tt class="py-lineno"> 66</tt>  <tt class="py-line"> </tt>
+<a name="PVController.do_show_graph"></a><div id="PVController.do_show_graph-def"><a name="L67"></a><tt class="py-lineno"> 67</tt> <a class="py-toggle" href="#" id="PVController.do_show_graph-toggle" onclick="return toggle('PVController.do_show_graph');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="controller.PVController-class.html#do_show_graph">do_show_graph</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="PVController.do_show_graph-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="PVController.do_show_graph-expanded"><a name="L68"></a><tt class="py-lineno"> 68</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">conf</tt><tt class="py-op">.</tt><tt id="link-24" class="py-name" targets="Method model.PVConf.set_viewmode()=model.PVConf-class.html#set_viewmode"><a title="model.PVConf.set_viewmode" class="py-name" href="#" onclick="return doclink('link-24', 'set_viewmode', 'link-24');">set_viewmode</a></tt><tt class="py-op">(</tt><tt id="link-25" class="py-name" targets="Class penview.ViewMode=penview.ViewMode-class.html"><a title="penview.ViewMode" class="py-name" href="#" onclick="return doclink('link-25', 'ViewMode', 'link-25');">ViewMode</a></tt><tt class="py-op">.</tt><tt id="link-26" class="py-name" targets="Variable penview.ViewMode.graph=penview.ViewMode-class.html#graph"><a title="penview.ViewMode.graph" class="py-name" href="#" onclick="return doclink('link-26', 'graph', 'link-26');">graph</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L69"></a><tt class="py-lineno"> 69</tt>  <tt class="py-line"> </tt>
+<a name="PVController.do_show_table"></a><div id="PVController.do_show_table-def"><a name="L70"></a><tt class="py-lineno"> 70</tt> <a class="py-toggle" href="#" id="PVController.do_show_table-toggle" onclick="return toggle('PVController.do_show_table');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="controller.PVController-class.html#do_show_table">do_show_table</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="PVController.do_show_table-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="PVController.do_show_table-expanded"><a name="L71"></a><tt class="py-lineno"> 71</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">conf</tt><tt class="py-op">.</tt><tt id="link-27" class="py-name"><a title="model.PVConf.set_viewmode" class="py-name" href="#" onclick="return doclink('link-27', 'set_viewmode', 'link-24');">set_viewmode</a></tt><tt class="py-op">(</tt><tt id="link-28" class="py-name"><a title="penview.ViewMode" class="py-name" href="#" onclick="return doclink('link-28', 'ViewMode', 'link-25');">ViewMode</a></tt><tt class="py-op">.</tt><tt id="link-29" class="py-name" targets="Variable penview.ViewMode.table=penview.ViewMode-class.html#table"><a title="penview.ViewMode.table" class="py-name" href="#" onclick="return doclink('link-29', 'table', 'link-29');">table</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L72"></a><tt class="py-lineno"> 72</tt>  <tt class="py-line"> </tt>
+<a name="PVController.do_show_about"></a><div id="PVController.do_show_about-def"><a name="L73"></a><tt class="py-lineno"> 73</tt> <a class="py-toggle" href="#" id="PVController.do_show_about-toggle" onclick="return toggle('PVController.do_show_about');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="controller.PVController-class.html#do_show_about">do_show_about</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="PVController.do_show_about-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="PVController.do_show_about-expanded"><a name="L74"></a><tt class="py-lineno"> 74</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-30" class="py-name"><a title="window" class="py-name" href="#" onclick="return doclink('link-30', 'window', 'link-4');">window</a></tt><tt class="py-op">.</tt><tt id="link-31" class="py-name"><a title="window.PVWindow.tk_do" class="py-name" href="#" onclick="return doclink('link-31', 'tk_do', 'link-15');">tk_do</a></tt><tt class="py-op">(</tt><tt class="py-name">showinfo</tt><tt class="py-op">,</tt> <tt class="py-string">"%s"</tt> <tt class="py-op">%</tt> <tt id="link-32" class="py-name"><a title="controller.app_name
+data_import.app_name
+data_region.app_name
+dialog.app_name
+graph_view.app_name
+model.app_name
+penview.app_name
+tab_region.app_name
+table_view.app_name
+window.app_name" class="py-name" href="#" onclick="return doclink('link-32', 'app_name', 'link-16');">app_name</a></tt><tt class="py-op">,</tt> <tt class="py-string">"Version %s"</tt> <tt class="py-op">%</tt> <tt id="link-33" class="py-name" targets="Variable controller.app_version=controller-module.html#app_version,Variable data_import.app_version=data_import-module.html#app_version,Variable data_region.app_version=data_region-module.html#app_version,Variable dialog.app_version=dialog-module.html#app_version,Variable graph_view.app_version=graph_view-module.html#app_version,Variable model.app_version=model-module.html#app_version,Variable penview.app_version=penview-module.html#app_version,Variable tab_region.app_version=tab_region-module.html#app_version,Variable table_view.app_version=table_view-module.html#app_version,Variable window.app_version=window-module.html#app_version"><a title="controller.app_version
+data_import.app_version
+data_region.app_version
+dialog.app_version
+graph_view.app_version
+model.app_version
+penview.app_version
+tab_region.app_version
+table_view.app_version
+window.app_version" class="py-name" href="#" onclick="return doclink('link-33', 'app_version', 'link-33');">app_version</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L75"></a><tt class="py-lineno"> 75</tt>  <tt class="py-line"> </tt>
+<a name="PVController.do_show_help"></a><div id="PVController.do_show_help-def"><a name="L76"></a><tt class="py-lineno"> 76</tt> <a class="py-toggle" href="#" id="PVController.do_show_help-toggle" onclick="return toggle('PVController.do_show_help');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="controller.PVController-class.html#do_show_help">do_show_help</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="PVController.do_show_help-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="PVController.do_show_help-expanded"><a name="L77"></a><tt class="py-lineno"> 77</tt>  <tt class="py-line">        <tt class="py-keyword">import</tt> <tt class="py-name">webbrowser</tt> </tt>
+<a name="L78"></a><tt class="py-lineno"> 78</tt>  <tt class="py-line">        <tt class="py-name">homepage</tt> <tt class="py-op">=</tt> <tt class="py-string">"http://p2000.github.com/penview/"</tt> </tt>
+<a name="L79"></a><tt class="py-lineno"> 79</tt>  <tt class="py-line">        <tt class="py-name">message</tt> <tt class="py-op">=</tt> <tt class="py-string">"""Your default web browser should take you to the PenView home page, %s, shortly.\n"""</tt> <tt class="py-op">%</tt> <tt class="py-name">homepage</tt> <tt class="py-op">+</tt> \ </tt>
+<a name="L80"></a><tt class="py-lineno"> 80</tt>  <tt class="py-line">                  <tt class="py-string">"""Check the "Documentation" section there and if you still need further help, please don't hesitate to write an email to the developers."""</tt> </tt>
+<a name="L81"></a><tt class="py-lineno"> 81</tt>  <tt class="py-line">        <tt class="py-name">webbrowser</tt><tt class="py-op">.</tt><tt class="py-name">open</tt><tt class="py-op">(</tt><tt class="py-name">homepage</tt><tt class="py-op">)</tt> </tt>
+<a name="L82"></a><tt class="py-lineno"> 82</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-34" class="py-name"><a title="window" class="py-name" href="#" onclick="return doclink('link-34', 'window', 'link-4');">window</a></tt><tt class="py-op">.</tt><tt id="link-35" class="py-name"><a title="window.PVWindow.tk_do" class="py-name" href="#" onclick="return doclink('link-35', 'tk_do', 'link-15');">tk_do</a></tt><tt class="py-op">(</tt><tt class="py-name">showinfo</tt><tt class="py-op">,</tt> <tt class="py-string">"%s"</tt> <tt class="py-op">%</tt> <tt id="link-36" class="py-name"><a title="controller.app_name
+data_import.app_name
+data_region.app_name
+dialog.app_name
+graph_view.app_name
+model.app_name
+penview.app_name
+tab_region.app_name
+table_view.app_name
+window.app_name" class="py-name" href="#" onclick="return doclink('link-36', 'app_name', 'link-16');">app_name</a></tt><tt class="py-op">,</tt> <tt class="py-name">message</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L83"></a><tt class="py-lineno"> 83</tt>  <tt class="py-line"> </tt>
+<a name="PVController.do_open_exp"></a><div id="PVController.do_open_exp-def"><a name="L84"></a><tt class="py-lineno"> 84</tt> <a class="py-toggle" href="#" id="PVController.do_open_exp-toggle" onclick="return toggle('PVController.do_open_exp');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="controller.PVController-class.html#do_open_exp">do_open_exp</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="PVController.do_open_exp-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="PVController.do_open_exp-expanded"><a name="L85"></a><tt class="py-lineno"> 85</tt>  <tt class="py-line">        <tt class="py-name">path</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-37" class="py-name"><a title="window" class="py-name" href="#" onclick="return doclink('link-37', 'window', 'link-4');">window</a></tt><tt class="py-op">.</tt><tt id="link-38" class="py-name"><a title="window.PVWindow.tk_do" class="py-name" href="#" onclick="return doclink('link-38', 'tk_do', 'link-15');">tk_do</a></tt><tt class="py-op">(</tt><tt id="link-39" class="py-name" targets="Class dialog.Dialog=dialog.Dialog-class.html"><a title="dialog.Dialog" class="py-name" href="#" onclick="return doclink('link-39', 'Dialog', 'link-39');">Dialog</a></tt><tt class="py-op">.</tt><tt id="link-40" class="py-name" targets="Class Method dialog.Dialog.get_ex_path()=dialog.Dialog-class.html#get_ex_path"><a title="dialog.Dialog.get_ex_path" class="py-name" href="#" onclick="return doclink('link-40', 'get_ex_path', 'link-40');">get_ex_path</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L86"></a><tt class="py-lineno"> 86</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">path</tt><tt class="py-op">:</tt> </tt>
+<a name="L87"></a><tt class="py-lineno"> 87</tt>  <tt class="py-line">            <tt class="py-keyword">return</tt> </tt>
+<a name="L88"></a><tt class="py-lineno"> 88</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">conf</tt><tt class="py-op">.</tt><tt id="link-41" class="py-name" targets="Method model.PVConf.add_open_experiment()=model.PVConf-class.html#add_open_experiment"><a title="model.PVConf.add_open_experiment" class="py-name" href="#" onclick="return doclink('link-41', 'add_open_experiment', 'link-41');">add_open_experiment</a></tt><tt class="py-op">(</tt><tt id="link-42" class="py-name" targets="Class model.OpenExperiment=model.OpenExperiment-class.html"><a title="model.OpenExperiment" class="py-name" href="#" onclick="return doclink('link-42', 'OpenExperiment', 'link-42');">OpenExperiment</a></tt><tt class="py-op">(</tt><tt id="link-43" class="py-name" targets="Class data_access.ExperimentFile=data_access.ExperimentFile-class.html"><a title="data_access.ExperimentFile" class="py-name" href="#" onclick="return doclink('link-43', 'ExperimentFile', 'link-43');">ExperimentFile</a></tt><tt class="py-op">(</tt><tt class="py-name">path</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-44" class="py-name"><a title="window" class="py-name" href="#" onclick="return doclink('link-44', 'window', 'link-4');">window</a></tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L89"></a><tt class="py-lineno"> 89</tt>  <tt class="py-line"> </tt>
+<a name="PVController.do_import_exp"></a><div id="PVController.do_import_exp-def"><a name="L90"></a><tt class="py-lineno"> 90</tt> <a class="py-toggle" href="#" id="PVController.do_import_exp-toggle" onclick="return toggle('PVController.do_import_exp');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="controller.PVController-class.html#do_import_exp">do_import_exp</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="PVController.do_import_exp-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="PVController.do_import_exp-expanded"><a name="L91"></a><tt class="py-lineno"> 91</tt>  <tt class="py-line">        <tt class="py-name">path</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-45" class="py-name"><a title="window" class="py-name" href="#" onclick="return doclink('link-45', 'window', 'link-4');">window</a></tt><tt class="py-op">.</tt><tt id="link-46" class="py-name"><a title="window.PVWindow.tk_do" class="py-name" href="#" onclick="return doclink('link-46', 'tk_do', 'link-15');">tk_do</a></tt><tt class="py-op">(</tt><tt id="link-47" class="py-name"><a title="dialog.Dialog" class="py-name" href="#" onclick="return doclink('link-47', 'Dialog', 'link-39');">Dialog</a></tt><tt class="py-op">.</tt><tt id="link-48" class="py-name" targets="Class Method dialog.Dialog.get_csv_path()=dialog.Dialog-class.html#get_csv_path"><a title="dialog.Dialog.get_csv_path" class="py-name" href="#" onclick="return doclink('link-48', 'get_csv_path', 'link-48');">get_csv_path</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">path</tt><tt class="py-op">:</tt> </tt>
+<a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line">            <tt class="py-keyword">return</tt> </tt>
+<a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line">        <tt class="py-name">csv</tt> <tt class="py-op">=</tt> <tt id="link-49" class="py-name" targets="Class data_import.CSVImporter=data_import.CSVImporter-class.html"><a title="data_import.CSVImporter" class="py-name" href="#" onclick="return doclink('link-49', 'CSVImporter', 'link-49');">CSVImporter</a></tt><tt class="py-op">(</tt><tt class="py-name">path</tt><tt class="py-op">)</tt> </tt>
+<a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line">        <tt class="py-keyword">while</tt> <tt class="py-name">True</tt><tt class="py-op">:</tt> </tt>
+<a name="L96"></a><tt class="py-lineno"> 96</tt>  <tt class="py-line">            <tt class="py-name">ex_path</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-50" class="py-name"><a title="window" class="py-name" href="#" onclick="return doclink('link-50', 'window', 'link-4');">window</a></tt><tt class="py-op">.</tt><tt id="link-51" class="py-name"><a title="window.PVWindow.tk_do" class="py-name" href="#" onclick="return doclink('link-51', 'tk_do', 'link-15');">tk_do</a></tt><tt class="py-op">(</tt><tt id="link-52" class="py-name"><a title="dialog.Dialog" class="py-name" href="#" onclick="return doclink('link-52', 'Dialog', 'link-39');">Dialog</a></tt><tt class="py-op">.</tt><tt id="link-53" class="py-name" targets="Class Method dialog.Dialog.get_new_ex_path()=dialog.Dialog-class.html#get_new_ex_path"><a title="dialog.Dialog.get_new_ex_path" class="py-name" href="#" onclick="return doclink('link-53', 'get_new_ex_path', 'link-53');">get_new_ex_path</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L97"></a><tt class="py-lineno"> 97</tt>  <tt class="py-line">            <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">ex_path</tt><tt class="py-op">:</tt> </tt>
+<a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line">                <tt class="py-keyword">return</tt> </tt>
+<a name="L99"></a><tt class="py-lineno"> 99</tt>  <tt class="py-line">            <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">exists</tt><tt class="py-op">(</tt><tt class="py-name">ex_path</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L100"></a><tt class="py-lineno">100</tt>  <tt class="py-line">                <tt class="py-keyword">break</tt> </tt>
+<a name="L101"></a><tt class="py-lineno">101</tt>  <tt class="py-line">            <tt class="py-keyword">if</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-54" class="py-name"><a title="window" class="py-name" href="#" onclick="return doclink('link-54', 'window', 'link-4');">window</a></tt><tt class="py-op">.</tt><tt id="link-55" class="py-name"><a title="window.PVWindow.tk_do" class="py-name" href="#" onclick="return doclink('link-55', 'tk_do', 'link-15');">tk_do</a></tt><tt class="py-op">(</tt><tt class="py-name">askokcancel</tt><tt class="py-op">,</tt> <tt class="py-string">"Experiment File"</tt><tt class="py-op">,</tt> <tt class="py-string">"File exists. Overwrite?"</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line">                <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">unlink</tt><tt class="py-op">(</tt><tt class="py-name">ex_path</tt><tt class="py-op">)</tt> </tt>
+<a name="L103"></a><tt class="py-lineno">103</tt>  <tt class="py-line">                <tt class="py-keyword">break</tt> </tt>
+<a name="L104"></a><tt class="py-lineno">104</tt>  <tt class="py-line"> </tt>
+<a name="L105"></a><tt class="py-lineno">105</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">ex_path</tt><tt class="py-op">.</tt><tt class="py-name">endswith</tt><tt class="py-op">(</tt><tt class="py-string">".sqlite"</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L106"></a><tt class="py-lineno">106</tt>  <tt class="py-line">            <tt class="py-name">ex_path</tt> <tt class="py-op">+=</tt> <tt class="py-string">".sqlite"</tt> </tt>
+<a name="L107"></a><tt class="py-lineno">107</tt>  <tt class="py-line"> </tt>
+<a name="L108"></a><tt class="py-lineno">108</tt>  <tt class="py-line">        <tt class="py-name">ex_file</tt> <tt class="py-op">=</tt> <tt id="link-56" class="py-name"><a title="data_access.ExperimentFile" class="py-name" href="#" onclick="return doclink('link-56', 'ExperimentFile', 'link-43');">ExperimentFile</a></tt><tt class="py-op">(</tt><tt class="py-name">ex_path</tt><tt class="py-op">,</tt> <tt class="py-name">csv</tt><tt class="py-op">.</tt><tt class="py-name">rowsize</tt> <tt class="py-op">-</tt> <tt class="py-number">1</tt><tt class="py-op">)</tt> </tt>
+<a name="L109"></a><tt class="py-lineno">109</tt>  <tt class="py-line">         </tt>
+<a name="L110"></a><tt class="py-lineno">110</tt>  <tt class="py-line">        <tt class="py-name">ex_file</tt><tt class="py-op">.</tt><tt id="link-57" class="py-name" targets="Method data_access.ExperimentFile.store_values()=data_access.ExperimentFile-class.html#store_values"><a title="data_access.ExperimentFile.store_values" class="py-name" href="#" onclick="return doclink('link-57', 'store_values', 'link-57');">store_values</a></tt><tt class="py-op">(</tt><tt class="py-number">1</tt><tt class="py-op">,</tt> <tt class="py-name">csv</tt><tt class="py-op">.</tt><tt class="py-name">values</tt><tt class="py-op">)</tt> </tt>
+<a name="L111"></a><tt class="py-lineno">111</tt>  <tt class="py-line">        <tt class="py-name">ex_file</tt><tt class="py-op">.</tt><tt id="link-58" class="py-name" targets="Method data_access.ExperimentFile.store_metadata()=data_access.ExperimentFile-class.html#store_metadata"><a title="data_access.ExperimentFile.store_metadata" class="py-name" href="#" onclick="return doclink('link-58', 'store_metadata', 'link-58');">store_metadata</a></tt><tt class="py-op">(</tt><tt class="py-name">csv</tt><tt class="py-op">.</tt><tt class="py-name">metadata</tt><tt class="py-op">)</tt> </tt>
+<a name="L112"></a><tt class="py-lineno">112</tt>  <tt class="py-line">         </tt>
+<a name="L113"></a><tt class="py-lineno">113</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">conf</tt><tt class="py-op">.</tt><tt id="link-59" class="py-name"><a title="model.PVConf.add_open_experiment" class="py-name" href="#" onclick="return doclink('link-59', 'add_open_experiment', 'link-41');">add_open_experiment</a></tt><tt class="py-op">(</tt><tt id="link-60" class="py-name"><a title="model.OpenExperiment" class="py-name" href="#" onclick="return doclink('link-60', 'OpenExperiment', 'link-42');">OpenExperiment</a></tt><tt class="py-op">(</tt><tt class="py-name">ex_file</tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-61" class="py-name"><a title="window" class="py-name" href="#" onclick="return doclink('link-61', 'window', 'link-4');">window</a></tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L114"></a><tt class="py-lineno">114</tt>  <tt class="py-line">         </tt>
+<a name="PVController.do_reset_scale"></a><div id="PVController.do_reset_scale-def"><a name="L115"></a><tt class="py-lineno">115</tt> <a class="py-toggle" href="#" id="PVController.do_reset_scale-toggle" onclick="return toggle('PVController.do_reset_scale');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="controller.PVController-class.html#do_reset_scale">do_reset_scale</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="PVController.do_reset_scale-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="PVController.do_reset_scale-expanded"><a name="L116"></a><tt class="py-lineno">116</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">conf</tt><tt class="py-op">.</tt><tt id="link-62" class="py-name" targets="Method model.PVConf.reset_scales()=model.PVConf-class.html#reset_scales"><a title="model.PVConf.reset_scales" class="py-name" href="#" onclick="return doclink('link-62', 'reset_scales', 'link-62');">reset_scales</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+</div></div><a name="L117"></a><tt class="py-lineno">117</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://p2000.github.com/penview/">PenView</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Sat Jan 15 03:41:48 2011
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

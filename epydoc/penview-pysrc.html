@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>penview</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://p2000.github.com/penview/">PenView</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        Module&nbsp;penview
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="penview-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="penview-module.html">Module penview</a></h1>
+<pre class="py-src">
+<a name="PVAction"></a><div id="PVAction-def"><a name="L1"></a><tt class="py-lineno">  1</tt>  <tt class="py-line"><tt class="py-comment">#!/usr/bin/python</tt> </tt>
+<a name="L2"></a><tt class="py-lineno">  2</tt>  <tt class="py-line"><tt class="py-comment"># encoding: utf-8</tt> </tt>
+<a name="L3"></a><tt class="py-lineno">  3</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L4"></a><tt class="py-lineno">  4</tt>  <tt class="py-line"><tt class="py-comment"># Authors:</tt> </tt>
+<a name="L5"></a><tt class="py-lineno">  5</tt>  <tt class="py-line"><tt class="py-comment">#    Tobias Th&#252;ring &lt;tobias.thuering@students.fhnw.ch&gt;</tt> </tt>
+<a name="L6"></a><tt class="py-lineno">  6</tt>  <tt class="py-line"><tt class="py-comment">#    Patrick Pfeifer &lt;patrick.pfeifer@students.fhnw.ch&gt;</tt> </tt>
+<a name="L7"></a><tt class="py-lineno">  7</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L8"></a><tt class="py-lineno">  8</tt>  <tt class="py-line"><tt class="py-comment"># December 2010 / January 2011</tt> </tt>
+<a name="L9"></a><tt class="py-lineno">  9</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L10"></a><tt class="py-lineno"> 10</tt>  <tt class="py-line"><tt class="py-comment"># Copyleft GNU GPL version 3 or any later version: read the file COPYRIGHT</tt> </tt>
+<a name="L11"></a><tt class="py-lineno"> 11</tt>  <tt class="py-line"><tt class="py-comment">#  the latest version is available here: http://www.gnu.org/licenses/gpl.html</tt> </tt>
+<a name="L12"></a><tt class="py-lineno"> 12</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L13"></a><tt class="py-lineno"> 13</tt>  <tt class="py-line"><tt class="py-comment"># the product homepage is http://p2000.github.com/penview</tt> </tt>
+<a name="L14"></a><tt class="py-lineno"> 14</tt>  <tt class="py-line"><tt class="py-comment"># the source code is on github.com at https://github.com/P2000/penview</tt> </tt>
+<a name="L15"></a><tt class="py-lineno"> 15</tt>  <tt class="py-line"><tt class="py-comment"># the latest version can be git-cloned from git://github.com/P2000/penview.git</tt> </tt>
+<a name="L16"></a><tt class="py-lineno"> 16</tt>  <tt class="py-line"><tt class="py-comment"># an epyDoc generated api documentation is available at http://p2000.github.com/penview/epydoc</tt> </tt>
+<a name="L17"></a><tt class="py-lineno"> 17</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L18"></a><tt class="py-lineno"> 18</tt>  <tt class="py-line"> </tt>
+<a name="L19"></a><tt class="py-lineno"> 19</tt>  <tt class="py-line"><tt class="py-comment"># actions the controller knows how to handle</tt> </tt>
+<a name="L20"></a><tt class="py-lineno"> 20</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L21"></a><tt class="py-lineno"> 21</tt> <a class="py-toggle" href="#" id="PVAction-toggle" onclick="return toggle('PVAction');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="penview.PVAction-class.html">PVAction</a><tt class="py-op">:</tt> </tt>
+</div><div id="PVAction-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="PVAction-expanded"><a name="L22"></a><tt class="py-lineno"> 22</tt>  <tt class="py-line">    <tt id="link-0" class="py-name" targets="Variable penview.PVAction.open_exp=penview.PVAction-class.html#open_exp"><a title="penview.PVAction.open_exp" class="py-name" href="#" onclick="return doclink('link-0', 'open_exp', 'link-0');">open_exp</a></tt><tt class="py-op">,</tt> <tt id="link-1" class="py-name" targets="Variable penview.PVAction.import_exp=penview.PVAction-class.html#import_exp"><a title="penview.PVAction.import_exp" class="py-name" href="#" onclick="return doclink('link-1', 'import_exp', 'link-1');">import_exp</a></tt><tt class="py-op">,</tt> <tt id="link-2" class="py-name" targets="Variable penview.PVAction.quit_app=penview.PVAction-class.html#quit_app"><a title="penview.PVAction.quit_app" class="py-name" href="#" onclick="return doclink('link-2', 'quit_app', 'link-2');">quit_app</a></tt><tt class="py-op">,</tt> <tt id="link-3" class="py-name" targets="Variable penview.PVAction.show_help=penview.PVAction-class.html#show_help"><a title="penview.PVAction.show_help" class="py-name" href="#" onclick="return doclink('link-3', 'show_help', 'link-3');">show_help</a></tt><tt class="py-op">,</tt> <tt id="link-4" class="py-name" targets="Variable penview.PVAction.show_about=penview.PVAction-class.html#show_about"><a title="penview.PVAction.show_about" class="py-name" href="#" onclick="return doclink('link-4', 'show_about', 'link-4');">show_about</a></tt><tt class="py-op">,</tt> <tt id="link-5" class="py-name" targets="Method data_region.DataRegion.show_table()=data_region.DataRegion-class.html#show_table,Variable penview.PVAction.show_table=penview.PVAction-class.html#show_table"><a title="data_region.DataRegion.show_table
+penview.PVAction.show_table" class="py-name" href="#" onclick="return doclink('link-5', 'show_table', 'link-5');">show_table</a></tt><tt class="py-op">,</tt> <tt id="link-6" class="py-name" targets="Variable penview.PVAction.show_graph=penview.PVAction-class.html#show_graph"><a title="penview.PVAction.show_graph" class="py-name" href="#" onclick="return doclink('link-6', 'show_graph', 'link-6');">show_graph</a></tt><tt class="py-op">,</tt> <tt id="link-7" class="py-name" targets="Variable penview.PVAction.reset_scale=penview.PVAction-class.html#reset_scale"><a title="penview.PVAction.reset_scale" class="py-name" href="#" onclick="return doclink('link-7', 'reset_scale', 'link-7');">reset_scale</a></tt> <tt class="py-op">=</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-number">8</tt><tt class="py-op">)</tt> </tt>
+<a name="L23"></a><tt class="py-lineno"> 23</tt>  <tt class="py-line"> </tt>
+<a name="L24"></a><tt class="py-lineno"> 24</tt>  <tt class="py-line">    <tt class="py-comment"># a function to map an action number to its name</tt> </tt>
+<a name="L25"></a><tt class="py-lineno"> 25</tt>  <tt class="py-line">    <tt class="py-comment">#</tt> </tt>
+<a name="L26"></a><tt class="py-lineno"> 26</tt>  <tt class="py-line">    <tt class="py-decorator">@</tt><tt class="py-decorator">classmethod</tt> </tt>
+<a name="PVAction.name"></a><div id="PVAction.name-def"><a name="L27"></a><tt class="py-lineno"> 27</tt> <a class="py-toggle" href="#" id="PVAction.name-toggle" onclick="return toggle('PVAction.name');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="penview.PVAction-class.html#name">name</a><tt class="py-op">(</tt><tt class="py-param">cls</tt><tt class="py-op">,</tt> <tt class="py-param">number</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="PVAction.name-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="PVAction.name-expanded"><a name="L28"></a><tt class="py-lineno"> 28</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt class="py-name">attr</tt> <tt class="py-keyword">in</tt> <tt class="py-name">cls</tt><tt class="py-op">.</tt><tt class="py-name">__dict__</tt><tt class="py-op">:</tt> </tt>
+<a name="L29"></a><tt class="py-lineno"> 29</tt>  <tt class="py-line">            <tt class="py-keyword">if</tt> <tt class="py-name">getattr</tt><tt class="py-op">(</tt><tt class="py-name">cls</tt><tt class="py-op">,</tt> <tt class="py-name">attr</tt><tt class="py-op">)</tt> <tt class="py-op">==</tt> <tt class="py-name">number</tt><tt class="py-op">:</tt> </tt>
+<a name="L30"></a><tt class="py-lineno"> 30</tt>  <tt class="py-line">                <tt class="py-keyword">return</tt> <tt class="py-name">attr</tt> </tt>
+</div></div><a name="L31"></a><tt class="py-lineno"> 31</tt>  <tt class="py-line"> </tt>
+<a name="ViewMode"></a><div id="ViewMode-def"><a name="L32"></a><tt class="py-lineno"> 32</tt>  <tt class="py-line"><tt class="py-comment"># the possible experiment view modes</tt> </tt>
+<a name="L33"></a><tt class="py-lineno"> 33</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L34"></a><tt class="py-lineno"> 34</tt> <a class="py-toggle" href="#" id="ViewMode-toggle" onclick="return toggle('ViewMode');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="penview.ViewMode-class.html">ViewMode</a><tt class="py-op">:</tt> </tt>
+</div><div id="ViewMode-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="ViewMode-expanded"><a name="L35"></a><tt class="py-lineno"> 35</tt>  <tt class="py-line">    <tt id="link-8" class="py-name" targets="Variable penview.ViewMode.graph=penview.ViewMode-class.html#graph"><a title="penview.ViewMode.graph" class="py-name" href="#" onclick="return doclink('link-8', 'graph', 'link-8');">graph</a></tt><tt class="py-op">,</tt> <tt id="link-9" class="py-name" targets="Variable penview.ViewMode.table=penview.ViewMode-class.html#table"><a title="penview.ViewMode.table" class="py-name" href="#" onclick="return doclink('link-9', 'table', 'link-9');">table</a></tt> <tt class="py-op">=</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-number">2</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L36"></a><tt class="py-lineno"> 36</tt>  <tt class="py-line"> </tt>
+<a name="L37"></a><tt class="py-lineno"> 37</tt>  <tt class="py-line"><tt class="py-comment"># name and version of this application</tt> </tt>
+<a name="L38"></a><tt class="py-lineno"> 38</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L39"></a><tt class="py-lineno"> 39</tt>  <tt class="py-line"><tt id="link-10" class="py-name" targets="Variable controller.app_name=controller-module.html#app_name,Variable data_import.app_name=data_import-module.html#app_name,Variable data_region.app_name=data_region-module.html#app_name,Variable dialog.app_name=dialog-module.html#app_name,Variable graph_view.app_name=graph_view-module.html#app_name,Variable model.app_name=model-module.html#app_name,Variable penview.app_name=penview-module.html#app_name,Variable tab_region.app_name=tab_region-module.html#app_name,Variable table_view.app_name=table_view-module.html#app_name,Variable window.app_name=window-module.html#app_name"><a title="controller.app_name
+data_import.app_name
+data_region.app_name
+dialog.app_name
+graph_view.app_name
+model.app_name
+penview.app_name
+tab_region.app_name
+table_view.app_name
+window.app_name" class="py-name" href="#" onclick="return doclink('link-10', 'app_name', 'link-10');">app_name</a></tt> <tt class="py-op">=</tt> <tt class="py-string">"PenView"</tt> </tt>
+<a name="L40"></a><tt class="py-lineno"> 40</tt>  <tt class="py-line"><tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L41"></a><tt class="py-lineno"> 41</tt>  <tt class="py-line">    <tt id="link-11" class="py-name" targets="Variable controller.app_version=controller-module.html#app_version,Variable data_import.app_version=data_import-module.html#app_version,Variable data_region.app_version=data_region-module.html#app_version,Variable dialog.app_version=dialog-module.html#app_version,Variable graph_view.app_version=graph_view-module.html#app_version,Variable model.app_version=model-module.html#app_version,Variable penview.app_version=penview-module.html#app_version,Variable tab_region.app_version=tab_region-module.html#app_version,Variable table_view.app_version=table_view-module.html#app_version,Variable window.app_version=window-module.html#app_version"><a title="controller.app_version
+data_import.app_version
+data_region.app_version
+dialog.app_version
+graph_view.app_version
+model.app_version
+penview.app_version
+tab_region.app_version
+table_view.app_version
+window.app_version" class="py-name" href="#" onclick="return doclink('link-11', 'app_version', 'link-11');">app_version</a></tt> <tt class="py-op">=</tt> <tt class="py-name">open</tt><tt class="py-op">(</tt><tt class="py-string">".version"</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt class="py-name">read</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L42"></a><tt class="py-lineno"> 42</tt>  <tt class="py-line"><tt class="py-keyword">except</tt> <tt class="py-name">IOError</tt><tt class="py-op">:</tt> </tt>
+<a name="L43"></a><tt class="py-lineno"> 43</tt>  <tt class="py-line">    <tt id="link-12" class="py-name"><a title="controller.app_version
+data_import.app_version
+data_region.app_version
+dialog.app_version
+graph_view.app_version
+model.app_version
+penview.app_version
+tab_region.app_version
+table_view.app_version
+window.app_version" class="py-name" href="#" onclick="return doclink('link-12', 'app_version', 'link-11');">app_version</a></tt> <tt class="py-op">=</tt> <tt class="py-string">"unknown (.version file missing)"</tt> </tt>
+<a name="L44"></a><tt class="py-lineno"> 44</tt>  <tt class="py-line"> </tt>
+<a name="L45"></a><tt class="py-lineno"> 45</tt>  <tt class="py-line"><tt class="py-comment"># debug infrastructure</tt> </tt>
+<a name="L46"></a><tt class="py-lineno"> 46</tt>  <tt class="py-line"><tt class="py-comment">#  FIXME: next time use the "logging" module</tt> </tt>
+<a name="L47"></a><tt class="py-lineno"> 47</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L48"></a><tt class="py-lineno"> 48</tt>  <tt class="py-line"><tt id="link-13" class="py-name" targets="Variable controller.debug_flag=controller-module.html#debug_flag,Variable data_access.debug_flag=data_access-module.html#debug_flag,Variable data_import.debug_flag=data_import-module.html#debug_flag,Variable data_region.debug_flag=data_region-module.html#debug_flag,Variable dialog.debug_flag=dialog-module.html#debug_flag,Variable graph_view.debug_flag=graph_view-module.html#debug_flag,Variable model.debug_flag=model-module.html#debug_flag,Variable penview.debug_flag=penview-module.html#debug_flag,Variable tab_region.debug_flag=tab_region-module.html#debug_flag,Variable table_view.debug_flag=table_view-module.html#debug_flag,Variable window.debug_flag=window-module.html#debug_flag"><a title="controller.debug_flag
+data_access.debug_flag
+data_import.debug_flag
+data_region.debug_flag
+dialog.debug_flag
+graph_view.debug_flag
+model.debug_flag
+penview.debug_flag
+tab_region.debug_flag
+table_view.debug_flag
+window.debug_flag" class="py-name" href="#" onclick="return doclink('link-13', 'debug_flag', 'link-13');">debug_flag</a></tt> <tt class="py-op">=</tt> <tt class="py-name">False</tt> </tt>
+<a name="debug"></a><div id="debug-def"><a name="L49"></a><tt class="py-lineno"> 49</tt>  <tt class="py-line"> </tt>
+<a name="L50"></a><tt class="py-lineno"> 50</tt>  <tt class="py-line"><tt class="py-comment">#  if debug_flag is True or penview is run with a "-debug" argument,</tt> </tt>
+<a name="L51"></a><tt class="py-lineno"> 51</tt>  <tt class="py-line"><tt class="py-comment">#  then debug() is redefined later on</tt> </tt>
+<a name="L52"></a><tt class="py-lineno"> 52</tt> <a class="py-toggle" href="#" id="debug-toggle" onclick="return toggle('debug');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="penview-module.html#debug">debug</a><tt class="py-op">(</tt><tt class="py-op">*</tt><tt class="py-param">args</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> <tt class="py-keyword">pass</tt> </tt>
+</div><a name="L53"></a><tt class="py-lineno"> 53</tt>  <tt class="py-line"> </tt>
+<a name="L54"></a><tt class="py-lineno"> 54</tt>  <tt class="py-line"><tt class="py-comment"># "public static void main"</tt> </tt>
+<a name="L55"></a><tt class="py-lineno"> 55</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L56"></a><tt class="py-lineno"> 56</tt>  <tt class="py-line"><tt class="py-comment"># the if clause makes it possible for this file to serve two purposes at once:</tt> </tt>
+<a name="L57"></a><tt class="py-lineno"> 57</tt>  <tt class="py-line"><tt class="py-comment">#  1. as the container of applications main method</tt> </tt>
+<a name="L58"></a><tt class="py-lineno"> 58</tt>  <tt class="py-line"><tt class="py-comment">#  2. as a general "header" file that can be imported by all modules of the application</tt> </tt>
+<a name="L59"></a><tt class="py-lineno"> 59</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L60"></a><tt class="py-lineno"> 60</tt>  <tt class="py-line"><tt class="py-keyword">if</tt> <tt class="py-name">__name__</tt> <tt class="py-op">==</tt> <tt class="py-string">"__main__"</tt><tt class="py-op">:</tt> </tt>
+<a name="L61"></a><tt class="py-lineno"> 61</tt>  <tt class="py-line"> </tt>
+<a name="L62"></a><tt class="py-lineno"> 62</tt>  <tt class="py-line">    <tt class="py-comment"># import this file as a module once, so we can adjust some global variables</tt> </tt>
+<a name="L63"></a><tt class="py-lineno"> 63</tt>  <tt class="py-line">    <tt class="py-comment">#  Every module is imported only _once_ only by one</tt> </tt>
+<a name="L64"></a><tt class="py-lineno"> 64</tt>  <tt class="py-line">    <tt class="py-comment">#  python interpreter instance and kept in the sys.modules dictionary.</tt> </tt>
+<a name="L65"></a><tt class="py-lineno"> 65</tt>  <tt class="py-line">    <tt class="py-comment">#  After importing a module you can set variables on it. Then other modules,</tt> </tt>
+<a name="L66"></a><tt class="py-lineno"> 66</tt>  <tt class="py-line">    <tt class="py-comment">#  imported by the current module, that import the module _again, will see the changed values.</tt> </tt>
+<a name="L67"></a><tt class="py-lineno"> 67</tt>  <tt class="py-line">    <tt class="py-comment">#  - "from module import symbol" and then assigning to symbol doesn't work !</tt> </tt>
+<a name="L68"></a><tt class="py-lineno"> 68</tt>  <tt class="py-line">    <tt class="py-comment">#  - check dev/global_vars for an in-depth investigation of the import mechanics</tt> </tt>
+<a name="L69"></a><tt class="py-lineno"> 69</tt>  <tt class="py-line">    <tt class="py-keyword">import</tt> <tt id="link-14" class="py-name" targets="Module penview=penview-module.html"><a title="penview" class="py-name" href="#" onclick="return doclink('link-14', 'penview', 'link-14');">penview</a></tt> </tt>
+<a name="L70"></a><tt class="py-lineno"> 70</tt>  <tt class="py-line"> </tt>
+<a name="L71"></a><tt class="py-lineno"> 71</tt>  <tt class="py-line">    <tt class="py-comment"># debug infrastructure - part 2</tt> </tt>
+<a name="L72"></a><tt class="py-lineno"> 72</tt>  <tt class="py-line">    <tt class="py-comment">#</tt> </tt>
+<a name="L73"></a><tt class="py-lineno"> 73</tt>  <tt class="py-line">    <tt class="py-keyword">import</tt> <tt class="py-name">sys</tt> </tt>
+<a name="L74"></a><tt class="py-lineno"> 74</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt id="link-15" class="py-name"><a title="controller.debug_flag
+data_access.debug_flag
+data_import.debug_flag
+data_region.debug_flag
+dialog.debug_flag
+graph_view.debug_flag
+model.debug_flag
+penview.debug_flag
+tab_region.debug_flag
+table_view.debug_flag
+window.debug_flag" class="py-name" href="#" onclick="return doclink('link-15', 'debug_flag', 'link-13');">debug_flag</a></tt> <tt class="py-keyword">or</tt> <tt class="py-op">(</tt><tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">sys</tt><tt class="py-op">.</tt><tt class="py-name">argv</tt><tt class="py-op">)</tt> <tt class="py-op">&gt;</tt> <tt class="py-number">1</tt> <tt class="py-keyword">and</tt> <tt class="py-name">sys</tt><tt class="py-op">.</tt><tt class="py-name">argv</tt><tt class="py-op">[</tt><tt class="py-number">1</tt><tt class="py-op">]</tt> <tt class="py-op">==</tt> <tt class="py-string">"-debug"</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L75"></a><tt class="py-lineno"> 75</tt>  <tt class="py-line">        <tt class="py-keyword">import</tt> <tt class="py-name">os</tt> </tt>
+<a name="debug"></a><div id="debug-def"><a name="L76"></a><tt class="py-lineno"> 76</tt> <a class="py-toggle" href="#" id="debug-toggle" onclick="return toggle('debug');">-</a><tt class="py-line">        <tt class="py-keyword">def</tt> <a class="py-def-name" href="penview-module.html#debug">debug</a><tt class="py-op">(</tt><tt class="py-op">*</tt><tt class="py-param">args</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="debug-collapsed" style="display:none;" pad="+++" indent="++++++++++++++++"></div><div id="debug-expanded"><a name="L77"></a><tt class="py-lineno"> 77</tt>  <tt class="py-line">            <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">args</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L78"></a><tt class="py-lineno"> 78</tt>  <tt class="py-line">                <tt class="py-name">args</tt><tt class="py-op">=</tt><tt class="py-op">(</tt><tt class="py-string">""</tt><tt class="py-op">,</tt><tt class="py-op">)</tt>  </tt>
+<a name="L79"></a><tt class="py-lineno"> 79</tt>  <tt class="py-line">            <tt class="py-keyword">elif</tt> <tt class="py-name">type</tt><tt class="py-op">(</tt><tt class="py-name">args</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> <tt class="py-op">!=</tt> <tt class="py-name">str</tt><tt class="py-op">:</tt> </tt>
+<a name="L80"></a><tt class="py-lineno"> 80</tt>  <tt class="py-line">                <tt class="py-name">args</tt> <tt class="py-op">=</tt> <tt class="py-op">(</tt><tt class="py-string">" | "</tt><tt class="py-op">.</tt><tt class="py-name">join</tt><tt class="py-op">(</tt><tt class="py-name">str</tt><tt class="py-op">(</tt><tt class="py-name">arg</tt><tt class="py-op">)</tt> <tt class="py-keyword">for</tt> <tt class="py-name">arg</tt> <tt class="py-keyword">in</tt> <tt class="py-name">args</tt><tt class="py-op">)</tt><tt class="py-op">,</tt><tt class="py-op">)</tt> </tt>
+<a name="L81"></a><tt class="py-lineno"> 81</tt>  <tt class="py-line">            <tt class="py-name">frame</tt> <tt class="py-op">=</tt> <tt class="py-name">sys</tt><tt class="py-op">.</tt><tt class="py-name">_getframe</tt><tt class="py-op">(</tt><tt class="py-number">1</tt><tt class="py-op">)</tt><tt class="py-op">;</tt> <tt class="py-name">func</tt> <tt class="py-op">=</tt> <tt class="py-name">frame</tt><tt class="py-op">.</tt><tt class="py-name">f_code</tt><tt class="py-op">.</tt><tt class="py-name">co_name</tt> </tt>
+<a name="L82"></a><tt class="py-lineno"> 82</tt>  <tt class="py-line">            <tt class="py-keyword">if</tt> <tt class="py-string">'self'</tt> <tt class="py-keyword">in</tt> <tt class="py-name">frame</tt><tt class="py-op">.</tt><tt class="py-name">f_locals</tt><tt class="py-op">:</tt> <tt class="py-name">func</tt> <tt class="py-op">=</tt> <tt class="py-name">frame</tt><tt class="py-op">.</tt><tt class="py-name">f_locals</tt><tt class="py-op">[</tt><tt class="py-string">'self'</tt><tt class="py-op">]</tt><tt class="py-op">.</tt><tt class="py-name">__class__</tt><tt class="py-op">.</tt><tt class="py-name">__name__</tt> <tt class="py-op">+</tt> <tt class="py-string">"."</tt> <tt class="py-op">+</tt> <tt class="py-name">func</tt> </tt>
+<a name="L83"></a><tt class="py-lineno"> 83</tt>  <tt class="py-line">            <tt class="py-keyword">print</tt> <tt class="py-string">"(%s:%d) in %s(): %s"</tt> <tt class="py-op">%</tt> <tt class="py-op">(</tt><tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">basename</tt><tt class="py-op">(</tt><tt class="py-name">frame</tt><tt class="py-op">.</tt><tt class="py-name">f_code</tt><tt class="py-op">.</tt><tt class="py-name">co_filename</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> <tt class="py-name">frame</tt><tt class="py-op">.</tt><tt class="py-name">f_lineno</tt><tt class="py-op">,</tt> <tt class="py-name">func</tt><tt class="py-op">,</tt> <tt class="py-name">args</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> <tt class="py-op">%</tt> <tt class="py-name">args</tt><tt class="py-op">[</tt><tt class="py-number">1</tt><tt class="py-op">:</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L84"></a><tt class="py-lineno"> 84</tt>  <tt class="py-line">        <tt class="py-comment"># allways remember to FIRST "import penview" and THEN set penview.debug{,_flag} - as discussed above</tt> </tt>
+<a name="L85"></a><tt class="py-lineno"> 85</tt>  <tt class="py-line">        <tt id="link-16" class="py-name"><a title="penview" class="py-name" href="#" onclick="return doclink('link-16', 'penview', 'link-14');">penview</a></tt><tt class="py-op">.</tt><tt id="link-17" class="py-name" targets="Function data_access.debug()=data_access-module.html#debug,Function penview.debug()=penview-module.html#debug"><a title="data_access.debug
+penview.debug" class="py-name" href="#" onclick="return doclink('link-17', 'debug', 'link-17');">debug</a></tt> <tt class="py-op">=</tt> <tt id="link-18" class="py-name"><a title="data_access.debug
+penview.debug" class="py-name" href="#" onclick="return doclink('link-18', 'debug', 'link-17');">debug</a></tt> </tt>
+<a name="L86"></a><tt class="py-lineno"> 86</tt>  <tt class="py-line">        <tt id="link-19" class="py-name"><a title="penview" class="py-name" href="#" onclick="return doclink('link-19', 'penview', 'link-14');">penview</a></tt><tt class="py-op">.</tt><tt id="link-20" class="py-name"><a title="controller.debug_flag
+data_access.debug_flag
+data_import.debug_flag
+data_region.debug_flag
+dialog.debug_flag
+graph_view.debug_flag
+model.debug_flag
+penview.debug_flag
+tab_region.debug_flag
+table_view.debug_flag
+window.debug_flag" class="py-name" href="#" onclick="return doclink('link-20', 'debug_flag', 'link-13');">debug_flag</a></tt> <tt class="py-op">=</tt> <tt id="link-21" class="py-name"><a title="controller.debug_flag
+data_access.debug_flag
+data_import.debug_flag
+data_region.debug_flag
+dialog.debug_flag
+graph_view.debug_flag
+model.debug_flag
+penview.debug_flag
+tab_region.debug_flag
+table_view.debug_flag
+window.debug_flag" class="py-name" href="#" onclick="return doclink('link-21', 'debug_flag', 'link-13');">debug_flag</a></tt> <tt class="py-op">=</tt> <tt class="py-name">True</tt> </tt>
+<a name="L87"></a><tt class="py-lineno"> 87</tt>  <tt class="py-line"> </tt>
+<a name="L88"></a><tt class="py-lineno"> 88</tt>  <tt class="py-line">    <tt class="py-comment"># Mac OS/X has a really touchy Python to Tkinter bridge</tt> </tt>
+<a name="L89"></a><tt class="py-lineno"> 89</tt>  <tt class="py-line">    <tt class="py-comment">#  it insists in Tk() (and Tk.mainloop()) being called from the "main" thread</tt> </tt>
+<a name="L90"></a><tt class="py-lineno"> 90</tt>  <tt class="py-line">    <tt class="py-comment">#  this forced us to use our formerly mostly idle main thread as the PVWindow thread,</tt> </tt>
+<a name="L91"></a><tt class="py-lineno"> 91</tt>  <tt class="py-line">    <tt class="py-comment">#  which in turn makes it necessary to keep a reference to that main thread in this variable</tt> </tt>
+<a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line">    <tt class="py-comment">#  the variable will be available in locals() of any module doing an "from penview import *" AFTER the following assignment</tt> </tt>
+<a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line">    <tt class="py-comment"># same story here: keep the assignment ABOVE "from window import PVWindow" because PVWindow won't see it otherwise - as discussed above</tt> </tt>
+<a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line">    <tt class="py-keyword">import</tt> <tt class="py-name">threading</tt> </tt>
+<a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line">    <tt id="link-22" class="py-name"><a title="penview" class="py-name" href="#" onclick="return doclink('link-22', 'penview', 'link-14');">penview</a></tt><tt class="py-op">.</tt><tt class="py-name">tk_thread</tt> <tt class="py-op">=</tt> <tt class="py-name">threading</tt><tt class="py-op">.</tt><tt class="py-name">current_thread</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L96"></a><tt class="py-lineno"> 96</tt>  <tt class="py-line"> </tt>
+<a name="L97"></a><tt class="py-lineno"> 97</tt>  <tt class="py-line">    <tt class="py-comment"># import the main modules</tt> </tt>
+<a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line">    <tt class="py-keyword">from</tt> <tt id="link-23" class="py-name" targets="Module window=window-module.html"><a title="window" class="py-name" href="#" onclick="return doclink('link-23', 'window', 'link-23');">window</a></tt> <tt class="py-keyword">import</tt> <tt id="link-24" class="py-name" targets="Class window.PVWindow=window.PVWindow-class.html"><a title="window.PVWindow" class="py-name" href="#" onclick="return doclink('link-24', 'PVWindow', 'link-24');">PVWindow</a></tt>                 <tt class="py-comment"># FIXME: we might want to check if python-tk is installed,</tt> </tt>
+<a name="L99"></a><tt class="py-lineno"> 99</tt>  <tt class="py-line">    <tt class="py-keyword">from</tt> <tt id="link-25" class="py-name" targets="Module controller=controller-module.html"><a title="controller" class="py-name" href="#" onclick="return doclink('link-25', 'controller', 'link-25');">controller</a></tt> <tt class="py-keyword">import</tt> <tt id="link-26" class="py-name" targets="Class controller.PVController=controller.PVController-class.html"><a title="controller.PVController" class="py-name" href="#" onclick="return doclink('link-26', 'PVController', 'link-26');">PVController</a></tt>         <tt class="py-comment">#  as on a standard ubuntu maverick system it is seemingly NOT installed by default</tt> </tt>
+<a name="L100"></a><tt class="py-lineno">100</tt>  <tt class="py-line">                                                <tt class="py-comment">#  ... in case it is not and we're on a debian system, suggest the user to "sudo apt-get install python-tk"</tt> </tt>
+<a name="L101"></a><tt class="py-lineno">101</tt>  <tt class="py-line">    <tt class="py-comment"># say hi</tt> </tt>
+<a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line">    <tt class="py-keyword">print</tt> <tt class="py-string">"Welcome to %s!"</tt> <tt class="py-op">%</tt> <tt id="link-27" class="py-name"><a title="controller.app_name
+data_import.app_name
+data_region.app_name
+dialog.app_name
+graph_view.app_name
+model.app_name
+penview.app_name
+tab_region.app_name
+table_view.app_name
+window.app_name" class="py-name" href="#" onclick="return doclink('link-27', 'app_name', 'link-10');">app_name</a></tt> </tt>
+<a name="L103"></a><tt class="py-lineno">103</tt>  <tt class="py-line"> </tt>
+<a name="L104"></a><tt class="py-lineno">104</tt>  <tt class="py-line">    <tt class="py-comment"># instantiate the applications main classes</tt> </tt>
+<a name="L105"></a><tt class="py-lineno">105</tt>  <tt class="py-line">    <tt id="link-28" class="py-name"><a title="window" class="py-name" href="#" onclick="return doclink('link-28', 'window', 'link-23');">window</a></tt> <tt class="py-op">=</tt> <tt id="link-29" class="py-name"><a title="window.PVWindow" class="py-name" href="#" onclick="return doclink('link-29', 'PVWindow', 'link-24');">PVWindow</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt>                         <tt class="py-comment"># View</tt> </tt>
+<a name="L106"></a><tt class="py-lineno">106</tt>  <tt class="py-line">    <tt id="link-30" class="py-name"><a title="controller" class="py-name" href="#" onclick="return doclink('link-30', 'controller', 'link-25');">controller</a></tt> <tt class="py-op">=</tt> <tt id="link-31" class="py-name"><a title="controller.PVController" class="py-name" href="#" onclick="return doclink('link-31', 'PVController', 'link-26');">PVController</a></tt><tt class="py-op">(</tt><tt id="link-32" class="py-name"><a title="window" class="py-name" href="#" onclick="return doclink('link-32', 'window', 'link-23');">window</a></tt><tt class="py-op">)</tt>           <tt class="py-comment"># Controller</tt> </tt>
+<a name="L107"></a><tt class="py-lineno">107</tt>  <tt class="py-line"> </tt>
+<a name="L108"></a><tt class="py-lineno">108</tt>  <tt class="py-line">    <tt class="py-comment"># start the controller thread which, amongst other things, opens new files in the background</tt> </tt>
+<a name="L109"></a><tt class="py-lineno">109</tt>  <tt class="py-line">    <tt id="link-33" class="py-name"><a title="controller" class="py-name" href="#" onclick="return doclink('link-33', 'controller', 'link-25');">controller</a></tt><tt class="py-op">.</tt><tt class="py-name">start</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L110"></a><tt class="py-lineno">110</tt>  <tt class="py-line"> </tt>
+<a name="L111"></a><tt class="py-lineno">111</tt>  <tt class="py-line">    <tt class="py-comment"># and call PVWindow.main() which will end up in Tk.mainloop()</tt> </tt>
+<a name="L112"></a><tt class="py-lineno">112</tt>  <tt class="py-line">    <tt id="link-34" class="py-name"><a title="window" class="py-name" href="#" onclick="return doclink('link-34', 'window', 'link-23');">window</a></tt><tt class="py-op">.</tt><tt id="link-35" class="py-name" targets="Method window.PVWindow.main()=window.PVWindow-class.html#main"><a title="window.PVWindow.main" class="py-name" href="#" onclick="return doclink('link-35', 'main', 'link-35');">main</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L113"></a><tt class="py-lineno">113</tt>  <tt class="py-line"> </tt>
+<a name="L114"></a><tt class="py-lineno">114</tt>  <tt class="py-line">    <tt class="py-comment"># FIXME: this block is a victim of the super-touchy OS/X Python to Tkinter bridge</tt> </tt>
+<a name="L115"></a><tt class="py-lineno">115</tt>  <tt class="py-line">    <tt class="py-comment"># for easy debugging during the development phase, automatically open some experiments</tt> </tt>
+<a name="L116"></a><tt class="py-lineno">116</tt>  <tt class="py-line">    <tt class="py-comment"># the storage path of experiments being opened are defined in dialogs.py in OpenWizard in "examples"</tt> </tt>
+<a name="L117"></a><tt class="py-lineno">117</tt>  <tt class="py-line"><tt class="py-comment">#    if debug_flag:</tt> </tt>
+<a name="L118"></a><tt class="py-lineno">118</tt>  <tt class="py-line"><tt class="py-comment">#        controller.wait_idle()</tt> </tt>
+<a name="L119"></a><tt class="py-lineno">119</tt>  <tt class="py-line"><tt class="py-comment">#        controller.q(PVAction.open_exp)</tt> </tt>
+<a name="L120"></a><tt class="py-lineno">120</tt>  <tt class="py-line"><tt class="py-comment">#        controller.q(PVAction.open_exp)</tt> </tt>
+<a name="L121"></a><tt class="py-lineno">121</tt>  <tt class="py-line"> </tt>
+<a name="L122"></a><tt class="py-lineno">122</tt>  <tt class="py-line">    <tt class="py-comment"># wait for the controller (that was hopefully notified) to finish</tt> </tt>
+<a name="L123"></a><tt class="py-lineno">123</tt>  <tt class="py-line">    <tt id="link-36" class="py-name"><a title="controller" class="py-name" href="#" onclick="return doclink('link-36', 'controller', 'link-25');">controller</a></tt><tt class="py-op">.</tt><tt class="py-name">join</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L124"></a><tt class="py-lineno">124</tt>  <tt class="py-line">     </tt>
+<a name="L125"></a><tt class="py-lineno">125</tt>  <tt class="py-line">    <tt class="py-comment"># say bye</tt> </tt>
+<a name="L126"></a><tt class="py-lineno">126</tt>  <tt class="py-line">    <tt class="py-keyword">print</tt> <tt class="py-string">"Good Bye - Hope to se you again!"</tt> </tt>
+<a name="L127"></a><tt class="py-lineno">127</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://p2000.github.com/penview/">PenView</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Sat Jan 15 03:41:48 2011
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

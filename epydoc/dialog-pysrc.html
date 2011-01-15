@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>dialog</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://p2000.github.com/penview/">PenView</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        Module&nbsp;dialog
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="dialog-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="dialog-module.html">Module dialog</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno">  1</tt>  <tt class="py-line"><tt class="py-comment"># encoding: utf-8</tt> </tt>
+<a name="L2"></a><tt class="py-lineno">  2</tt>  <tt class="py-line"> </tt>
+<a name="L3"></a><tt class="py-lineno">  3</tt>  <tt class="py-line"><tt id="link-0" class="py-name" targets="Variable controller.impl=controller-module.html#impl,Variable dialog.impl=dialog-module.html#impl"><a title="controller.impl
+dialog.impl" class="py-name" href="#" onclick="return doclink('link-0', 'impl', 'link-0');">impl</a></tt> <tt class="py-op">=</tt> <tt class="py-docstring">"tkinter"</tt> </tt>
+<a name="L4"></a><tt class="py-lineno">  4</tt>  <tt class="py-line"><tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L5"></a><tt class="py-lineno">  5</tt>  <tt class="py-line">    <tt class="py-keyword">import</tt> <tt class="py-name">gtk</tt> </tt>
+<a name="L6"></a><tt class="py-lineno">  6</tt>  <tt class="py-line">    <tt id="link-1" class="py-name"><a title="controller.impl
+dialog.impl" class="py-name" href="#" onclick="return doclink('link-1', 'impl', 'link-0');">impl</a></tt> <tt class="py-op">=</tt> <tt class="py-string">"gtk"</tt> </tt>
+<a name="L7"></a><tt class="py-lineno">  7</tt>  <tt class="py-line"><tt class="py-keyword">except</tt><tt class="py-op">:</tt> </tt>
+<a name="L8"></a><tt class="py-lineno">  8</tt>  <tt class="py-line">    <tt class="py-keyword">from</tt> <tt class="py-name">Tkinter</tt> <tt class="py-keyword">import</tt> <tt class="py-op">*</tt> </tt>
+<a name="L9"></a><tt class="py-lineno">  9</tt>  <tt class="py-line">    <tt class="py-keyword">from</tt> <tt class="py-name">tkFileDialog</tt> <tt class="py-keyword">import</tt> <tt class="py-op">*</tt> </tt>
+<a name="L10"></a><tt class="py-lineno"> 10</tt>  <tt class="py-line"> </tt>
+<a name="L11"></a><tt class="py-lineno"> 11</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">os</tt> </tt>
+<a name="L12"></a><tt class="py-lineno"> 12</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-name">os</tt> <tt class="py-keyword">import</tt> <tt class="py-name">path</tt> </tt>
+<a name="L13"></a><tt class="py-lineno"> 13</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-name">itertools</tt> <tt class="py-keyword">import</tt> <tt class="py-name">count</tt> </tt>
+<a name="L14"></a><tt class="py-lineno"> 14</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-name">tkMessageBox</tt> <tt class="py-keyword">import</tt> <tt class="py-name">askokcancel</tt> </tt>
+<a name="L15"></a><tt class="py-lineno"> 15</tt>  <tt class="py-line"> </tt>
+<a name="L16"></a><tt class="py-lineno"> 16</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-2" class="py-name" targets="Module penview=penview-module.html"><a title="penview" class="py-name" href="#" onclick="return doclink('link-2', 'penview', 'link-2');">penview</a></tt> <tt class="py-keyword">import</tt> <tt class="py-op">*</tt> </tt>
+<a name="L17"></a><tt class="py-lineno"> 17</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-3" class="py-name" targets="Module data_import=data_import-module.html"><a title="data_import" class="py-name" href="#" onclick="return doclink('link-3', 'data_import', 'link-3');">data_import</a></tt> <tt class="py-keyword">import</tt> <tt id="link-4" class="py-name" targets="Class data_import.CSVImporter=data_import.CSVImporter-class.html"><a title="data_import.CSVImporter" class="py-name" href="#" onclick="return doclink('link-4', 'CSVImporter', 'link-4');">CSVImporter</a></tt> </tt>
+<a name="L18"></a><tt class="py-lineno"> 18</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-5" class="py-name" targets="Module data_access=data_access-module.html"><a title="data_access" class="py-name" href="#" onclick="return doclink('link-5', 'data_access', 'link-5');">data_access</a></tt> <tt class="py-keyword">import</tt> <tt id="link-6" class="py-name" targets="Class data_access.ExperimentFile=data_access.ExperimentFile-class.html"><a title="data_access.ExperimentFile" class="py-name" href="#" onclick="return doclink('link-6', 'ExperimentFile', 'link-6');">ExperimentFile</a></tt> </tt>
+<a name="Dialog"></a><div id="Dialog-def"><a name="L19"></a><tt class="py-lineno"> 19</tt>  <tt class="py-line"> </tt>
+<a name="L20"></a><tt class="py-lineno"> 20</tt> <a class="py-toggle" href="#" id="Dialog-toggle" onclick="return toggle('Dialog');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="dialog.Dialog-class.html">Dialog</a><tt class="py-op">:</tt> </tt>
+</div><div id="Dialog-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="Dialog-expanded"><a name="L21"></a><tt class="py-lineno"> 21</tt>  <tt class="py-line"> </tt>
+<a name="L22"></a><tt class="py-lineno"> 22</tt>  <tt class="py-line">    <tt id="link-7" class="py-name" targets="Variable dialog.Dialog.xi=dialog.Dialog-class.html#xi"><a title="dialog.Dialog.xi" class="py-name" href="#" onclick="return doclink('link-7', 'xi', 'link-7');">xi</a></tt> <tt class="py-op">=</tt> <tt class="py-name">count</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L23"></a><tt class="py-lineno"> 23</tt>  <tt class="py-line">    <tt id="link-8" class="py-name" targets="Variable dialog.Dialog.examples=dialog.Dialog-class.html#examples"><a title="dialog.Dialog.examples" class="py-name" href="#" onclick="return doclink('link-8', 'examples', 'link-8');">examples</a></tt> <tt class="py-op">=</tt> <tt class="py-op">(</tt> </tt>
+<a name="L24"></a><tt class="py-lineno"> 24</tt>  <tt class="py-line"><tt class="py-comment">#                'tests/sample-data/Eigenfrequenz (Chaos2).sqlite',                            # a small series in rad </tt> </tt>
+<a name="L25"></a><tt class="py-lineno"> 25</tt>  <tt class="py-line">                <tt class="py-string">'tests/sample-data/Chaotische Schwingung (Chaos4).sqlite'</tt><tt class="py-op">,</tt>                    <tt class="py-comment"># a bigger series in rad</tt> </tt>
+<a name="L26"></a><tt class="py-lineno"> 26</tt>  <tt class="py-line">                <tt class="py-string">'tests/sample-data/Doppelte nicht- Chaotische Schwingung (Chaos3.6).sqlite'</tt><tt class="py-op">,</tt>  <tt class="py-comment"># and an even bigger one, also rad</tt> </tt>
+<a name="L27"></a><tt class="py-lineno"> 27</tt>  <tt class="py-line"><tt class="py-comment">#                'tests/sample-data/Ged&#228;mpfte Schwingung mit Magnet 1mm.sqlite',               # 2 series, no time values</tt> </tt>
+<a name="L28"></a><tt class="py-lineno"> 28</tt>  <tt class="py-line">    <tt class="py-op">)</tt> </tt>
+<a name="L29"></a><tt class="py-lineno"> 29</tt>  <tt class="py-line"> </tt>
+<a name="L30"></a><tt class="py-lineno"> 30</tt>  <tt class="py-line">    <tt class="py-decorator">@</tt><tt class="py-decorator">classmethod</tt> </tt>
+<a name="Dialog.get_ex_path"></a><div id="Dialog.get_ex_path-def"><a name="L31"></a><tt class="py-lineno"> 31</tt> <a class="py-toggle" href="#" id="Dialog.get_ex_path-toggle" onclick="return toggle('Dialog.get_ex_path');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="dialog.Dialog-class.html#get_ex_path">get_ex_path</a><tt class="py-op">(</tt><tt class="py-param">cls</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Dialog.get_ex_path-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="Dialog.get_ex_path-expanded"><a name="L32"></a><tt class="py-lineno"> 32</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt id="link-9" class="py-name" targets="Variable controller.debug_flag=controller-module.html#debug_flag,Variable data_access.debug_flag=data_access-module.html#debug_flag,Variable data_import.debug_flag=data_import-module.html#debug_flag,Variable data_region.debug_flag=data_region-module.html#debug_flag,Variable dialog.debug_flag=dialog-module.html#debug_flag,Variable graph_view.debug_flag=graph_view-module.html#debug_flag,Variable model.debug_flag=model-module.html#debug_flag,Variable penview.debug_flag=penview-module.html#debug_flag,Variable tab_region.debug_flag=tab_region-module.html#debug_flag,Variable table_view.debug_flag=table_view-module.html#debug_flag,Variable window.debug_flag=window-module.html#debug_flag"><a title="controller.debug_flag
+data_access.debug_flag
+data_import.debug_flag
+data_region.debug_flag
+dialog.debug_flag
+graph_view.debug_flag
+model.debug_flag
+penview.debug_flag
+tab_region.debug_flag
+table_view.debug_flag
+window.debug_flag" class="py-name" href="#" onclick="return doclink('link-9', 'debug_flag', 'link-9');">debug_flag</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L33"></a><tt class="py-lineno"> 33</tt>  <tt class="py-line">            <tt class="py-name">next</tt> <tt class="py-op">=</tt> <tt class="py-name">cls</tt><tt class="py-op">.</tt><tt id="link-10" class="py-name"><a title="dialog.Dialog.xi" class="py-name" href="#" onclick="return doclink('link-10', 'xi', 'link-7');">xi</a></tt><tt class="py-op">.</tt><tt class="py-name">next</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L34"></a><tt class="py-lineno"> 34</tt>  <tt class="py-line">            <tt class="py-keyword">if</tt> <tt class="py-name">next</tt> <tt class="py-op">&lt;</tt> <tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">cls</tt><tt class="py-op">.</tt><tt id="link-11" class="py-name"><a title="dialog.Dialog.examples" class="py-name" href="#" onclick="return doclink('link-11', 'examples', 'link-8');">examples</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L35"></a><tt class="py-lineno"> 35</tt>  <tt class="py-line">                <tt class="py-keyword">return</tt> <tt class="py-name">cls</tt><tt class="py-op">.</tt><tt id="link-12" class="py-name"><a title="dialog.Dialog.examples" class="py-name" href="#" onclick="return doclink('link-12', 'examples', 'link-8');">examples</a></tt><tt class="py-op">[</tt><tt class="py-name">next</tt><tt class="py-op">]</tt> </tt>
+<a name="L36"></a><tt class="py-lineno"> 36</tt>  <tt class="py-line"> </tt>
+<a name="L37"></a><tt class="py-lineno"> 37</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt id="link-13" class="py-name" targets="Function dialog.askopenfilename()=dialog-module.html#askopenfilename"><a title="dialog.askopenfilename" class="py-name" href="#" onclick="return doclink('link-13', 'askopenfilename', 'link-13');">askopenfilename</a></tt><tt class="py-op">(</tt><tt class="py-name">filetypes</tt><tt class="py-op">=</tt><tt class="py-op">(</tt><tt class="py-op">(</tt><tt class="py-string">"Experiment Files"</tt><tt class="py-op">,</tt> <tt class="py-string">"*.sqlite"</tt><tt class="py-op">)</tt><tt class="py-op">,</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L38"></a><tt class="py-lineno"> 38</tt>  <tt class="py-line"> </tt>
+<a name="L39"></a><tt class="py-lineno"> 39</tt>  <tt class="py-line">    <tt class="py-decorator">@</tt><tt class="py-decorator">classmethod</tt> </tt>
+<a name="Dialog.get_new_ex_path"></a><div id="Dialog.get_new_ex_path-def"><a name="L40"></a><tt class="py-lineno"> 40</tt> <a class="py-toggle" href="#" id="Dialog.get_new_ex_path-toggle" onclick="return toggle('Dialog.get_new_ex_path');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="dialog.Dialog-class.html#get_new_ex_path">get_new_ex_path</a><tt class="py-op">(</tt><tt class="py-param">cls</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Dialog.get_new_ex_path-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="Dialog.get_new_ex_path-expanded"><a name="L41"></a><tt class="py-lineno"> 41</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt id="link-14" class="py-name" targets="Function dialog.asksaveasfilename()=dialog-module.html#asksaveasfilename"><a title="dialog.asksaveasfilename" class="py-name" href="#" onclick="return doclink('link-14', 'asksaveasfilename', 'link-14');">asksaveasfilename</a></tt><tt class="py-op">(</tt><tt class="py-name">filetypes</tt><tt class="py-op">=</tt><tt class="py-op">(</tt><tt class="py-op">(</tt><tt class="py-string">"Experiment Files"</tt><tt class="py-op">,</tt> <tt class="py-string">"*.sqlite"</tt><tt class="py-op">)</tt><tt class="py-op">,</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L42"></a><tt class="py-lineno"> 42</tt>  <tt class="py-line"> </tt>
+<a name="L43"></a><tt class="py-lineno"> 43</tt>  <tt class="py-line">    <tt class="py-decorator">@</tt><tt class="py-decorator">classmethod</tt> </tt>
+<a name="Dialog.get_csv_path"></a><div id="Dialog.get_csv_path-def"><a name="L44"></a><tt class="py-lineno"> 44</tt> <a class="py-toggle" href="#" id="Dialog.get_csv_path-toggle" onclick="return toggle('Dialog.get_csv_path');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="dialog.Dialog-class.html#get_csv_path">get_csv_path</a><tt class="py-op">(</tt><tt class="py-param">cls</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Dialog.get_csv_path-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="Dialog.get_csv_path-expanded"><a name="L45"></a><tt class="py-lineno"> 45</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt id="link-15" class="py-name"><a title="dialog.askopenfilename" class="py-name" href="#" onclick="return doclink('link-15', 'askopenfilename', 'link-13');">askopenfilename</a></tt><tt class="py-op">(</tt><tt class="py-name">filetypes</tt><tt class="py-op">=</tt><tt class="py-op">(</tt><tt class="py-op">(</tt><tt class="py-string">"CSV Files"</tt><tt class="py-op">,</tt> <tt class="py-string">"*.csv"</tt><tt class="py-op">)</tt><tt class="py-op">,</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div></div><a name="L46"></a><tt class="py-lineno"> 46</tt>  <tt class="py-line"> </tt>
+<a name="L47"></a><tt class="py-lineno"> 47</tt>  <tt class="py-line"><tt class="py-keyword">if</tt> <tt id="link-16" class="py-name"><a title="controller.impl
+dialog.impl" class="py-name" href="#" onclick="return doclink('link-16', 'impl', 'link-0');">impl</a></tt> <tt class="py-op">==</tt> <tt class="py-string">"gtk"</tt><tt class="py-op">:</tt> </tt>
+<a name="L48"></a><tt class="py-lineno"> 48</tt>  <tt class="py-line"> </tt>
+<a name="L49"></a><tt class="py-lineno"> 49</tt>  <tt class="py-line">    <tt class="py-name">gtk</tt><tt class="py-op">.</tt><tt class="py-name">gdk</tt><tt class="py-op">.</tt><tt class="py-name">threads_init</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="askopenfilename"></a><div id="askopenfilename-def"><a name="L50"></a><tt class="py-lineno"> 50</tt>  <tt class="py-line"> </tt>
+<a name="L51"></a><tt class="py-lineno"> 51</tt> <a class="py-toggle" href="#" id="askopenfilename-toggle" onclick="return toggle('askopenfilename');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="dialog-module.html#askopenfilename">askopenfilename</a><tt class="py-op">(</tt><tt class="py-param">filetypes</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="askopenfilename-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="askopenfilename-expanded"><a name="L52"></a><tt class="py-lineno"> 52</tt>  <tt class="py-line">        <tt id="link-17" class="py-name" targets="Module dialog=dialog-module.html"><a title="dialog" class="py-name" href="#" onclick="return doclink('link-17', 'dialog', 'link-17');">dialog</a></tt> <tt class="py-op">=</tt> <tt class="py-name">gtk</tt><tt class="py-op">.</tt><tt class="py-name">FileChooserDialog</tt><tt class="py-op">(</tt><tt class="py-string">"Open.."</tt><tt class="py-op">,</tt> <tt class="py-name">None</tt><tt class="py-op">,</tt> </tt>
+<a name="L53"></a><tt class="py-lineno"> 53</tt>  <tt class="py-line">                                       <tt class="py-name">gtk</tt><tt class="py-op">.</tt><tt class="py-name">FILE_CHOOSER_ACTION_OPEN</tt><tt class="py-op">,</tt> </tt>
+<a name="L54"></a><tt class="py-lineno"> 54</tt>  <tt class="py-line">                                       <tt class="py-op">(</tt><tt class="py-name">gtk</tt><tt class="py-op">.</tt><tt class="py-name">STOCK_CANCEL</tt><tt class="py-op">,</tt> <tt class="py-name">gtk</tt><tt class="py-op">.</tt><tt class="py-name">RESPONSE_CANCEL</tt><tt class="py-op">,</tt> <tt class="py-name">gtk</tt><tt class="py-op">.</tt><tt class="py-name">STOCK_OPEN</tt><tt class="py-op">,</tt> <tt class="py-name">gtk</tt><tt class="py-op">.</tt><tt class="py-name">RESPONSE_OK</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L55"></a><tt class="py-lineno"> 55</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">_run_dialog</tt><tt class="py-op">(</tt><tt id="link-18" class="py-name"><a title="dialog" class="py-name" href="#" onclick="return doclink('link-18', 'dialog', 'link-17');">dialog</a></tt><tt class="py-op">,</tt> <tt class="py-name">filetypes</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L56"></a><tt class="py-lineno"> 56</tt>  <tt class="py-line"> </tt>
+<a name="asksaveasfilename"></a><div id="asksaveasfilename-def"><a name="L57"></a><tt class="py-lineno"> 57</tt> <a class="py-toggle" href="#" id="asksaveasfilename-toggle" onclick="return toggle('asksaveasfilename');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="dialog-module.html#asksaveasfilename">asksaveasfilename</a><tt class="py-op">(</tt><tt class="py-param">filetypes</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="asksaveasfilename-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="asksaveasfilename-expanded"><a name="L58"></a><tt class="py-lineno"> 58</tt>  <tt class="py-line">        <tt id="link-19" class="py-name"><a title="dialog" class="py-name" href="#" onclick="return doclink('link-19', 'dialog', 'link-17');">dialog</a></tt> <tt class="py-op">=</tt> <tt class="py-name">gtk</tt><tt class="py-op">.</tt><tt class="py-name">FileChooserDialog</tt><tt class="py-op">(</tt><tt class="py-string">"Save.."</tt><tt class="py-op">,</tt> <tt class="py-name">None</tt><tt class="py-op">,</tt> </tt>
+<a name="L59"></a><tt class="py-lineno"> 59</tt>  <tt class="py-line">                                       <tt class="py-name">gtk</tt><tt class="py-op">.</tt><tt class="py-name">FILE_CHOOSER_ACTION_SAVE</tt><tt class="py-op">,</tt> </tt>
+<a name="L60"></a><tt class="py-lineno"> 60</tt>  <tt class="py-line">                                       <tt class="py-op">(</tt><tt class="py-name">gtk</tt><tt class="py-op">.</tt><tt class="py-name">STOCK_CANCEL</tt><tt class="py-op">,</tt> <tt class="py-name">gtk</tt><tt class="py-op">.</tt><tt class="py-name">RESPONSE_CANCEL</tt><tt class="py-op">,</tt> <tt class="py-name">gtk</tt><tt class="py-op">.</tt><tt class="py-name">STOCK_SAVE</tt><tt class="py-op">,</tt> <tt class="py-name">gtk</tt><tt class="py-op">.</tt><tt class="py-name">RESPONSE_OK</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L61"></a><tt class="py-lineno"> 61</tt>  <tt class="py-line">        <tt class="py-name">ret</tt> <tt class="py-op">=</tt> <tt class="py-name">_run_dialog</tt><tt class="py-op">(</tt><tt id="link-20" class="py-name"><a title="dialog" class="py-name" href="#" onclick="return doclink('link-20', 'dialog', 'link-17');">dialog</a></tt><tt class="py-op">,</tt> <tt class="py-name">filetypes</tt><tt class="py-op">)</tt> </tt>
+<a name="L62"></a><tt class="py-lineno"> 62</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">ret</tt> <tt class="py-keyword">and</tt> <tt class="py-keyword">not</tt> <tt class="py-name">ret</tt><tt class="py-op">.</tt><tt class="py-name">endswith</tt><tt class="py-op">(</tt><tt class="py-string">".sqlite"</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L63"></a><tt class="py-lineno"> 63</tt>  <tt class="py-line">            <tt class="py-name">ret</tt> <tt class="py-op">+=</tt> <tt class="py-string">".sqlite"</tt> </tt>
+<a name="L64"></a><tt class="py-lineno"> 64</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">ret</tt> </tt>
+</div><a name="L65"></a><tt class="py-lineno"> 65</tt>  <tt class="py-line"> </tt>
+<a name="_run_dialog"></a><div id="_run_dialog-def"><a name="L66"></a><tt class="py-lineno"> 66</tt> <a class="py-toggle" href="#" id="_run_dialog-toggle" onclick="return toggle('_run_dialog');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="dialog-module.html#_run_dialog">_run_dialog</a><tt class="py-op">(</tt><tt class="py-param">dialog</tt><tt class="py-op">,</tt> <tt class="py-param">filetypes</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_run_dialog-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="_run_dialog-expanded"><a name="L67"></a><tt class="py-lineno"> 67</tt>  <tt class="py-line">        <tt class="py-name">filter</tt> <tt class="py-op">=</tt> <tt class="py-name">gtk</tt><tt class="py-op">.</tt><tt class="py-name">FileFilter</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L68"></a><tt class="py-lineno"> 68</tt>  <tt class="py-line">        <tt class="py-name">filter</tt><tt class="py-op">.</tt><tt class="py-name">set_name</tt><tt class="py-op">(</tt><tt class="py-name">filetypes</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L69"></a><tt class="py-lineno"> 69</tt>  <tt class="py-line">        <tt class="py-name">filter</tt><tt class="py-op">.</tt><tt class="py-name">add_pattern</tt><tt class="py-op">(</tt><tt class="py-name">filetypes</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">[</tt><tt class="py-number">1</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L70"></a><tt class="py-lineno"> 70</tt>  <tt class="py-line">        <tt id="link-21" class="py-name"><a title="dialog" class="py-name" href="#" onclick="return doclink('link-21', 'dialog', 'link-17');">dialog</a></tt><tt class="py-op">.</tt><tt class="py-name">add_filter</tt><tt class="py-op">(</tt><tt class="py-name">filter</tt><tt class="py-op">)</tt> </tt>
+<a name="L71"></a><tt class="py-lineno"> 71</tt>  <tt class="py-line">        <tt id="link-22" class="py-name"><a title="dialog" class="py-name" href="#" onclick="return doclink('link-22', 'dialog', 'link-17');">dialog</a></tt><tt class="py-op">.</tt><tt class="py-name">set_default_response</tt><tt class="py-op">(</tt><tt class="py-name">gtk</tt><tt class="py-op">.</tt><tt class="py-name">RESPONSE_OK</tt><tt class="py-op">)</tt> </tt>
+<a name="L72"></a><tt class="py-lineno"> 72</tt>  <tt class="py-line"> </tt>
+<a name="L73"></a><tt class="py-lineno"> 73</tt>  <tt class="py-line"><tt class="py-comment"># aaaw</tt> </tt>
+<a name="L74"></a><tt class="py-lineno"> 74</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L75"></a><tt class="py-lineno"> 75</tt>  <tt class="py-line"><tt class="py-comment"># this took a _bit_ long (~10hrs)</tt> </tt>
+<a name="L76"></a><tt class="py-lineno"> 76</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L77"></a><tt class="py-lineno"> 77</tt>  <tt class="py-line"><tt class="py-comment"># initial problems because of metacity (the gnome window manager) focus-stealing-prevention kicking in:</tt> </tt>
+<a name="L78"></a><tt class="py-lineno"> 78</tt>  <tt class="py-line"><tt class="py-comment">#  starting from the second time selecting creating an open/save dialog, it was not focused initially under ubuntu lucid (10.04)</tt> </tt>
+<a name="L79"></a><tt class="py-lineno"> 79</tt>  <tt class="py-line"><tt class="py-comment">#  (at least not with gconf:/apps/metacity/general/focus_mode set to "sloppy")</tt> </tt>
+<a name="L80"></a><tt class="py-lineno"> 80</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L81"></a><tt class="py-lineno"> 81</tt>  <tt class="py-line"><tt class="py-comment"># salvation came through studying metacity source code, running metacity in debug/verbose mode</tt> </tt>
+<a name="L82"></a><tt class="py-lineno"> 82</tt>  <tt class="py-line"><tt class="py-comment"># ("$ METACITY_VERBOSE=1 METACITY_USE_LOGFILE=1 metacity --replace"), reading delelopper mailing list threads etc...</tt> </tt>
+<a name="L83"></a><tt class="py-lineno"> 83</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L84"></a><tt class="py-lineno"> 84</tt>  <tt class="py-line"><tt class="py-comment"># verbose mode revealed that the problem is provoked by some code in http://git.gnome.org/browse/metacity/tree/src/core/window.c#n1904</tt> </tt>
+<a name="L85"></a><tt class="py-lineno"> 85</tt>  <tt class="py-line"><tt class="py-comment"># in intervening_user_event_occurred() (line 1905: ... "focus prevented by other activity" ...):</tt> </tt>
+<a name="L86"></a><tt class="py-lineno"> 86</tt>  <tt class="py-line"><tt class="py-comment">#  i assume that "import gtk" causes the creation of a hidden window which records a timestamp for user activity in any gtk window</tt> </tt>
+<a name="L87"></a><tt class="py-lineno"> 87</tt>  <tt class="py-line"><tt class="py-comment">#  this timestamp is not updated any after the first gtk_file_cooser dialog is closed (because there are no other visible gtk windows)</tt> </tt>
+<a name="L88"></a><tt class="py-lineno"> 88</tt>  <tt class="py-line"><tt class="py-comment">#  when metacity initially maps a NEW window on the screen, it checks if there was any user activity the CURRENTLY focused window AFTER</tt> </tt>
+<a name="L89"></a><tt class="py-lineno"> 89</tt>  <tt class="py-line"><tt class="py-comment">#  the application mapping the new window was started OR has seen user any activity</tt> </tt>
+<a name="L90"></a><tt class="py-lineno"> 90</tt>  <tt class="py-line"><tt class="py-comment">#  because the application (the gtk tooklit) was started (import gtk) long time back and the last user activity was also recorded</tt> </tt>
+<a name="L91"></a><tt class="py-lineno"> 91</tt>  <tt class="py-line"><tt class="py-comment">#  BEFORE the the last user activity in the CURRENT application (tkinter) was recorded, it decides that this is a case where</tt> </tt>
+<a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line"><tt class="py-comment">#  focus-stealing-preventionshould kick in and doesn't activate/focus/raise the new dialog window. In fact it will be a "case 1)", as</tt> </tt>
+<a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line"><tt class="py-comment">#  described here: http://git.gnome.org/browse/metacity/tree/doc/how-to-get-focus-right.txt#n58</tt> </tt>
+<a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line"><tt class="py-comment"># some references:</tt> </tt>
+<a name="L96"></a><tt class="py-lineno"> 96</tt>  <tt class="py-line"><tt class="py-comment">#  on focus-stealing-prevention:</tt> </tt>
+<a name="L97"></a><tt class="py-lineno"> 97</tt>  <tt class="py-line"><tt class="py-comment">#   - http://standards.freedesktop.org/wm-spec/latest/ar01s05.html#id2569834</tt> </tt>
+<a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line"><tt class="py-comment">#   - http://git.gnome.org/browse/metacity/plain/doc/how-to-get-focus-right.txt</tt> </tt>
+<a name="L99"></a><tt class="py-lineno"> 99</tt>  <tt class="py-line"><tt class="py-comment">#  on the gtk methods used to circumvent the problem:</tt> </tt>
+<a name="L100"></a><tt class="py-lineno">100</tt>  <tt class="py-line"><tt class="py-comment">#   - http://www.pygtk.org/docs/pygtk/class-gtkwidget.html#method-gtkwidget--realize</tt> </tt>
+<a name="L101"></a><tt class="py-lineno">101</tt>  <tt class="py-line"><tt class="py-comment">#   - http://www.pygtk.org/docs/pygtk/class-gtkwidget.html#method-gtkwidget--get-window</tt> </tt>
+<a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line"><tt class="py-comment">#   - http://www.pygtk.org/docs/pygtk/class-gdkwindow.html#method-gdkwindow--property-change</tt> </tt>
+<a name="L103"></a><tt class="py-lineno">103</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L104"></a><tt class="py-lineno">104</tt>  <tt class="py-line">        <tt id="link-23" class="py-name"><a title="dialog" class="py-name" href="#" onclick="return doclink('link-23', 'dialog', 'link-17');">dialog</a></tt><tt class="py-op">.</tt><tt class="py-name">realize</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L105"></a><tt class="py-lineno">105</tt>  <tt class="py-line">        <tt id="link-24" class="py-name"><a title="dialog" class="py-name" href="#" onclick="return doclink('link-24', 'dialog', 'link-17');">dialog</a></tt><tt class="py-op">.</tt><tt class="py-name">get_window</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt class="py-name">property_delete</tt><tt class="py-op">(</tt><tt class="py-string">"_NET_WM_USER_TIME"</tt><tt class="py-op">)</tt> </tt>
+<a name="L106"></a><tt class="py-lineno">106</tt>  <tt class="py-line">        <tt id="link-25" class="py-name"><a title="dialog" class="py-name" href="#" onclick="return doclink('link-25', 'dialog', 'link-17');">dialog</a></tt><tt class="py-op">.</tt><tt class="py-name">get_window</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt class="py-name">property_delete</tt><tt class="py-op">(</tt><tt class="py-string">"_NET_WM_USER_TIME_WINDOW"</tt><tt class="py-op">)</tt> </tt>
+<a name="L107"></a><tt class="py-lineno">107</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L108"></a><tt class="py-lineno">108</tt>  <tt class="py-line"><tt class="py-comment"># aaaw off</tt> </tt>
+<a name="L109"></a><tt class="py-lineno">109</tt>  <tt class="py-line">         </tt>
+<a name="L110"></a><tt class="py-lineno">110</tt>  <tt class="py-line">        <tt class="py-name">ret</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L111"></a><tt class="py-lineno">111</tt>  <tt class="py-line">        <tt class="py-name">response</tt> <tt class="py-op">=</tt> <tt id="link-26" class="py-name"><a title="dialog" class="py-name" href="#" onclick="return doclink('link-26', 'dialog', 'link-17');">dialog</a></tt><tt class="py-op">.</tt><tt id="link-27" class="py-name" targets="Method controller.PVController.run()=controller.PVController-class.html#run"><a title="controller.PVController.run" class="py-name" href="#" onclick="return doclink('link-27', 'run', 'link-27');">run</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L112"></a><tt class="py-lineno">112</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">response</tt> <tt class="py-op">==</tt> <tt class="py-name">gtk</tt><tt class="py-op">.</tt><tt class="py-name">RESPONSE_OK</tt><tt class="py-op">:</tt> </tt>
+<a name="L113"></a><tt class="py-lineno">113</tt>  <tt class="py-line">            <tt class="py-name">ret</tt> <tt class="py-op">=</tt> <tt id="link-28" class="py-name"><a title="dialog" class="py-name" href="#" onclick="return doclink('link-28', 'dialog', 'link-17');">dialog</a></tt><tt class="py-op">.</tt><tt class="py-name">get_filename</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L114"></a><tt class="py-lineno">114</tt>  <tt class="py-line">        <tt id="link-29" class="py-name"><a title="dialog" class="py-name" href="#" onclick="return doclink('link-29', 'dialog', 'link-17');">dialog</a></tt><tt class="py-op">.</tt><tt class="py-name">hide</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L115"></a><tt class="py-lineno">115</tt>  <tt class="py-line">        <tt class="py-keyword">while</tt> <tt class="py-name">gtk</tt><tt class="py-op">.</tt><tt class="py-name">events_pending</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L116"></a><tt class="py-lineno">116</tt>  <tt class="py-line">            <tt class="py-name">gtk</tt><tt class="py-op">.</tt><tt class="py-name">main_iteration</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L117"></a><tt class="py-lineno">117</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">ret</tt> </tt>
+</div><a name="L118"></a><tt class="py-lineno">118</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://p2000.github.com/penview/">PenView</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Sat Jan 15 03:41:48 2011
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>
